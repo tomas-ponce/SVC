@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Mi Perfil Comercial (CdU04 / CdU06)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-primary-hover: #004085;
+            --svc-bg-page: #f8f9fa;
+            --svc-bg-surface: #ffffff;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-danger: #dc3545;
+            --svc-danger-hover: #bd2130;
+            --svc-success: #28a745;
+            --svc-border-radius: 0px; 
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important; /* REGLA INNEGOCIABLE SVC */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo-box {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-title-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .user-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-greeting {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .btn-svc-logout-nav {
+            background: transparent;
+            border: 1px solid var(--svc-danger);
+            color: var(--svc-danger);
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.15s ease;
+        }
+
+        .btn-svc-logout-nav:hover {
+            background-color: var(--svc-danger);
+            color: #ffffff;
+        }
+
+        /* Main Container */
+        .profile-container {
+            max-width: 820px;
+            margin: 30px auto 50px auto;
+            padding: 0 20px;
+        }
+
+        .profile-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-top: 4px solid var(--svc-primary);
+            padding: 35px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .profile-header-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f1f5f9;
+            margin-bottom: 25px;
+        }
+
+        .profile-title-block h1 {
+            margin: 0 0 5px 0;
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .profile-title-block p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--svc-text-muted);
+        }
+
+        .badge-cuit {
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            letter-spacing: 0.5px;
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 25px 0 15px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #f1f5f9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .input-svc {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--svc-border);
+            background-color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: var(--svc-text);
+            outline: none;
+        }
+
+        .input-svc:focus {
+            border-color: var(--svc-primary);
+        }
+
+        .input-svc:disabled {
+            background-color: #f8fafc;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* Searchable Input Dropdowns */
+        .searchable-select-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .searchable-input {
+            width: 100%;
+            padding: 10px 30px 10px 12px;
+            border: 1px solid var(--svc-border);
+            background-color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: var(--svc-text);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .searchable-input:focus {
+            border-color: var(--svc-primary);
+        }
+
+        .select-caret {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            font-size: 10px;
+            color: var(--svc-text-muted);
+        }
+
+        .dropdown-options-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            border-top: none;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .dropdown-item {
+            padding: 8px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .dropdown-item:hover {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            font-weight: 600;
+        }
+
+        /* Reach Buttons */
+        .reach-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .reach-btn {
+            border: 1px solid var(--svc-border);
+            background: #ffffff;
+            padding: 12px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            text-align: center;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.15s ease;
+        }
+
+        .reach-btn.selected {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border-color: var(--svc-primary);
+        }
+
+        .alert-box {
+            padding: 12px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+        .alert-success { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
+
+        .btn-svc-save {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border: none;
+            padding: 12px 30px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-svc-save:hover {
+            background-color: var(--svc-primary-hover);
+        }
+
+        /* Modal CdU06 (Cerrar Sesión) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            width: 100%;
+            max-width: 440px;
+            padding: 30px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 10px 0;
+        }
+
+        .modal-desc {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-modal-cancel {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            color: #334155;
+            padding: 10px 18px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-modal-confirm {
+            background: var(--svc-danger);
+            border: 1px solid var(--svc-danger);
+            color: #ffffff;
+            padding: 10px 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-modal-confirm:hover {
+            background: var(--svc-danger-hover);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <div class="top-navbar">
+        <div class="brand-logo-container">
+            <div class="brand-logo-box">SVC</div>
+            <div class="brand-title-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+        </div>
+        <div class="user-nav-actions">
+            <span id="navUserLabel" class="user-greeting">Cargando...</span>
+            <button class="btn-svc-logout-nav" onclick="abrirModalLogout()">Cerrar Sesión &times;</button>
+        </div>
+    </div>
+
+    <!-- Main Container (CdU04) -->
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-header-strip">
+                <div class="profile-title-block">
+                    <h1 id="titleRazonSocial">Configuración del Perfil</h1>
+                    <p>Mantenga actualizada la información de su comercio frente a la red B2B</p>
+                </div>
+                <div id="displayCuit" class="badge-cuit">CUIT: --</div>
+            </div>
+
+            <div id="msgBox" class="alert-box"></div>
+
+            <form id="perfilForm">
+                <div class="form-group">
+                    <label>Nombre o Razón Social *</label>
+                    <input type="text" id="nombre_razon_social" class="input-svc" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Correo Electrónico (No editable)</label>
+                        <input type="email" id="email" class="input-svc" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono de Contacto *</label>
+                        <input type="text" id="telefono" class="input-svc" required>
+                    </div>
+                </div>
+
+                <div class="section-subtitle">Taxonomía Comercial</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Rubro Comercial *</label>
+                        <div class="searchable-select-wrap">
+                            <input type="text" id="rubro_input" class="searchable-input" autocomplete="off" required>
+                            <span class="select-caret">&#9660;</span>
+                            <div id="rubro_list" class="dropdown-options-list"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Sub-rubro Comercial *</label>
+                        <div class="searchable-select-wrap">
+                            <input type="text" id="subrubro_input" class="searchable-input" autocomplete="off" required>
+                            <span class="select-caret">&#9660;</span>
+                            <div id="subrubro_list" class="dropdown-options-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-subtitle">Ubicación y Logística</div>
+                <div class="form-group">
+                    <label>Dirección Fiscal / Depósito *</label>
+                    <input type="text" id="direccion" class="input-svc" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Provincia *</label>
+                        <div class="searchable-select-wrap">
+                            <input type="text" id="provincia_input" class="searchable-input" autocomplete="off" required>
+                            <span class="select-caret">&#9660;</span>
+                            <div id="provincia_list" class="dropdown-options-list"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Ciudad / Localidad *</label>
+                        <input type="text" id="ciudad_localidad" class="input-svc" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Zona de Alcance Logístico *</label>
+                    <div class="reach-grid">
+                        <div id="btnReachRegional" class="reach-btn" onclick="selectReach('Regional')">Regional</div>
+                        <div id="btnReachNacional" class="reach-btn" onclick="selectReach('Nacional')">Nacional</div>
+                        <div id="btnReachInternacional" class="reach-btn" onclick="selectReach('Internacional')">Internacional</div>
+                    </div>
+                    <input type="hidden" id="zona_alcance_logistico" value="Regional">
+                </div>
+
+                <div style="margin-top: 30px; text-align: right;">
+                    <button type="submit" class="btn-svc-save">Guardar Cambios &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Diálogo de Confirmación para Cerrar Sesión (CdU06) -->
+    <div id="modalLogout" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="modal-title">¿Finalizar sesión actual?</h3>
+            <p class="modal-desc">Se cerrará su sesión de trabajo de forma segura y será redirigido a la pantalla de acceso.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="cerrarModalLogout()">Cancelar</button>
+                <button type="button" class="btn-modal-confirm" onclick="ejecutarLogout()">Cerrar Sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8080/auth";
+        const token = localStorage.getItem("svc_token");
+
+        // ── 1. Taxonomía de 50 Rubros Oficiales ──
+        const TAXONOMIA_SVC = {
+            "Alimentos & Bebidas": ["Almacenes", "Supermercados", "Minimercados", "Distribuidoras de alimentos", "Mayoristas de alimentos", "Bebidas", "Carnicerías", "Panaderías", "Lácteos", "Fiambres & Embutidos", "Dietéticas", "Café & Té"],
+            "Gastronomía": ["Restaurantes", "Bares", "Cafeterías", "Cervecerías", "Pizzerías", "Rotiserías", "Catering", "Equipamiento gastronómico"],
+            "Textil & Indumentaria": ["Ropa femenina", "Ropa masculina", "Ropa infantil", "Ropa de trabajo", "Uniformes", "Telas", "Hilados", "Confección textil"],
+            "Calzado & Marroquinería": ["Calzado", "Zapatillas", "Calzado de seguridad", "Carteras", "Bolsos", "Artículos de cuero"],
+            "Tecnología & Electrónica": ["Electrónica", "Computación", "Hardware", "Componentes de PC", "Notebooks", "Telefonía celular", "Audio", "Domótica"],
+            "Informática & Software": ["Desarrollo de software", "Desarrollo web", "Sistemas empresariales", "Software de gestión", "Servicios IT", "Ciberseguridad"],
+            "Telecomunicaciones": ["Internet", "Telefonía", "Fibra óptica", "Redes", "Infraestructura"],
+            "Electrodomésticos": ["Línea blanca", "Pequeños electrodomésticos", "Climatización", "Heladeras", "Lavarropas"],
+            "Construcción & Materiales": ["Materiales de construcción", "Corralones", "Cemento", "Hormigón", "Ladrillos", "Pisos", "Pinturas"],
+            "Ferretería & Herramientas": ["Ferreterías", "Herramientas manuales", "Herramientas eléctricas", "Bulonería", "Soldadura", "Compresores"],
+            "Limpieza & Mantenimiento": ["Productos de limpieza", "Insumos de higiene", "Limpieza empresarial", "Limpieza industrial", "Servicios generales"],
+            "Servicios Profesionales": ["Consultoría", "Administración", "Recursos humanos", "Auditoría", "Traducción", "Servicios administrativos"],
+            "Otros": ["Otros comercios", "Otros servicios", "Otros fabricantes"]
+        };
+
+        const PROVINCIAS_ARGENTINA = [
+            "Buenos Aires", "CABA", "Catamarca", "Chaco", "Chubut", "Córdoba",
+            "Corrientes", "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja",
+            "Mendoza", "Misiones", "Neuquén", "Río Negro", "Salta", "San Juan",
+            "San Luis", "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán"
+        ];
+
+        // ── 2. Verificación de Sesión Inicial ──
+        window.addEventListener("DOMContentLoaded", async () => {
+            if (!token) {
+                alert("Debe iniciar sesión para acceder a esta sección.");
+                window.location.href = "login.html";
+                return;
+            }
+            await cargarDatosPerfil();
+        });
+
+        async function cargarDatosPerfil() {
+            try {
+                const response = await fetch(`${API_URL}/me`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Sesión inválida");
+                }
+
+                const user = await response.json();
+                document.getElementById("navUserLabel").innerText = user.nombre_razon_social;
+                document.getElementById("titleRazonSocial").innerText = user.nombre_razon_social;
+                document.getElementById("displayCuit").innerText = `CUIT: ${user.cuit_cuil}`;
+
+                document.getElementById("nombre_razon_social").value = user.nombre_razon_social;
+                document.getElementById("email").value = user.email;
+                document.getElementById("telefono").value = user.telefono;
+                document.getElementById("direccion").value = user.direccion;
+                document.getElementById("ciudad_localidad").value = user.ciudad_localidad;
+
+                document.getElementById("rubro_input").value = user.rubro_comercial;
+                document.getElementById("subrubro_input").value = user.subrubro_comercial;
+                document.getElementById("provincia_input").value = user.provincia;
+                selectReach(user.zona_alcance_logistico || "Regional");
+
+                setupDropdowns();
+            } catch (err) {
+                localStorage.removeItem("svc_token");
+                localStorage.removeItem("svc_usuario");
+                window.location.href = "login.html";
+            }
+        }
+
+        // ── 3. Componentes Searchable ──
+        function setupSearchable(inputId, listId, dataProvider, onSelect) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+
+            function renderOptions(filterText = "") {
+                const items = typeof dataProvider === "function" ? dataProvider() : dataProvider;
+                list.innerHTML = "";
+                const filtered = items.filter(item => item.toLowerCase().includes(filterText.toLowerCase()));
+
+                if (filtered.length === 0) {
+                    list.innerHTML = '<div class="dropdown-item" style="color: #94a3b8; cursor: default;">Sin coincidencias</div>';
+                } else {
+                    filtered.forEach(item => {
+                        const div = document.createElement("div");
+                        div.className = "dropdown-item";
+                        div.innerText = item;
+                        div.onmousedown = (e) => {
+                            e.preventDefault();
+                            input.value = item;
+                            list.style.display = "none";
+                            if (onSelect) onSelect(item);
+                        };
+                        list.appendChild(div);
+                    });
+                }
+            }
+
+            input.addEventListener("focus", () => { renderOptions(input.value); list.style.display = "block"; });
+            input.addEventListener("input", () => { renderOptions(input.value); list.style.display = "block"; });
+            input.addEventListener("blur", () => { setTimeout(() => { list.style.display = "none"; }, 180); });
+        }
+
+        function setupDropdowns() {
+            setupSearchable("rubro_input", "rubro_list", Object.keys(TAXONOMIA_SVC), (rubroSel) => {
+                const subrubroInput = document.getElementById("subrubro_input");
+                subrubroInput.value = "";
+                setupSearchable("subrubro_input", "subrubro_list", () => TAXONOMIA_SVC[rubroSel] || []);
+                subrubroInput.focus();
+            });
+
+            const rubroActual = document.getElementById("rubro_input").value;
+            setupSearchable("subrubro_input", "subrubro_list", () => TAXONOMIA_SVC[rubroActual] || ["General"]);
+            setupSearchable("provincia_input", "provincia_list", PROVINCIAS_ARGENTINA);
+        }
+
+        function selectReach(val) {
+            document.querySelectorAll(".reach-btn").forEach(btn => btn.classList.remove("selected"));
+            document.getElementById("zona_alcance_logistico").value = val;
+            if (val === "Regional") document.getElementById("btnReachRegional").classList.add("selected");
+            if (val === "Nacional") document.getElementById("btnReachNacional").classList.add("selected");
+            if (val === "Internacional") document.getElementById("btnReachInternacional").classList.add("selected");
+        }
+
+        // ── 4. Guardar Perfil (CdU04) ──
+        document.getElementById("perfilForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const msgBox = document.getElementById("msgBox");
+            msgBox.style.display = "none";
+
+            const payload = {
+                nombre_razon_social: document.getElementById("nombre_razon_social").value.trim(),
+                telefono: document.getElementById("telefono").value.trim(),
+                rubro_comercial: document.getElementById("rubro_input").value.trim(),
+                subrubro_comercial: document.getElementById("subrubro_input").value.trim(),
+                direccion: document.getElementById("direccion").value.trim(),
+                provincia: document.getElementById("provincia_input").value.trim(),
+                ciudad_localidad: document.getElementById("ciudad_localidad").value.trim(),
+                zona_alcance_logistico: document.getElementById("zona_alcance_logistico").value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/perfil`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    msgBox.className = "alert-box alert-success";
+                    msgBox.innerText = "¡Perfil comercial actualizado exitosamente en SVC!";
+                    msgBox.style.display = "block";
+                    document.getElementById("navUserLabel").innerText = data.nombre_razon_social;
+                    document.getElementById("titleRazonSocial").innerText = data.nombre_razon_social;
+                } else {
+                    msgBox.className = "alert-box alert-danger";
+                    msgBox.innerText = data.detail || "Error al actualizar los datos.";
+                    msgBox.style.display = "block";
+                }
+            } catch (err) {
+                msgBox.className = "alert-box alert-danger";
+                msgBox.innerText = "No se pudo conectar con el servidor backend FastAPI.";
+                msgBox.style.display = "block";
+            }
+        });
+
+        // ── 5. Lógica de Cerrar Sesión (CdU06) ──
+        function abrirModalLogout() {
+            document.getElementById("modalLogout").style.display = "flex";
+        }
+
+        function cerrarModalLogout() {
+            document.getElementById("modalLogout").style.display = "none";
+        }
+
+        async function ejecutarLogout() {
+            try {
+                await fetch(`${API_URL}/logout`, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+            } catch (e) {
+                // Invalida de todos modos en el cliente ante contingencia
+            } finally {
+                localStorage.removeItem("svc_token");
+                localStorage.removeItem("svc_usuario");
+                window.location.href = "login.html";
+            }
+        }
+    </script>
+</body>
+</html>

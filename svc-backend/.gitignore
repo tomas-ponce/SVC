@@ -1,0 +1,21 @@
+# Entorno Virtual de Python
+.venv/
+venv/
+ENV/
+
+# Variables de entorno y secretos (INNEGOCIABLE)
+.env
+.env.local
+.env.*.local
+
+# Archivos de caché compilados de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Archivos del sistema y logs
+*.log
+.DS_Store
+Thungs.db

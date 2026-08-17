@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Paleta Corporativa Oficial SVC */
+  --svc-primary: #0056b3;        /* Azul real profesional */
+  --svc-primary-hover: #004085;  /* Estado hover para elementos interactivos */
+  --svc-bg-page: #ffffff;        /* Fondo general blanco */
+  --svc-bg-surface: #f8f9fa;     /* Superficies de tarjetas y paneles */
+  --svc-text: #212529;           /* Texto carbono oscuro */
+  --svc-success: #28a745;        /* Éxito */
+  --svc-warning: #ffc107;        /* Advertencias / Alertas */
+  --svc-danger: #dc3545;         /* Peligro / Errores */
+  
+  /* REGLA VISUAL INNEGOCIABLE: Esquinas rectangulares de 90 grados */
+  --svc-border-radius: 0px; 
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--svc-bg-page);
+  color: var(--svc-text);
+  margin: 0;
+  padding: 0;
+}
+
+/* Reglas CSS para componentes base */
+.btn-svc {
+  background-color: var(--svc-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--svc-border-radius) !important;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-svc:hover {
+  background-color: var(--svc-primary-hover);
+}
+
+.input-svc, .card-svc, .modal-svc {
+  border-radius: var(--svc-border-radius) !important;
+  border: 1px solid #ced4da;
+  background-color: var(--svc-bg-surface);
+}

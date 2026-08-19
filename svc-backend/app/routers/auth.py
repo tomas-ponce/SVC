@@ -27,6 +27,36 @@ from app.db.supabase_client import supabase
 router = APIRouter(prefix="/auth", tags=["Gestión de Identidad y Acceso (Sprint 1)"])
 
 # ==============================================================================
+# 0. MÉTRICAS PÚBLICAS DINÁMICAS PARA LANDING / LOGIN
+# ==============================================================================
+@router.get(
+    "/metricas-publicas",
+    summary="Obtener métricas cuantitativas públicas para la pantalla de inicio"
+)
+def obtener_metricas_publicas():
+    """
+    Retorna la cantidad real de comerciantes registrados activos en la plataforma.
+    Prepara la estructura para las métricas de productos y satisfacción en sprints futuros.
+    """
+    try:
+        res = (
+            supabase.table("comerciantes")
+            .select("id", count="exact")
+            .eq("estado", "activo")
+            .execute()
+        )
+        total_comerciantes = res.count if res.count is not None else len(res.data)
+    except Exception:
+        total_comerciantes = 0
+
+    return {
+        "comerciantes_activos": total_comerciantes,
+        "productos_disponibles": None,  # Se habilitará dinámicamente en Sprint 3 (WPT-03)
+        "satisfaccion_promedio": None   # Se habilitará dinámicamente en Sprint 6 (WPT-07)
+    }
+
+
+# ==============================================================================
 # 1. CdU01 - REGISTRAR NUEVO COMERCIANTE
 # ==============================================================================
 @router.post(
@@ -36,10 +66,6 @@ router = APIRouter(prefix="/auth", tags=["Gestión de Identidad y Acceso (Sprint
     summary="Registrar un nuevo perfil comercial en SVC (CdU01)"
 )
 def registrar_comerciante(datos: ComercianteRegistroCreate):
-    """
-    Registra una nueva cuenta comercial B2B en la plataforma.
-    Valida la no duplicidad de correo y CUIT contra cuentas activas o inhabilitadas.
-    """
     email_check = (
         supabase.table("comerciantes")
         .select("id")
@@ -112,11 +138,7 @@ def registrar_comerciante(datos: ComercianteRegistroCreate):
     summary="Iniciar sesión en la plataforma (CdU02)"
 )
 def iniciar_sesion(datos: LoginRequest):
-    """
-    Autentica credenciales contra Administradores y Comerciantes.
-    Genera un Bearer Token JWT firmado con claims de rol correspondientes.
-    """
-    # 1. Comprobar si el correo pertenece a un Administrador
+    # 1. Comprobar si pertenece a un Administrador
     admin_res = supabase.table("administradores").select("*").eq("email", datos.email).execute()
     if admin_res.data:
         admin = admin_res.data[0]
@@ -152,7 +174,7 @@ def iniciar_sesion(datos: LoginRequest):
             }
         }
 
-    # 2. Comprobar si el correo pertenece a un Comerciante
+    # 2. Comprobar si pertenece a un Comerciante
     com_res = (
         supabase.table("comerciantes")
         .select("*")
@@ -279,33 +301,53 @@ def cerrar_sesion(user_id: str = Depends(get_current_user_id)):
 
 
 # ==============================================================================
-# 5. CdU03 - RECUPERAR CONTRASEÑA POR CORREO SMTP
+# 5. CdU03 - RECUPERAR CONTRASEÑA POR CORREO SMTP (COMERCIANTE Y ADMIN)
 # ==============================================================================
 @router.post(
     "/solicitar-recuperacion",
-    summary="Generar y despachar enlace de recuperación (CdU03)"
+    summary="Generar y despachar enlace de recuperación para comerciantes o admins (CdU03)"
 )
 def solicitar_recuperacion_password(datos: RecuperarPasswordRequest):
+    tipo_usuario = None
+    email_destinatario = datos.email.strip().lower()
+
+    # 1. Buscar en Comerciantes activos
     user_res = (
         supabase.table("comerciantes")
         .select("id, email, estado")
-        .eq("email", datos.email)
+        .eq("email", email_destinatario)
         .eq("estado", "activo")
         .execute()
     )
     
-    if not user_res.data:
+    if user_res.data:
+        tipo_usuario = "comerciante"
+    else:
+        # 2. Si no es comerciante, buscar en Administradores activos
+        admin_res = (
+            supabase.table("administradores")
+            .select("id, email, estado")
+            .eq("email", email_destinatario)
+            .eq("estado", "activo")
+            .execute()
+        )
+        if admin_res.data:
+            tipo_usuario = "administrador"
+
+    if not tipo_usuario:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail="El correo ingresado no pertenece a ninguna cuenta comercial activa de SVC."
+            detail="El correo ingresado no pertenece a ninguna cuenta activa de SVC."
         )
 
+    # 3. Generar token criptográfico único con expiración de 30 minutos (ERS Secc. 4.4 CdU03)
     token_str = secrets.token_urlsafe(32)
     expiracion = datetime.now(timezone.utc) + timedelta(minutes=30)
 
     registro_token = {
-        "email": datos.email,
+        "email": email_destinatario,
         "token": token_str,
+        "tipo_usuario": tipo_usuario,
         "expiracion": expiracion.isoformat(),
         "usado": False
     }
@@ -314,11 +356,12 @@ def solicitar_recuperacion_password(datos: RecuperarPasswordRequest):
     if not insert_res.data:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error al registrar la solicitud de recuperación."
+            detail="Error al registrar la solicitud de recuperación en la base de datos."
         )
 
+    # 4. Despachar correo electrónico por servidor SMTP seguro
     try:
-        enviar_correo_recuperacion(datos.email, token_str)
+        enviar_correo_recuperacion(email_destinatario, token_str)
     except Exception as e:
         supabase.table("tokens_recuperacion").delete().eq("token", token_str).execute()
         raise HTTPException(
@@ -334,9 +377,10 @@ def solicitar_recuperacion_password(datos: RecuperarPasswordRequest):
 
 @router.post(
     "/restablecer-password",
-    summary="Restablecer la contraseña con el token temporal (CdU03)"
+    summary="Restablecer la contraseña consumiendo el token temporal (CdU03)"
 )
 def restablecer_password(datos: RestablecerPasswordRequest):
+    # 1. Validar token existente y no usado
     token_query = (
         supabase.table("tokens_recuperacion")
         .select("*")
@@ -354,24 +398,41 @@ def restablecer_password(datos: RestablecerPasswordRequest):
     token_record = token_query.data[0]
     expiracion_dt = datetime.fromisoformat(token_record["expiracion"].replace("Z", "+00:00"))
 
+    # 2. Validar ventana de 30 minutos
     if datetime.now(timezone.utc) > expiracion_dt:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail="El enlace de recuperación ha expirado (límite: 30 minutos). Solicite uno nuevo."
         )
 
+    # 3. Cifrar la nueva clave con bcrypt
     nuevo_hash = get_password_hash(datos.nueva_password)
+    tipo_usuario = token_record.get("tipo_usuario", "comerciante")
+    email_usuario = token_record["email"]
 
-    update_res = (
-        supabase.table("comerciantes")
-        .update({
-            "password_hash": nuevo_hash, 
-            "actualizado_el": "now()"
-        })
-        .eq("email", token_record["email"])
-        .eq("estado", "activo")
-        .execute()
-    )
+    # 4. Actualizar en la tabla correspondiente según el rol
+    if tipo_usuario == "administrador":
+        update_res = (
+            supabase.table("administradores")
+            .update({
+                "password_hash": nuevo_hash, 
+                "actualizado_el": "now()"
+            })
+            .eq("email", email_usuario)
+            .eq("estado", "activo")
+            .execute()
+        )
+    else:
+        update_res = (
+            supabase.table("comerciantes")
+            .update({
+                "password_hash": nuevo_hash, 
+                "actualizado_el": "now()"
+            })
+            .eq("email", email_usuario)
+            .eq("estado", "activo")
+            .execute()
+        )
 
     if not update_res.data:
         raise HTTPException(
@@ -379,6 +440,7 @@ def restablecer_password(datos: RestablecerPasswordRequest):
             detail="Error al actualizar la contraseña en la base de datos."
         )
 
+    # 5. Invalidar el token para evitar ataques de repetición
     supabase.table("tokens_recuperacion").update({"usado": True}).eq("id", token_record["id"]).execute()
 
     return {
@@ -388,7 +450,7 @@ def restablecer_password(datos: RestablecerPasswordRequest):
 
 
 # ==============================================================================
-# 6. CdU09 - BAJA DE CUENTA CON CONFIRMACIÓN 2FA POR EMAIL
+# 6. CdU09 - BAJA DE CUENTA CON CONFIRMACIÓN 2FA POR CORREO
 # ==============================================================================
 @router.post(
     "/solicitar-baja-cuenta",

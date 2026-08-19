@@ -5,7 +5,7 @@ from datetime import datetime
 # Esquemas de Registro de Comerciante (CdU01)
 class ComercianteRegistroCreate(BaseModel):
     nombre_razon_social: str = Field(..., min_length=3)
-    cuit_cuil: str = Field(..., min_length=10, max_length=13)
+    cuit_cuil: str = Field(..., min_length=11, max_length=13, description="Formato XX-XXXXXXXX-X o 11 dígitos")
     rubro_comercial: str
     subrubro_comercial: str
     direccion: str
@@ -85,7 +85,7 @@ class AdminRegistroResponse(BaseModel):
     creado_el: datetime
 
 class InhabilitarCuentaRequest(BaseModel):
-    motivo_justificacion: str = Field(..., min_length=5, description="Motivo obligatorio de la sanción")
+    motivo_justificacion: str = Field(..., min_length=5)
 
 class PaginacionUsuariosResponse(BaseModel):
     total: int

@@ -10,14 +10,15 @@
         :root {
             --svc-primary: #0056b3;
             --svc-primary-hover: #004085;
-            --svc-bg-page: #f8f9fa;
-            --svc-bg-surface: #ffffff;
+            --svc-bg-page: #ffffff;
+            --svc-bg-surface: #f8f9fa;
             --svc-text: #212529;
             --svc-text-muted: #6c757d;
             --svc-border: #ced4da;
+            --svc-border-focus: #0056b3;
             --svc-danger: #dc3545;
             --svc-success: #28a745;
-            --svc-border-radius: 0px; 
+            --svc-border-radius: 0px;
         }
 
         * {
@@ -31,13 +32,16 @@
             color: var(--svc-text);
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        /* Navbar Superior */
+        /* Top Navbar */
         .top-navbar {
             background-color: #ffffff;
             border-bottom: 1px solid #e9ecef;
-            padding: 12px 40px;
+            padding: 14px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -46,15 +50,15 @@
         .brand-logo-container {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .brand-logo-box {
             background-color: var(--svc-primary);
             color: #ffffff;
             font-weight: 700;
-            font-size: 14px;
-            padding: 6px 10px;
+            font-size: 15px;
+            padding: 6px 12px;
             letter-spacing: 0.5px;
         }
 
@@ -75,66 +79,89 @@
             color: var(--svc-primary);
             font-weight: 600;
             text-decoration: none;
-            margin-left: 5px;
+            border: 1px solid var(--svc-border);
+            padding: 6px 14px;
+            margin-left: 8px;
+            transition: all 0.15s ease;
         }
 
-        /* Stepper de Encabezado */
-        .header-stepper-container {
-            text-align: center;
-            padding: 30px 20px 10px 20px;
+        .top-nav-link a:hover {
+            background-color: var(--svc-bg-surface);
+            border-color: var(--svc-primary);
         }
 
-        .stepper-brand-icon {
+        /* Main Wrapper */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 35px 20px 60px 20px;
+        }
+
+        .brand-central-badge {
             background-color: var(--svc-primary);
             color: #ffffff;
-            display: inline-block;
-            padding: 8px 14px;
             font-weight: 700;
-            font-size: 14px;
-            margin-bottom: 8px;
+            font-size: 16px;
+            padding: 8px 16px;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
         }
 
-        .stepper-subtitle {
+        .main-title-wrap {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .main-title-wrap .sub-header {
             font-size: 11px;
             color: var(--svc-text-muted);
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 6px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
         }
 
-        .stepper-title {
+        .main-title-wrap h1 {
             font-size: 26px;
             font-weight: 700;
-            margin: 0 0 20px 0;
-            color: #111827;
+            color: #0f172a;
+            margin: 0;
         }
 
-        .stepper-progress {
+        /* Stepper Visual */
+        .stepper-container {
             display: flex;
-            justify-content: center;
             align-items: center;
             gap: 15px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
-        .step-circle {
-            width: 28px;
-            height: 28px;
+        .step-bubble {
+            width: 32px;
+            height: 32px;
             border: 1px solid var(--svc-border);
-            background: #ffffff;
+            background-color: #ffffff;
+            color: var(--svc-text-muted);
+            font-weight: 700;
+            font-size: 13px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--svc-text-muted);
         }
 
-        .step-circle.active {
+        .step-bubble.active {
             background-color: var(--svc-primary);
             color: #ffffff;
             border-color: var(--svc-primary);
-            font-weight: 700;
+        }
+
+        .step-bubble.completed {
+            background-color: var(--svc-success);
+            color: #ffffff;
+            border-color: var(--svc-success);
         }
 
         .step-line {
@@ -143,95 +170,43 @@
             background-color: var(--svc-border);
         }
 
-        .step-label {
+        .step-caption {
             font-size: 11px;
             font-weight: 700;
             color: var(--svc-primary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-        }
-
-        /* Tarjeta de Formulario */
-        .form-card-container {
-            max-width: 780px;
-            margin: 10px auto 40px auto;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-top: 4px solid var(--svc-primary);
-            padding: 35px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .account-type-banner {
-            background-color: #f0f4f8;
-            border: 1px solid #d0e1fd;
-            padding: 15px;
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
             margin-bottom: 25px;
         }
 
-        .account-type-icon {
-            background-color: var(--svc-primary);
-            color: #ffffff;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-
-        .account-type-text strong {
-            display: block;
-            font-size: 12px;
-            color: #0f172a;
-            margin-bottom: 3px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .account-type-text span {
-            font-size: 12px;
-            color: #475569;
-            line-height: 1.4;
-        }
-
-        .summary-box {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            margin-bottom: 20px;
+        /* Form Container */
+        .form-card {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-top: 4px solid var(--svc-primary);
+            padding: 35px 40px;
+            width: 100%;
+            max-width: 760px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .section-header {
-            margin-bottom: 18px;
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 8px;
-        }
-
-        .section-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            color: #1e293b;
-            margin: 0 0 3px 0;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 20px 0 12px 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #f1f5f9;
         }
 
-        .section-sub {
-            font-size: 11px;
-            color: var(--svc-text-muted);
-            margin: 0;
+        .section-header:first-of-type {
+            margin-top: 0;
         }
 
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
         .form-group label {
@@ -262,13 +237,20 @@
             font-size: 13px;
             color: var(--svc-text);
             outline: none;
+            transition: border-color 0.15s ease;
         }
 
         .input-svc:focus {
-            border-color: var(--svc-primary);
+            border-color: var(--svc-border-focus);
         }
 
-        /* Searchable Input Dropdowns */
+        .field-hint {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            margin-top: 4px;
+        }
+
+        /* Searchable Select */
         .searchable-select-wrap {
             position: relative;
             width: 100%;
@@ -287,13 +269,7 @@
         }
 
         .searchable-input:focus {
-            border-color: var(--svc-primary);
-        }
-
-        .searchable-input:disabled {
-            background-color: #f1f5f9;
-            cursor: not-allowed;
-            color: #94a3b8;
+            border-color: var(--svc-border-focus);
         }
 
         .select-caret {
@@ -311,7 +287,7 @@
             top: 100%;
             left: 0;
             right: 0;
-            max-height: 220px;
+            max-height: 200px;
             overflow-y: auto;
             background: #ffffff;
             border: 1px solid var(--svc-border);
@@ -322,7 +298,7 @@
         }
 
         .dropdown-item {
-            padding: 8px 12px;
+            padding: 9px 12px;
             font-size: 13px;
             cursor: pointer;
             border-bottom: 1px solid #f8f9fa;
@@ -334,13 +310,7 @@
             font-weight: 600;
         }
 
-        .field-caption {
-            font-size: 11px;
-            color: var(--svc-text-muted);
-            margin-top: 4px;
-        }
-
-        /* Selector de Alcance Logístico */
+        /* Reach Grid Buttons */
         .reach-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -350,7 +320,7 @@
         .reach-btn {
             border: 1px solid var(--svc-border);
             background: #ffffff;
-            padding: 12px 10px;
+            padding: 11px 10px;
             font-size: 12px;
             font-weight: 700;
             color: #475569;
@@ -367,327 +337,441 @@
             border-color: var(--svc-primary);
         }
 
-        /* Indicador de Contraseña */
-        .pwd-req-grid {
+        /* Summary Box for Step 2 */
+        .summary-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 14px 18px;
+            margin-bottom: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-info {
+            font-size: 12px;
+            line-height: 1.5;
+            color: #334155;
+        }
+
+        .summary-info strong {
+            color: #0f172a;
+            font-size: 13px;
+        }
+
+        .btn-edit-summary {
+            background: transparent;
+            border: none;
+            color: var(--svc-primary);
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-edit-summary:hover {
+            text-decoration: underline;
+        }
+
+        /* Password Checklist */
+        .password-rules-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 12px 16px;
+            margin-bottom: 20px;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
-            background: #f8fafc;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
             font-size: 11px;
-            color: #64748b;
-            margin-top: 10px;
+            color: var(--svc-text-muted);
         }
 
-        .pwd-req-item {
+        .rule-item {
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .pwd-req-item.valid {
+        .rule-item.valid {
             color: var(--svc-success);
             font-weight: 600;
         }
 
-        .card-footer-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #f1f5f9;
+        .rule-item.valid::before {
+            content: '✓';
+            font-weight: bold;
         }
 
-        .btn-svc-next {
-            background-color: var(--svc-primary);
+        .rule-item.invalid::before {
+            content: '•';
+        }
+
+        /* Legal Checkboxes */
+        .checkbox-group {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 12px;
+            color: #475569;
+            line-height: 1.4;
+        }
+
+        .checkbox-group input {
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .checkbox-group a {
+            color: var(--svc-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Button Actions */
+        .btn-actions-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn-svc-secondary {
+            background: #64748b;
             color: #ffffff;
             border: none;
-            padding: 12px 28px;
-            font-weight: 700;
+            padding: 12px 24px;
             font-size: 12px;
+            font-weight: 700;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .btn-svc-next:hover {
+        .btn-svc-secondary:hover {
+            background: #475569;
+        }
+
+        .btn-svc-primary {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-svc-primary:hover {
             background-color: var(--svc-primary-hover);
         }
 
+        .btn-svc-primary:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+
         .alert-box {
-            padding: 12px;
+            padding: 12px 14px;
             margin-bottom: 20px;
             display: none;
             font-size: 13px;
+            line-height: 1.4;
         }
-        .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+        .alert-success { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
 
+        /* Success Step View (Paso 3) */
+        .success-card {
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .success-icon-badge {
+            width: 50px;
+            height: 50px;
+            background-color: var(--svc-success);
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+        }
+
+        .success-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 10px 0;
+        }
+
+        .success-desc {
+            font-size: 13px;
+            color: var(--svc-text-muted);
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .success-details-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .success-details-box .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .success-details-box .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Footer */
         .page-footer {
             text-align: center;
             font-size: 12px;
             color: var(--svc-text-muted);
-            padding: 20px 0 40px 0;
-        }
-
-        .page-footer a {
-            color: var(--svc-text-muted);
-            text-decoration: none;
-            margin: 0 8px;
+            padding: 20px 0;
+            border-top: 1px solid #e9ecef;
+            background: #ffffff;
         }
     </style>
 </head>
 <body>
 
-    <!-- Navbar Superior -->
+    <!-- Top Navbar -->
     <div class="top-navbar">
         <div class="brand-logo-container">
             <div class="brand-logo-box">SVC</div>
             <div class="brand-title-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
         </div>
         <div class="top-nav-link">
-            ¿Ya tiene cuenta? <a href="login.html">Iniciar Sesión &rarr;</a>
+            ¿Ya posee cuenta comercial? <a href="login.html">Iniciar Sesión</a>
         </div>
     </div>
 
-    <!-- Stepper de Progreso -->
-    <div class="header-stepper-container">
-        <div class="stepper-brand-icon">SVC</div>
-        <div class="stepper-subtitle">Sistema de Vinculación para el Comercio</div>
-        <h1 class="stepper-title">Crear cuenta profesional</h1>
+    <!-- Main Content Container -->
+    <div class="main-wrapper">
+        <div class="brand-central-badge">SVC</div>
 
-        <div class="stepper-progress">
-            <div id="circleStep1" class="step-circle active">1</div>
+        <div class="main-title-wrap">
+            <div class="sub-header">Sistema de Vinculación para el Comercio</div>
+            <h1>Crear cuenta profesional</h1>
+        </div>
+
+        <div class="stepper-container" id="stepperVisual">
+            <div class="step-bubble active" id="stepBubble1">1</div>
             <div class="step-line"></div>
-            <div id="circleStep2" class="step-circle">2</div>
+            <div class="step-bubble" id="stepBubble2">2</div>
         </div>
-        <div id="stepLabel" class="step-label">Paso 1 de 2 — Datos de la Empresa</div>
-    </div>
 
-    <!-- Card Principal -->
-    <div class="form-card-container">
-        <div id="msgBox" class="alert-box alert-danger"></div>
+        <div class="step-caption" id="stepCaption">PASO 1 DE 2 — INFORMACIÓN COMERCIAL Y LOGÍSTICA</div>
 
-        <form id="registroForm">
-            <!-- PASO 1: DATOS DE LA EMPRESA -->
-            <div id="paso1">
-                <div class="account-type-banner">
-                    <div class="account-type-icon">&amp;</div>
-                    <div class="account-type-text">
-                        <strong>TIPO DE CUENTA: Comerciante / Proveedor</strong>
-                        <span>En SVC un mismo usuario puede operar como comerciante o proveedor según el rol que adopte en cada operación.</span>
-                    </div>
-                </div>
+        <div class="form-card">
+            
+            <div id="msgBox" class="alert-box alert-danger"></div>
 
-                <div class="section-header">
-                    <h3 class="section-title">Información de la Empresa</h3>
-                    <p class="section-sub">Datos legales y comerciales de su organización</p>
-                </div>
+            <form id="registroForm">
+                
+                <!-- ============================================================== -->
+                <!-- PASO 1: DATOS DE LA EMPRESA Y LOGÍSTICA (Anexo UI, Pág. 4)       -->
+                <!-- ============================================================== -->
+                <div id="paso1Container">
+                    
+                    <div class="section-header">Identificación Fiscal y Comercial</div>
 
-                <div class="form-group">
-                    <label>Nombre del Comercio / Razón Social *</label>
-                    <input type="text" id="nombre_razon_social" class="input-svc" placeholder="Ej. Distribuidora del Norte S.A." required>
-                </div>
-
-                <div class="form-group">
-                    <label>CUIT / CUIL *</label>
-                    <input type="text" id="cuit_cuil" class="input-svc" placeholder="20-12345678-9" maxlength="13" required oninput="formatCuit(this)">
-                    <div class="field-caption">Formato: XX-XXXXXXXX-X</div>
-                </div>
-
-                <div class="form-row">
                     <div class="form-group">
-                        <label>Rubro Comercial *</label>
-                        <div class="searchable-select-wrap">
-                            <input type="text" id="rubro_input" class="searchable-input" placeholder="Escriba o elija rubro..." autocomplete="off" required>
-                            <span class="select-caret">&#9660;</span>
-                            <div id="rubro_list" class="dropdown-options-list"></div>
+                        <label>Nombre o Razón Social *</label>
+                        <input type="text" id="nombre_razon_social" class="input-svc" placeholder="Ej: Distribuidora Central S.A." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>CUIT / CUIL *</label>
+                        <input type="text" id="cuit_cuil" class="input-svc" placeholder="20-12202377-0" maxlength="13" required oninput="formatearCuitDinamico(this)">
+                        <div class="field-hint">Formato reglamentario: XX-XXXXXXXX-X (11 dígitos numéricos)</div>
+                    </div>
+
+                    <div class="section-header">Taxonomía Comercial</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rubro Comercial *</label>
+                            <div class="searchable-select-wrap">
+                                <input type="text" id="rubro_input" class="searchable-input" placeholder="Seleccione un rubro..." autocomplete="off" required>
+                                <span class="select-caret">&#9660;</span>
+                                <div id="rubro_list" class="dropdown-options-list"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Sub-rubro Comercial *</label>
+                            <div class="searchable-select-wrap">
+                                <input type="text" id="subrubro_input" class="searchable-input" placeholder="Seleccione sub-rubro..." autocomplete="off" required>
+                                <span class="select-caret">&#9660;</span>
+                                <div id="subrubro_list" class="dropdown-options-list"></div>
+                            </div>
                         </div>
                     </div>
+
+                    <div class="section-header">Ubicación y Alcance Logístico</div>
+
                     <div class="form-group">
-                        <label>Sub-rubro Comercial *</label>
-                        <div class="searchable-select-wrap">
-                            <input type="text" id="subrubro_input" class="searchable-input" placeholder="Primero elija un rubro..." autocomplete="off" disabled required>
-                            <span class="select-caret">&#9660;</span>
-                            <div id="subrubro_list" class="dropdown-options-list"></div>
+                        <label>Dirección Fiscal o Depósito *</label>
+                        <input type="text" id="direccion" class="input-svc" placeholder="Calle, número, piso, depósito..." required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>País</label>
+                            <input type="text" id="pais" class="input-svc" value="Argentina" disabled style="background-color: #f8fafc; color: #64748b;">
+                        </div>
+                        <div class="form-group">
+                            <label>Provincia *</label>
+                            <div class="searchable-select-wrap">
+                                <input type="text" id="provincia_input" class="searchable-input" placeholder="Seleccione provincia..." autocomplete="off" required>
+                                <span class="select-caret">&#9660;</span>
+                                <div id="provincia_list" class="dropdown-options-list"></div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="section-header" style="margin-top: 25px;">
-                    <h3 class="section-title">Ubicación y Alcance</h3>
-                    <p class="section-sub">Domicilio fiscal y zona de operaciones comerciales</p>
-                </div>
-
-                <div class="form-group">
-                    <label>Dirección *</label>
-                    <input type="text" id="direccion" class="input-svc" placeholder="Ej. Av. Corrientes 1234, Piso 5, Of. B" required>
-                </div>
-
-                <div class="form-row">
                     <div class="form-group">
-                        <label>País *</label>
-                        <div class="searchable-select-wrap">
-                            <input type="text" id="pais_input" class="searchable-input" value="Argentina" readonly required>
-                            <span class="select-caret">&#9660;</span>
+                        <label>Ciudad / Localidad *</label>
+                        <input type="text" id="ciudad_localidad" class="input-svc" placeholder="Ej: Rosario, Córdoba, CABA" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Zona de Alcance Logístico Declarada *</label>
+                        <div class="reach-grid">
+                            <div id="btnReachRegional" class="reach-btn selected" onclick="selectReach('Regional')">Regional</div>
+                            <div id="btnReachNacional" class="reach-btn" onclick="selectReach('Nacional')">Nacional</div>
+                            <div id="btnReachInternacional" class="reach-btn" onclick="selectReach('Internacional')">Internacional</div>
+                        </div>
+                        <input type="hidden" id="zona_alcance_logistico" value="Regional">
+                    </div>
+
+                    <div class="btn-actions-row" style="justify-content: flex-end;">
+                        <button type="button" class="btn-svc-primary" onclick="avanzarPaso2()">Continuar al Paso 2 &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- PASO 2: CREDENCIALES Y CONTACTO (Anexo UI, Pág. 5)             -->
+                <!-- ============================================================== -->
+                <div id="paso2Container" style="display: none;">
+                    
+                    <!-- Resumen del Comercio con enlace para Editar -->
+                    <div class="summary-box">
+                        <div class="summary-info" id="resumenPaso1"></div>
+                        <button type="button" class="btn-edit-summary" onclick="volverPaso1()">Editar</button>
+                    </div>
+
+                    <div class="section-header">Credenciales de Acceso y Contacto</div>
+
+                    <div class="form-group">
+                        <label>Teléfono de Contacto Comercial *</label>
+                        <input type="tel" id="telefono" class="input-svc" placeholder="Ej: 11 5013-6548" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Correo Electrónico Profesional *</label>
+                        <input type="email" id="email" class="input-svc" placeholder="contacto@empresa.com" required>
+                        <div class="field-hint">Use el correo corporativo de su empresa. Servirá para acceder a SVC.</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Contraseña *</label>
+                            <input type="password" id="password" class="input-svc" placeholder="••••••••" required oninput="validarReglasPassword(this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>Confirmar Contraseña *</label>
+                            <input type="password" id="confirm_password" class="input-svc" placeholder="••••••••" required>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Provincia / Jurisdicción *</label>
-                        <div class="searchable-select-wrap">
-                            <input type="text" id="provincia_input" class="searchable-input" placeholder="Escriba o elija provincia..." autocomplete="off" required>
-                            <span class="select-caret">&#9660;</span>
-                            <div id="provincia_list" class="dropdown-options-list"></div>
-                        </div>
+
+                    <!-- Checklist de Complejidad de Contraseña -->
+                    <div class="password-rules-box">
+                        <div class="rule-item invalid" id="ruleLength">Mínimo 8 caracteres</div>
+                        <div class="rule-item invalid" id="ruleNumber">Al menos un número</div>
+                        <div class="rule-item invalid" id="ruleUpper">Al menos una mayúscula</div>
+                        <div class="rule-item invalid" id="ruleSymbol">Al menos un símbolo (!@#$%^&*)</div>
+                    </div>
+
+                    <!-- Consentimientos Legales (ERS Secc. 3.10) -->
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="chkTerminos" required>
+                        <label for="chkTerminos">Acepto los <a href="#" onclick="alert('Términos y Condiciones de SVC'); return false;">Términos y Condiciones de SVC</a> y la <a href="#" onclick="alert('Política de Privacidad de Datos'); return false;">Política de Privacidad</a> *</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="chkMarketing">
+                        <label for="chkMarketing">Deseo recibir novedades comerciales, actualizaciones de stock y oportunidades de negocio por email.</label>
+                    </div>
+
+                    <div class="btn-actions-row">
+                        <button type="button" class="btn-svc-secondary" onclick="volverPaso1()">&larr; Paso Anterior</button>
+                        <button type="submit" id="btnSubmitFinal" class="btn-svc-primary">Finalizar Registro &rarr;</button>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Ciudad / Localidad *</label>
-                    <input type="text" id="ciudad_localidad" class="input-svc" placeholder="Ej. Villa Urquiza / Rosario" required>
-                </div>
+                <!-- ============================================================== -->
+                <!-- PASO 3: CONFIRMACIÓN EXITOSA (Anexo UI, Pág. 6)                 -->
+                <!-- ============================================================== -->
+                <div id="paso3Container" style="display: none;">
+                    <div class="success-card">
+                        <div class="success-icon-badge">✓</div>
+                        <h2 class="success-title">¡Registro completado!</h2>
+                        <p class="success-desc">
+                            Su cuenta comercial ha sido creada exitosamente en la plataforma B2B.<br>
+                            Ya puede acceder con sus credenciales oficiales.
+                        </p>
 
-                <div class="form-group">
-                    <label>Zona de Alcance Logístico *</label>
-                    <div class="reach-grid">
-                        <div class="reach-btn selected" onclick="selectReach(this, 'Regional')">Regional</div>
-                        <div class="reach-btn" onclick="selectReach(this, 'Nacional')">Nacional</div>
-                        <div class="reach-btn" onclick="selectReach(this, 'Internacional')">Internacional</div>
-                    </div>
-                    <input type="hidden" id="zona_alcance_logistico" value="Regional">
-                </div>
+                        <div class="success-details-box" id="successDetailsBox"></div>
 
-                <div class="card-footer-row">
-                    <div style="font-size: 11px; color: var(--svc-text-muted);">
-                        ¿Ya tiene una cuenta? <a href="login.html" style="color: var(--svc-primary); font-weight: 600; text-decoration: none;">Iniciar Sesión</a>
-                    </div>
-                    <button type="button" class="btn-svc-next" onclick="irAlPaso2()">Siguiente Paso &rarr;</button>
-                </div>
-            </div>
-
-            <!-- PASO 2: CREDENCIALES DE ACCESO -->
-            <div id="paso2" style="display: none;">
-                <div class="summary-box">
-                    <div>
-                        <strong id="sumNombre" style="color: #0f172a;">EMPRESA REGISTRADA</strong>
-                        <span id="sumDetalle" style="color: var(--svc-text-muted); margin-left: 10px;">Rubro | Locación</span>
-                    </div>
-                    <a href="#" onclick="irAlPaso1()" style="color: var(--svc-primary); font-weight: 600; text-decoration: none;">Editar</a>
-                </div>
-
-                <div class="section-header">
-                    <h3 class="section-title">Credenciales de Acceso</h3>
-                    <p class="section-sub">Configure su email y contraseña para ingresar a SVC</p>
-                </div>
-
-                <div class="form-group">
-                    <label>Teléfono de Contacto *</label>
-                    <input type="text" id="telefono" class="input-svc" placeholder="+54 11 1234-5678">
-                </div>
-
-                <div class="form-group">
-                    <label>Email Profesional *</label>
-                    <input type="email" id="email" class="input-svc" placeholder="contacto@empresa.com">
-                    <div class="field-caption">Use el correo corporativo de su empresa</div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Contraseña *</label>
-                        <input type="password" id="password" class="input-svc" placeholder="••••••••" oninput="checkPassword(this.value)">
-                    </div>
-                    <div class="form-group">
-                        <label>Confirmar Contraseña *</label>
-                        <input type="password" id="confirm_password" class="input-svc" placeholder="••••••••">
+                        <a href="login.html" class="btn-svc-primary" style="display: inline-block; text-decoration: none; padding: 14px 35px;">Iniciar Sesión en SVC &rarr;</a>
                     </div>
                 </div>
 
-                <div class="pwd-req-grid">
-                    <div id="reqMin" class="pwd-req-item"><span>•</span> Mínimo 8 caracteres</div>
-                    <div id="reqNum" class="pwd-req-item"><span>•</span> Al menos un número</div>
-                    <div id="reqMay" class="pwd-req-item"><span>•</span> Al menos una mayúscula</div>
-                    <div id="reqSim" class="pwd-req-item"><span>•</span> Al menos un símbolo</div>
-                </div>
+            </form>
 
-                <div style="margin-top: 20px; font-size: 12px; color: #475569;">
-                    <label style="display: block; margin-bottom: 8px; cursor: pointer;">
-                        <input type="checkbox" id="termsCheck" required> Acepto los <a href="#" style="color: var(--svc-primary);">Términos y Condiciones de SVC</a> y la <a href="#" style="color: var(--svc-primary);">Política de Privacidad</a> *
-                    </label>
-                    <label style="display: block; cursor: pointer;">
-                        <input type="checkbox" checked> Deseo recibir novedades comerciales, actualizaciones de stock y oportunidades de negocio por email.
-                    </label>
-                </div>
-
-                <div class="card-footer-row">
-                    <button type="button" class="btn-svc-next" style="background-color: #6c757d;" onclick="irAlPaso1()">&larr; Paso Anterior</button>
-                    <button type="submit" class="btn-svc-next">Finalizar Registro &rarr;</button>
-                </div>
-            </div>
-        </form>
+        </div>
     </div>
 
     <!-- Footer -->
     <div class="page-footer">
-        &copy; 2026 SVC | <a href="#">Ayuda</a> | <a href="#">Privacidad</a> | <a href="#">Términos</a>
+        &copy; 2026 SVC — Sistema de Vinculación para el Comercio
     </div>
 
     <script>
-        // ── Taxonomía Oficial de 50 Rubros y Sub-rubros ──
+        const API_URL = "http://127.0.0.1:8080/auth";
+
+        // ── 1. Taxonomía de 50 Rubros Oficiales de SVC ────────────────────────
         const TAXONOMIA_SVC = {
-            "Alimentos & Bebidas": ["Almacenes", "Supermercados", "Minimercados", "Distribuidoras de alimentos", "Mayoristas de alimentos", "Bebidas", "Bebidas alcohólicas", "Agua & Soda", "Carnicerías", "Pollerías", "Pescaderías", "Frutas & Verduras", "Panaderías", "Pastelerías & Repostería", "Lácteos", "Fiambres & Embutidos", "Productos congelados", "Productos gourmet", "Productos regionales", "Alimentos saludables", "Productos orgánicos", "Dietéticas", "Café & Té", "Golosinas & Snacks", "Helados", "Materias primas alimenticias"],
-            "Gastronomía": ["Restaurantes", "Bares", "Cafeterías", "Cervecerías", "Pizzerías", "Hamburgueserías", "Comida rápida", "Rotiserías", "Catering", "Food trucks", "Servicios gastronómicos", "Viandas", "Comedores", "Equipamiento gastronómico"],
-            "Textil & Indumentaria": ["Ropa femenina", "Ropa masculina", "Ropa infantil", "Ropa deportiva", "Ropa de trabajo", "Uniformes", "Lencería", "Ropa interior", "Trajes de baño", "Indumentaria urbana", "Indumentaria formal", "Indumentaria de seguridad", "Telas", "Hilados", "Mercerías", "Confección textil", "Estampado textil", "Bordados", "Talleres textiles", "Mayoristas de indumentaria"],
-            "Calzado & Marroquinería": ["Calzado", "Zapatillas", "Calzado deportivo", "Calzado de seguridad", "Carteras", "Mochilas", "Bolsos", "Billeteras", "Cinturones", "Artículos de cuero", "Fabricación de calzado", "Insumos para calzado"],
-            "Tecnología & Electrónica": ["Electrónica", "Computación", "Hardware", "Componentes de PC", "Notebooks", "Telefonía celular", "Tablets", "Accesorios tecnológicos", "Audio", "Video", "Televisores", "Cámaras", "Domótica", "Electrónica industrial", "Reparación electrónica"],
-            "Informática & Software": ["Desarrollo de software", "Desarrollo web", "Aplicaciones móviles", "Sistemas empresariales", "Software de gestión", "Servicios IT", "Soporte técnico", "Cloud computing", "Hosting", "Ciberseguridad", "Redes informáticas", "Consultoría tecnológica", "Inteligencia artificial", "Automatización", "Bases de datos"],
-            "Telecomunicaciones": ["Internet", "Telefonía", "Fibra óptica", "Redes", "Infraestructura de telecomunicaciones", "Equipamiento de comunicaciones", "Antenas", "Radios", "Telefonía IP", "Servicios de conectividad"],
-            "Electrodomésticos": ["Línea blanca", "Pequeños electrodomésticos", "Climatización", "Aires acondicionados", "Heladeras", "Cocinas", "Lavarropas", "Electrodomésticos comerciales", "Repuestos", "Servicio técnico"],
-            "Construcción & Materiales": ["Materiales de construcción", "Corralones", "Cemento", "Hormigón", "Ladrillos", "Áridos", "Yeso", "Aislantes", "Impermeabilización", "Techos", "Aberturas", "Vidrios", "Pisos", "Revestimientos", "Cerámicos", "Sanitarios", "Griferías", "Pinturas", "Construcción en seco", "Obras civiles"],
-            "Ferretería & Herramientas": ["Ferreterías", "Herramientas manuales", "Herramientas eléctricas", "Tornillería", "Bulonería", "Herrajes", "Cerraduras", "Soldadura", "Compresores", "Abrasivos", "Elementos de fijación", "Máquinas herramientas", "Insumos industriales"],
-            "Arquitectura & Ingeniería": ["Arquitectura", "Ingeniería civil", "Ingeniería industrial", "Ingeniería eléctrica", "Ingeniería electrónica", "Ingeniería mecánica", "Agrimensura", "Topografía", "Diseño de proyectos", "Dirección de obra", "Consultoría técnica"],
-            "Hogar & Decoración": ["Decoración", "Bazar", "Artículos para el hogar", "Cocina", "Baño", "Iluminación decorativa", "Cortinas", "Alfombras", "Blanquería", "Organización del hogar", "Velas & Aromas", "Jardinería", "Decoración artesanal"],
-            "Muebles": ["Muebles para el hogar", "Muebles de oficina", "Muebles comerciales", "Muebles de cocina", "Muebles de baño", "Colchones", "Sommiers", "Carpintería", "Muebles a medida", "Muebles metálicos", "Mobiliario escolar"],
-            "Automotriz": ["Concesionarias", "Compra y venta de vehículos", "Repuestos", "Autopartes", "Neumáticos", "Llantas", "Baterías", "Lubricantes", "Accesorios", "Audio para vehículos", "Taller mecánico", "Electricidad del automotor", "Chapa & Pintura", "Lavaderos", "Detailing", "GNC", "Rectificación de motores"],
-            "Motos & Bicicletas": ["Motocicletas", "Repuestos para motos", "Accesorios para motos", "Taller de motos", "Bicicletas", "Bicicletas eléctricas", "Repuestos para bicicletas", "Accesorios para ciclismo", "Taller de bicicletas"],
-            "Transporte & Logística": ["Transporte de cargas", "Transporte urbano", "Transporte de pasajeros", "Transporte refrigerado", "Última milla", "Mensajería", "Cadetería", "Courier", "Distribución", "Almacenamiento", "Depósitos", "Centros logísticos", "Operadores logísticos", "Mudanzas", "Fletes"],
-            "Importación & Exportación": ["Importadores", "Exportadores", "Comercio exterior", "Despachantes de aduana", "Agentes de carga", "Freight forwarding", "Consultoría aduanera", "Distribución internacional"],
-            "Mayoristas & Distribución": ["Distribuidores", "Mayoristas generales", "Representantes comerciales", "Importadores mayoristas", "Distribuidores regionales", "Centros de distribución", "Abastecimiento comercial"],
-            "Agro & Agroindustria": ["Agricultura", "Ganadería", "Avicultura", "Apicultura", "Vitivinicultura", "Fruticultura", "Horticultura", "Semillas", "Fertilizantes", "Agroquímicos", "Insumos agrícolas", "Maquinaria agrícola", "Riego", "Forrajes", "Alimentos para animales", "Acopio", "Cooperativas", "Servicios agropecuarios"],
-            "Industria & Manufactura": ["Industria metalúrgica", "Metalúrgica", "Metalmecánica", "Manufactura", "Plásticos", "Caucho", "Vidrio", "Cerámica", "Fabricación de componentes", "Matricería", "Tornería", "Mecanizado", "Fundición", "Soldadura industrial", "Fabricación por encargo"],
-            "Maquinaria & Equipamiento": ["Maquinaria industrial", "Equipamiento comercial", "Equipamiento gastronómico", "Equipamiento agrícola", "Máquinas herramientas", "Equipamiento de depósito", "Autoelevadores", "Bombas", "Motores", "Compresores", "Generadores", "Equipamiento pesado"],
-            "Química & Productos Industriales": ["Productos químicos", "Química industrial", "Solventes", "Adhesivos", "Pinturas industriales", "Lubricantes industriales", "Productos de laboratorio", "Materias primas químicas", "Gases industriales", "Tratamiento químico"],
-            "Envases & Packaging": ["Envases plásticos", "Envases de vidrio", "Envases metálicos", "Cajas", "Cartón", "Bolsas", "Packaging", "Packaging personalizado", "Etiquetas", "Film", "Cintas", "Embalaje industrial"],
-            "Papel, Librería & Gráfica": ["Librerías", "Papelerías", "Artículos escolares", "Artículos de oficina", "Papel", "Cartón", "Imprentas", "Gráficas", "Serigrafía", "Sublimación", "Cartelería", "Gigantografías", "Encuadernación", "Etiquetas", "Packaging gráfico"],
-            "Salud": ["Clínicas", "Consultorios", "Centros médicos", "Laboratorios", "Diagnóstico por imágenes", "Odontología", "Kinesiología", "Fisioterapia", "Ópticas", "Ortopedias", "Insumos médicos", "Equipamiento médico", "Medicina laboral", "Servicios de salud"],
-            "Farmacéutica": ["Farmacias", "Droguerías", "Laboratorios farmacéuticos", "Distribución farmacéutica", "Productos medicinales", "Insumos farmacéuticos", "Equipamiento farmacéutico"],
-            "Belleza & Cuidado Personal": ["Peluquerías", "Barberías", "Estética", "Cosmética", "Perfumerías", "Maquillaje", "Manicuría", "Productos capilares", "Cuidado de la piel", "Spa", "Centros de estética", "Insumos para peluquería", "Distribuidores de cosmética"],
-            "Deportes & Fitness": ["Gimnasios", "Centros deportivos", "Indumentaria deportiva", "Artículos deportivos", "Equipamiento fitness", "Suplementación deportiva", "Bicicletas", "Entrenamiento personal", "Academias deportivas", "Clubes"],
-            "Mascotas & Veterinaria": ["Veterinarias", "Pet shops", "Alimentos para mascotas", "Accesorios para mascotas", "Peluquería canina", "Medicamentos veterinarios", "Insumos veterinarios", "Criaderos", "Guarderías", "Adiestramiento"],
-            "Limpieza & Mantenimiento": ["Productos de limpieza", "Insumos de higiene", "Limpieza empresarial", "Limpieza industrial", "Limpieza domiciliaria", "Desinfección", "Control de plagas", "Mantenimiento edilicio", "Mantenimiento industrial", "Servicios generales"],
-            "Seguridad": ["Seguridad privada", "Vigilancia", "Alarmas", "Cámaras de seguridad", "CCTV", "Control de acceso", "Seguridad electrónica", "Seguridad industrial", "Elementos de protección personal", "Protección contra incendios", "Matafuegos", "Monitoreo"],
-            "Energía & Servicios Públicos": ["Energía eléctrica", "Gas", "Energías renovables", "Energía solar", "Paneles solares", "Energía eólica", "Generadores", "Instalaciones eléctricas", "Eficiencia energética", "Agua", "Tratamiento de agua"],
-            "Servicios Profesionales": ["Consultoría", "Administración", "Asesoramiento empresarial", "Recursos humanos", "Selección de personal", "Capacitación empresarial", "Gestión de proyectos", "Auditoría", "Traducción", "Secretariado", "Servicios administrativos"],
-            "Contabilidad & Finanzas": ["Estudios contables", "Contadores", "Asesoramiento impositivo", "Auditoría contable", "Administración financiera", "Facturación", "Liquidación de sueldos", "Consultoría financiera"],
-            "Legal": ["Estudios jurídicos", "Abogados", "Derecho comercial", "Derecho laboral", "Derecho societario", "Derecho tributario", "Propiedad intelectual", "Marcas & Patentes", "Escribanías", "Mediación"],
-            "Bancos, Fintech & Seguros": ["Bancos", "Fintech", "Medios de pago", "Procesamiento de pagos", "Créditos", "Financiamiento", "Seguros", "Productores de seguros", "Servicios financieros", "Cobranza"],
-            "Marketing & Publicidad": ["Agencias de marketing", "Marketing digital", "Publicidad", "Redes sociales", "Community management", "Branding", "Diseño gráfico", "Diseño web", "SEO", "Publicidad digital", "Producción audiovisual", "Fotografía comercial", "Influencer marketing"],
-            "Inmobiliaria": ["Inmobiliarias", "Compra y venta de propiedades", "Alquileres", "Administración de propiedades", "Administración de consorcios", "Tasaciones", "Desarrollos inmobiliarios", "Loteos", "Propiedades comerciales"],
-            "Educación & Capacitación": ["Institutos", "Academias", "Capacitación profesional", "Capacitación empresarial", "Idiomas", "Informática", "Formación técnica", "Formación online", "Cursos", "Tutorías", "Material educativo"],
-            "Hotelería & Turismo": ["Hoteles", "Hostels", "Apart hoteles", "Cabañas", "Alojamientos", "Agencias de turismo", "Operadores turísticos", "Excursiones", "Turismo aventura", "Alquiler de vehículos", "Servicios turísticos"],
-            "Eventos & Entretenimiento": ["Organización de eventos", "Salones de eventos", "Catering", "Sonido", "Iluminación", "DJ", "Fotografía", "Video", "Decoración de eventos", "Alquiler de equipamiento", "Productoras", "Espectáculos", "Entretenimiento"],
-            "Joyería & Accesorios": ["Joyerías", "Relojerías", "Bijouterie", "Accesorios de moda", "Joyas artesanales", "Metales preciosos", "Reparación de joyas", "Fabricación de joyas"],
-            "Regalos & Artesanías": ["Regalerías", "Artesanías", "Souvenirs", "Productos personalizados", "Decoración artesanal", "Regalos empresariales", "Merchandising"],
-            "Jardinería & Paisajismo": ["Viveros", "Plantas", "Semillas", "Macetas", "Jardinería", "Paisajismo", "Sistemas de riego", "Mantenimiento de jardines", "Herramientas de jardín"],
-            "Minería": ["Explotación minera", "Proveedores mineros", "Maquinaria minera", "Insumos mineros", "Servicios mineros", "Ingeniería minera", "Transporte minero", "Seguridad minera"],
-            "Medio Ambiente & Reciclaje": ["Reciclaje", "Gestión de residuos", "Residuos industriales", "Tratamiento de residuos", "Consultoría ambiental", "Saneamiento", "Economía circular", "Productos sustentables"],
-            "Servicios Técnicos & Reparaciones": ["Reparación de electrodomésticos", "Reparación de computadoras", "Reparación de celulares", "Electricistas", "Plomeros", "Gasistas", "Refrigeración", "Cerrajería", "Reparaciones generales", "Mantenimiento técnico"],
-            "Servicios para Empresas": ["Outsourcing", "Facility management", "Call centers", "Atención al cliente", "Gestión documental", "Digitalización", "Servicios administrativos", "Personal eventual", "Abastecimiento empresarial", "Compras corporativas"],
-            "E-commerce & Comercio Digital": ["Tiendas online", "Marketplaces", "Venta por redes sociales", "Servicios para e-commerce", "Fulfillment", "Gestión de marketplaces", "Integraciones comerciales"],
-            "Otros": ["Otros comercios", "Otros servicios", "Otros fabricantes", "Otros distribuidores"]
+            "Alimentos & Bebidas": ["Almacenes", "Supermercados", "Minimercados", "Distribuidoras de alimentos", "Mayoristas de alimentos", "Bebidas", "Carnicerías", "Panaderías", "Lácteos", "Fiambres & Embutidos", "Dietéticas", "Café & Té"],
+            "Gastronomía": ["Restaurantes", "Bares", "Cafeterías", "Cervecerías", "Pizzerías", "Rotiserías", "Catering", "Equipamiento gastronómico"],
+            "Textil & Indumentaria": ["Ropa femenina", "Ropa masculina", "Ropa infantil", "Ropa de trabajo", "Uniformes", "Telas", "Hilados", "Confección textil"],
+            "Calzado & Marroquinería": ["Calzado", "Zapatillas", "Calzado de seguridad", "Carteras", "Bolsos", "Artículos de cuero"],
+            "Tecnología & Electrónica": ["Electrónica", "Computación", "Hardware", "Componentes de PC", "Notebooks", "Telefonía celular", "Audio", "Domótica"],
+            "Informática & Software": ["Desarrollo de software", "Desarrollo web", "Sistemas empresariales", "Software de gestión", "Servicios IT", "Ciberseguridad"],
+            "Telecomunicaciones": ["Internet", "Telefonía", "Fibra óptica", "Redes", "Infraestructura"],
+            "Electrodomésticos": ["Línea blanca", "Pequeños electrodomésticos", "Climatización", "Heladeras", "Lavarropas"],
+            "Construcción & Materiales": ["Materiales de construcción", "Corralones", "Cemento", "Hormigón", "Ladrillos", "Pisos", "Pinturas"],
+            "Ferretería & Herramientas": ["Ferreterías", "Herramientas manuales", "Herramientas eléctricas", "Bulonería", "Soldadura", "Compresores"],
+            "Limpieza & Mantenimiento": ["Productos de limpieza", "Insumos de higiene", "Limpieza empresarial", "Limpieza industrial", "Servicios generales"],
+            "Servicios Profesionales": ["Consultoría", "Administración", "Recursos humanos", "Auditoría", "Traducción", "Servicios administrativos"],
+            "Otros": ["Otros comercios", "Otros servicios", "Otros fabricantes"]
         };
 
-        // ── Lista Completa de Provincias de Argentina ──
         const PROVINCIAS_ARGENTINA = [
             "Buenos Aires", "CABA", "Catamarca", "Chaco", "Chubut", "Córdoba",
             "Corrientes", "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja",
@@ -695,7 +779,47 @@
             "San Luis", "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán"
         ];
 
-        // ── Componentes Searchable ──
+        // ── 2. Formateador Dinámico de CUIT / CUIL (11 dígitos, 13 caracteres) ──
+        function formatearCuitDinamico(input) {
+            let val = input.value.replace(/\D/g, '');
+            if (val.length > 11) val = val.slice(0, 11);
+
+            if (val.length > 10) {
+                input.value = `${val.slice(0, 2)}-${val.slice(2, 10)}-${val.slice(10)}`;
+            } else if (val.length > 2) {
+                input.value = `${val.slice(0, 2)}-${val.slice(2)}`;
+            } else {
+                input.value = val;
+            }
+        }
+
+        // ── 3. Validador en Tiempo Real de Reglas de Contraseña ────────────────
+        function validarReglasPassword(pwd) {
+            const hasLength = pwd.length >= 8;
+            const hasNumber = /\d/.test(pwd);
+            const hasUpper = /[A-Z]/.test(pwd);
+            const hasSymbol = /[!@#$%^&*(),.?":{}|<>\-_]/.test(pwd);
+
+            actualizarEstadoRegla("ruleLength", hasLength);
+            actualizarEstadoRegla("ruleNumber", hasNumber);
+            actualizarEstadoRegla("ruleUpper", hasUpper);
+            actualizarEstadoRegla("ruleSymbol", hasSymbol);
+
+            return hasLength && hasNumber && hasUpper && hasSymbol;
+        }
+
+        function actualizarEstadoRegla(elementId, isValid) {
+            const el = document.getElementById(elementId);
+            if (isValid) {
+                el.classList.remove("invalid");
+                el.classList.add("valid");
+            } else {
+                el.classList.remove("valid");
+                el.classList.add("invalid");
+            }
+        }
+
+        // ── 4. Control de Listas Desplegables Searchable ───────────────────────
         function setupSearchable(inputId, listId, dataProvider, onSelect) {
             const input = document.getElementById(inputId);
             const list = document.getElementById(listId);
@@ -723,142 +847,166 @@
                 }
             }
 
-            input.addEventListener("focus", () => {
-                renderOptions(input.value);
-                list.style.display = "block";
-            });
-
-            input.addEventListener("input", () => {
-                renderOptions(input.value);
-                list.style.display = "block";
-            });
-
-            input.addEventListener("blur", () => {
-                setTimeout(() => { list.style.display = "none"; }, 180);
-            });
+            input.addEventListener("focus", () => { renderOptions(input.value); list.style.display = "block"; });
+            input.addEventListener("input", () => { renderOptions(input.value); list.style.display = "block"; });
+            input.addEventListener("blur", () => { setTimeout(() => { list.style.display = "none"; }, 180); });
         }
 
-        // Inicializar componentes interactivos
-        setupSearchable("rubro_input", "rubro_list", Object.keys(TAXONOMIA_SVC), (rubroSeleccionado) => {
-            const subrubroInput = document.getElementById("subrubro_input");
-            subrubroInput.disabled = false;
-            subrubroInput.value = "";
-            subrubroInput.placeholder = "Escriba o elija sub-rubro...";
-            setupSearchable("subrubro_input", "subrubro_list", () => TAXONOMIA_SVC[rubroSeleccionado] || []);
-            subrubroInput.focus();
+        window.addEventListener("DOMContentLoaded", () => {
+            setupSearchable("rubro_input", "rubro_list", Object.keys(TAXONOMIA_SVC), (rubroSel) => {
+                const subrubroInput = document.getElementById("subrubro_input");
+                subrubroInput.value = "";
+                setupSearchable("subrubro_input", "subrubro_list", () => TAXONOMIA_SVC[rubroSel] || []);
+                subrubroInput.focus();
+            });
+
+            setupSearchable("provincia_input", "provincia_list", PROVINCIAS_ARGENTINA);
         });
 
-        setupSearchable("provincia_input", "provincia_list", PROVINCIAS_ARGENTINA);
-
-        // ── Formateo y Navegación del Formulario ──
-        function formatCuit(input) {
-            let digits = input.value.replace(/\D/g, '').slice(0, 11);
-            let formatted = digits;
-            if (digits.length > 2) formatted = digits.slice(0, 2) + '-' + digits.slice(2);
-            if (digits.length > 10) formatted = formatted.slice(0, 10) + '-' + digits.slice(10);
-            input.value = formatted;
+        function selectReach(val) {
+            document.querySelectorAll(".reach-btn").forEach(btn => btn.classList.remove("selected"));
+            document.getElementById("zona_alcance_logistico").value = val;
+            if (val === "Regional") document.getElementById("btnReachRegional").classList.add("selected");
+            if (val === "Nacional") document.getElementById("btnReachNacional").classList.add("selected");
+            if (val === "Internacional") document.getElementById("btnReachInternacional").classList.add("selected");
         }
 
-        function selectReach(element, value) {
-            document.querySelectorAll('.reach-btn').forEach(btn => btn.classList.remove('selected'));
-            element.classList.add('selected');
-            document.getElementById('zona_alcance_logistico').value = value;
-        }
+        // ── 5. Transición entre Pasos (Stepper) ────────────────────────────────
+        function avanzarPaso2() {
+            const msgBox = document.getElementById("msgBox");
+            msgBox.style.display = "none";
 
-        function irAlPaso2() {
-            const nombre = document.getElementById('nombre_razon_social').value.trim();
-            const cuit = document.getElementById('cuit_cuil').value.trim();
-            const rubro = document.getElementById('rubro_input').value.trim();
-            const subrubro = document.getElementById('subrubro_input').value.trim();
-            const direccion = document.getElementById('direccion').value.trim();
-            const pais = document.getElementById('pais_input').value.trim();
-            const provincia = document.getElementById('provincia_input').value.trim();
-            const ciudad = document.getElementById('ciudad_localidad').value.trim();
+            const nombre = document.getElementById("nombre_razon_social").value.trim();
+            const cuit = document.getElementById("cuit_cuil").value.trim();
+            const rubro = document.getElementById("rubro_input").value.trim();
+            const subrubro = document.getElementById("subrubro_input").value.trim();
+            const direccion = document.getElementById("direccion").value.trim();
+            const provincia = document.getElementById("provincia_input").value.trim();
+            const ciudad = document.getElementById("ciudad_localidad").value.trim();
 
-            if (!nombre || !cuit || !rubro || !subrubro || !direccion || !pais || !provincia || !ciudad) {
-                const msgBox = document.getElementById('msgBox');
-                msgBox.innerText = "Por favor complete todos los campos obligatorios del Paso 1.";
+            if (!nombre || !cuit || !rubro || !subrubro || !direccion || !provincia || !ciudad) {
+                msgBox.className = "alert-box alert-danger";
+                msgBox.innerText = "Por favor complete todos los campos obligatorios del Paso 1 antes de continuar.";
                 msgBox.style.display = "block";
                 return;
             }
 
-            document.getElementById('msgBox').style.display = "none";
-            document.getElementById('sumNombre').innerText = nombre.toUpperCase();
-            document.getElementById('sumDetalle').innerText = rubro + " > " + subrubro + " | " + ciudad + ", " + provincia + " (" + pais + ")";
+            const cuitLimpio = cuit.replace(/\D/g, '');
+            if (cuitLimpio.length < 11) {
+                msgBox.className = "alert-box alert-danger";
+                msgBox.innerText = "El CUIT/CUIL debe contener los 11 dígitos reglamentarios (Formato: XX-XXXXXXXX-X).";
+                msgBox.style.display = "block";
+                return;
+            }
 
-            document.getElementById('paso1').style.display = "none";
-            document.getElementById('paso2').style.display = "block";
+            // Renderizar resumen en el Paso 2 (Anexo UI, Pág. 5)
+            document.getElementById("resumenPaso1").innerHTML = `
+                <strong>${nombre}</strong> &nbsp;|&nbsp; ${rubro} &gt; ${subrubro} &nbsp;|&nbsp; ${direccion}, ${ciudad} (${provincia})
+            `;
 
-            document.getElementById('circleStep1').classList.remove('active');
-            document.getElementById('circleStep2').classList.add('active');
-            document.getElementById('stepLabel').innerText = "Paso 2 de 2 — Credenciales de Acceso";
+            document.getElementById("paso1Container").style.display = "none";
+            document.getElementById("paso2Container").style.display = "block";
+            document.getElementById("stepBubble2").classList.add("active");
+            document.getElementById("stepCaption").innerText = "PASO 2 DE 2 — CREDENCIALES DE ACCESO";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function irAlPaso1() {
-            document.getElementById('paso2').style.display = "none";
-            document.getElementById('paso1').style.display = "block";
-
-            document.getElementById('circleStep2').classList.remove('active');
-            document.getElementById('circleStep1').classList.add('active');
-            document.getElementById('stepLabel').innerText = "Paso 1 de 2 — Datos de la Empresa";
+        function volverPaso1() {
+            document.getElementById("msgBox").style.display = "none";
+            document.getElementById("paso2Container").style.display = "none";
+            document.getElementById("paso1Container").style.display = "block";
+            document.getElementById("stepBubble2").classList.remove("active");
+            document.getElementById("stepCaption").innerText = "PASO 1 DE 2 — INFORMACIÓN COMERCIAL Y LOGÍSTICA";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function checkPassword(val) {
-            document.getElementById('reqMin').className = val.length >= 8 ? 'pwd-req-item valid' : 'pwd-req-item';
-            document.getElementById('reqNum').className = /\d/.test(val) ? 'pwd-req-item valid' : 'pwd-req-item';
-            document.getElementById('reqMay').className = /[A-Z]/.test(val) ? 'pwd-req-item valid' : 'pwd-req-item';
-            document.getElementById('reqSim').className = /[^A-Za-z0-9]/.test(val) ? 'pwd-req-item valid' : 'pwd-req-item';
-        }
-
-        // ── Envío Asíncrono al Backend ──
-        document.getElementById('registroForm').addEventListener('submit', async (e) => {
+        // ── 6. Envío y Registro Transaccional (CdU01) ──────────────────────────
+        document.getElementById("registroForm").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const msgBox = document.getElementById('msgBox');
-            msgBox.style.display = 'none';
+            const msgBox = document.getElementById("msgBox");
+            const btnSubmit = document.getElementById("btnSubmitFinal");
+            msgBox.style.display = "none";
 
-            const pwd = document.getElementById('password').value;
-            const confirmPwd = document.getElementById('confirm_password').value;
+            const pwd = document.getElementById("password").value;
+            const confirmPwd = document.getElementById("confirm_password").value;
+
+            if (!validarReglasPassword(pwd)) {
+                msgBox.className = "alert-box alert-danger";
+                msgBox.innerText = "La contraseña no satisface todas las políticas de complejidad exigidas.";
+                msgBox.style.display = "block";
+                return;
+            }
 
             if (pwd !== confirmPwd) {
+                msgBox.className = "alert-box alert-danger";
                 msgBox.innerText = "Las contraseñas ingresadas no coinciden.";
                 msgBox.style.display = "block";
                 return;
             }
 
+            if (!document.getElementById("chkTerminos").checked) {
+                msgBox.className = "alert-box alert-danger";
+                msgBox.innerText = "Debe aceptar los Términos y Condiciones y la Política de Privacidad de SVC.";
+                msgBox.style.display = "block";
+                return;
+            }
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = "Procesando registro en SVC...";
+
             const payload = {
-                nombre_razon_social: document.getElementById('nombre_razon_social').value,
-                cuit_cuil: document.getElementById('cuit_cuil').value,
-                rubro_comercial: document.getElementById('rubro_input').value,
-                subrubro_comercial: document.getElementById('subrubro_input').value,
-                direccion: document.getElementById('direccion').value,
-                pais: document.getElementById('pais_input').value,
-                provincia: document.getElementById('provincia_input').value,
-                ciudad_localidad: document.getElementById('ciudad_localidad').value,
-                zona_alcance_logistico: document.getElementById('zona_alcance_logistico').value,
-                telefono: document.getElementById('telefono').value,
-                email: document.getElementById('email').value,
+                nombre_razon_social: document.getElementById("nombre_razon_social").value.trim(),
+                cuit_cuil: document.getElementById("cuit_cuil").value.trim(),
+                rubro_comercial: document.getElementById("rubro_input").value.trim(),
+                subrubro_comercial: document.getElementById("subrubro_input").value.trim(),
+                direccion: document.getElementById("direccion").value.trim(),
+                pais: "Argentina",
+                provincia: document.getElementById("provincia_input").value.trim(),
+                ciudad_localidad: document.getElementById("ciudad_localidad").value.trim(),
+                zona_alcance_logistico: document.getElementById("zona_alcance_logistico").value,
+                telefono: document.getElementById("telefono").value.trim(),
+                email: document.getElementById("email").value.trim(),
                 password: pwd
             };
 
             try {
-                const response = await fetch('http://127.0.0.1:8080/auth/registro', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                const response = await fetch(`${API_URL}/registro`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    alert("¡Registro completado con éxito! Redirigiendo a inicio de sesión...");
-                    window.location.href = "login.html";
+                    // Renderizar Vista de Éxito Paso 3 (Anexo UI, Pág. 6)
+                    document.getElementById("paso2Container").style.display = "none";
+                    document.getElementById("stepperVisual").style.display = "none";
+                    document.getElementById("stepCaption").style.display = "none";
+
+                    document.getElementById("successDetailsBox").innerHTML = `
+                        <div class="detail-row"><span>Razón Social:</span> <strong>${data.nombre_razon_social}</strong></div>
+                        <div class="detail-row"><span>CUIT / CUIL:</span> <strong>${data.cuit_cuil}</strong></div>
+                        <div class="detail-row"><span>Email Profesional:</span> <strong>${data.email}</strong></div>
+                        <div class="detail-row"><span>Sector:</span> <strong>${data.rubro_comercial} (${data.subrubro_comercial})</strong></div>
+                        <div class="detail-row"><span>Alcance Logístico:</span> <strong>${data.zona_alcance_logistico}</strong></div>
+                    `;
+
+                    document.getElementById("paso3Container").style.display = "block";
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
-                    msgBox.innerText = data.detail || 'Ocurrió un error al procesar el registro en el servidor.';
-                    msgBox.style.display = 'block';
+                    msgBox.className = "alert-box alert-danger";
+                    msgBox.innerText = data.detail || "Error al procesar el registro comercial.";
+                    msgBox.style.display = "block";
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerText = "Finalizar Registro →";
                 }
             } catch (err) {
-                msgBox.innerText = 'No se pudo conectar con el servidor backend FastAPI. Verifique que uvicorn esté corriendo en el puerto 8080 y que no existan bloqueos de permisos en la base de datos.';
-                msgBox.style.display = 'block';
+                msgBox.className = "alert-box alert-danger";
+                msgBox.innerText = "No se pudo establecer conexión con el servidor backend FastAPI.";
+                msgBox.style.display = "block";
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = "Finalizar Registro →";
             }
         });
     </script>

@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVC - Iniciar Sesión (CdU02 / Acceso Corporativo)</title>
+    <title>SVC - Sistema de Vinculación para el Comercio (CdU02)</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
 
         :root {
             --svc-primary: #0056b3;
@@ -15,6 +15,7 @@
             --svc-text: #212529;
             --svc-text-muted: #6c757d;
             --svc-border: #ced4da;
+            --svc-border-focus: #0056b3;
             --svc-danger: #dc3545;
             --svc-success: #28a745;
             --svc-admin-dark: #0f172a;
@@ -27,105 +28,115 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', 'Roboto', system-ui, sans-serif;
             background-color: var(--svc-bg-page);
             color: var(--svc-text);
             margin: 0;
             padding: 0;
             display: flex;
-            flex-direction: column;
+            min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Layout Dividido Pantalla Completa (Figma Dev Mode) */
+        .login-wrapper {
+            display: flex;
+            width: 100%;
             min-height: 100vh;
         }
 
-        /* Top Navbar */
-        .top-navbar {
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #e9ecef;
+        /* ── PANEL IZQUIERDO (MARKETING & BRANDING) ── */
+        .left-panel {
+            width: 44%;
             background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            padding: 0;
         }
 
-        .brand-logo-container {
+        .top-stripe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--svc-primary);
+            transition: background-color 0.2s ease;
+        }
+
+        .top-stripe.admin-mode {
+            background-color: var(--svc-admin-dark);
+        }
+
+        .left-header {
+            padding: 40px 48px 0 48px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .brand-logo-box {
+        .logo-box {
+            width: 36px;
+            height: 36px;
             background-color: var(--svc-primary);
             color: #ffffff;
             font-weight: 700;
             font-size: 14px;
-            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: -0.5px;
             transition: background-color 0.2s ease;
         }
 
-        .brand-logo-box.admin-mode {
+        .logo-box.admin-mode {
             background-color: var(--svc-admin-dark);
         }
 
-        .brand-title-sub {
+        .logo-text-wrap {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.15;
+        }
+
+        .logo-text-wrap span {
             font-size: 11px;
+            font-weight: 600;
             color: var(--svc-text-muted);
             text-transform: uppercase;
-            font-weight: 600;
-            line-height: 1.2;
+            letter-spacing: 1px;
         }
 
-        .top-nav-link {
-            font-size: 13px;
+        .left-body {
+            padding: 20px 48px;
+            display: flex;
+            flex-direction: column;
         }
 
-        .top-nav-link a {
-            color: var(--svc-primary);
-            font-weight: 600;
-            text-decoration: none;
-            border: 1px solid var(--svc-border);
-            padding: 6px 14px;
-        }
-
-        .top-nav-link a:hover {
-            background-color: var(--svc-bg-surface);
-        }
-
-        /* Main Grid Layout */
-        .main-layout {
-            display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            flex: 1;
-            max-width: 1280px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 40px;
-            gap: 60px;
-            align-items: center;
-        }
-
-        /* Left Hero Section */
-        .hero-section {
-            padding-right: 20px;
-        }
-
-        .tag-b2b {
+        .badge-b2b {
             display: inline-block;
-            border: 1px solid var(--svc-border);
-            padding: 4px 8px;
-            font-size: 11px;
-            font-weight: 700;
+            align-self: flex-start;
+            background-color: #e7f0fb;
             color: var(--svc-primary);
+            font-size: 11px;
+            font-weight: 600;
             text-transform: uppercase;
-            margin-bottom: 20px;
-            background-color: var(--svc-bg-surface);
+            letter-spacing: 1.2px;
+            padding: 4px 8px;
+            border: 1px solid rgba(0, 86, 179, 0.2);
+            margin-bottom: 12px;
         }
 
         .hero-title {
-            font-size: 38px;
+            font-size: 32px;
             font-weight: 700;
-            line-height: 1.15;
             color: #0f172a;
-            margin: 0 0 15px 0;
+            line-height: 1.2;
+            margin: 0 0 12px 0;
         }
 
         .hero-title span {
@@ -134,346 +145,837 @@
         }
 
         .hero-desc {
-            font-size: 15px;
+            font-size: 14px;
             color: var(--svc-text-muted);
             line-height: 1.5;
-            margin-bottom: 35px;
-            max-width: 460px;
+            margin: 0 0 24px 0;
+            max-width: 380px;
         }
 
-        .metrics-grid {
+        /* Fila de Estadísticas */
+        .stats-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 40px;
-        }
-
-        .metric-card {
             border: 1px solid #e5e7eb;
-            background: #ffffff;
-            padding: 16px;
+            background-color: #ffffff;
+            margin-bottom: 24px;
         }
 
-        .metric-number {
-            font-size: 22px;
+        .stat-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 10px;
+            border-right: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .stat-card:last-child {
+            border-right: none;
+        }
+
+        .stat-number {
+            font-size: 19px;
             font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 4px;
+            line-height: 1;
+            margin-bottom: 5px;
         }
 
-        .metric-label {
+        .stat-label {
             font-size: 11px;
             color: var(--svc-text-muted);
             text-transform: uppercase;
             font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
-        /* Right Form Section */
-        .form-section-card {
+        /* Gráfico de Red SVG */
+        .network-graphic-wrap {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0 20px 0;
+        }
+
+        .network-svg {
+            width: 100%;
+            max-width: 320px;
+            height: auto;
+            opacity: 0.95;
+        }
+
+        /* Sección Explorar Rubros */
+        .rubros-section {
+            margin-top: 5px;
+        }
+
+        .rubros-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .rubros-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--svc-text-muted);
+        }
+
+        .rubros-link-all {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--svc-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .rubros-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .rubro-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid var(--svc-border);
             background-color: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-top: 4px solid var(--svc-primary);
-            padding: 40px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            transition: border-top-color 0.2s ease;
+            color: var(--svc-text);
+            cursor: pointer;
+            transition: all 0.15s ease;
         }
 
-        .form-section-card.admin-mode {
-            border-top-color: var(--svc-admin-dark);
+        .rubro-btn:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
         }
 
-        .form-title {
+        .rubro-btn.active {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border-color: var(--svc-primary);
+        }
+
+        .rubro-btn svg {
+            width: 13px;
+            height: 13px;
+            stroke-width: 2;
+        }
+
+        /* Footer Izquierdo */
+        .left-footer {
+            padding: 16px 48px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        /* ── PANEL DERECHO (FORMULARIO DE ACCESO) ── */
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+        }
+
+        .right-topbar {
+            height: 60px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 48px;
+            gap: 16px;
+        }
+
+        .top-register-prompt {
+            font-size: 12px;
+            color: var(--svc-text-muted);
+        }
+
+        .btn-top-register {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--svc-primary);
+            border: 1px solid var(--svc-primary);
+            padding: 6px 14px;
+            text-decoration: none;
+            background-color: transparent;
+            transition: all 0.15s ease;
+        }
+
+        .btn-top-register:hover {
+            background-color: #e7f0fb;
+        }
+
+        .right-form-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+        }
+
+        .auth-form-card {
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .auth-header {
+            margin-bottom: 28px;
+        }
+
+        .auth-header h2 {
             font-size: 22px;
             font-weight: 700;
             color: #0f172a;
             margin: 0 0 6px 0;
+            line-height: 1;
         }
 
-        .form-subtitle {
-            font-size: 13px;
+        .auth-header p {
+            font-size: 14px;
             color: var(--svc-text-muted);
-            margin: 0 0 25px 0;
+            margin: 0;
         }
+
+        .alert-box {
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
 
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
         .form-group label {
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            color: #334155;
+            font-size: 12px;
+            font-weight: 600;
             text-transform: uppercase;
-            margin-bottom: 6px;
             letter-spacing: 0.5px;
+            color: #1e293b;
+        }
+
+        .pwd-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pwd-label-row label {
+            margin: 0;
+        }
+
+        .link-forgot {
+            font-size: 12px;
+            color: var(--svc-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .link-forgot:hover {
+            text-decoration: underline;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%;
         }
 
         .input-svc {
             width: 100%;
-            padding: 11px 12px;
-            border: 1px solid var(--svc-border);
-            font-size: 13px;
-            outline: none;
+            height: 40px;
+            padding: 0 12px;
+            font-size: 14px;
             background-color: #ffffff;
-            font-family: 'Inter', sans-serif;
+            color: var(--svc-text);
+            border: 1px solid var(--svc-border);
+            outline: none;
+            font-family: inherit;
+            transition: border-color 0.15s ease;
         }
 
         .input-svc:focus {
             border-color: var(--svc-primary);
         }
 
-        .pwd-header-row {
+        .input-svc.input-pwd {
+            padding-right: 40px;
+        }
+
+        .btn-toggle-pwd {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--svc-text-muted);
+            cursor: pointer;
+            padding: 4px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            justify-content: center;
         }
 
-        .pwd-header-row label {
-            margin-bottom: 0;
+        .btn-toggle-pwd:hover {
+            color: var(--svc-text);
         }
 
-        .link-forgot {
-            font-size: 11px;
-            color: var(--svc-primary);
-            text-decoration: none;
-            font-weight: 600;
+        .remember-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 22px;
         }
 
-        .btn-svc-action {
+        .remember-wrap input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+            accent-color: var(--svc-primary);
+        }
+
+        .remember-wrap label {
+            font-size: 13px;
+            color: var(--svc-text-muted);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .btn-submit-login {
             width: 100%;
+            height: 44px;
             background-color: var(--svc-primary);
             color: #ffffff;
             border: none;
-            padding: 13px;
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-top: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.15s ease;
         }
 
-        .btn-svc-action:hover {
+        .btn-submit-login:hover {
             background-color: var(--svc-primary-hover);
         }
 
-        .btn-svc-action.admin-mode {
+        .btn-submit-login.admin-mode {
             background-color: var(--svc-admin-dark);
         }
 
-        .btn-svc-action.admin-mode:hover {
+        .btn-submit-login.admin-mode:hover {
             background-color: #1e293b;
         }
 
-        .divider-sso {
+        .btn-submit-login:disabled {
+            opacity: 0.75;
+            cursor: not-allowed;
+        }
+
+        .divider-row {
             display: flex;
             align-items: center;
-            text-align: center;
-            margin: 25px 0 15px 0;
+            margin: 24px 0 16px 0;
             color: var(--svc-text-muted);
             font-size: 11px;
             text-transform: uppercase;
             font-weight: 600;
+            letter-spacing: 1px;
         }
 
-        .divider-sso::before, .divider-sso::after {
+        .divider-row::before, .divider-row::after {
             content: '';
             flex: 1;
-            border-bottom: 1px solid #e2e8f0;
+            height: 1px;
+            background-color: #e5e7eb;
         }
 
-        .divider-sso:not(:empty)::before { margin-right: 10px; }
-        .divider-sso:not(:empty)::after { margin-left: 10px; }
+        .divider-row span {
+            padding: 0 12px;
+        }
 
-        .btn-svc-sso {
+        .btn-sso {
             width: 100%;
-            background-color: #ffffff;
-            color: #334155;
+            height: 40px;
             border: 1px solid var(--svc-border);
-            padding: 11px;
-            font-weight: 700;
-            font-size: 12px;
+            background-color: #ffffff;
+            color: #1e293b;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
             transition: all 0.15s ease;
         }
 
-        .btn-svc-sso:hover {
-            background-color: var(--svc-bg-surface);
-            border-color: #94a3b8;
+        .btn-sso:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+            background-color: #f8fafc;
         }
 
-        .security-badges-row {
+        .trust-badges {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #f1f5f9;
             display: flex;
             justify-content: center;
-            gap: 25px;
-            margin-top: 25px;
+            gap: 24px;
+        }
+
+        .badge-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .badge-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .badge-sub {
             font-size: 10px;
             color: var(--svc-text-muted);
-            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .alert-box {
-            padding: 12px;
-            margin-bottom: 20px;
-            display: none;
-            font-size: 13px;
-        }
-        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
-
-        /* Footer */
-        .page-footer {
-            text-align: center;
-            font-size: 12px;
-            color: var(--svc-text-muted);
-            padding: 20px 0;
-            border-top: 1px solid #e9ecef;
-            background: #ffffff;
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .left-panel { display: none; }
+            .right-topbar { justify-content: space-between; padding: 0 24px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Top Navbar -->
-    <div class="top-navbar">
-        <div class="brand-logo-container">
-            <div class="brand-logo-box" id="brandLogo">SVC</div>
-            <div class="brand-title-sub" id="brandSub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
-        </div>
-        <div class="top-nav-link" id="topNavWrap">
-            ¿Nuevo en SVC? <a href="registro.html">Crear cuenta</a>
-        </div>
-    </div>
+    <div class="login-wrapper">
 
-    <!-- Main Grid Layout -->
-    <div class="main-layout">
-        
-        <!-- Left Hero Section -->
-        <div class="hero-section">
-            <div class="tag-b2b" id="platformTag">Plataforma B2B</div>
-            <h1 class="hero-title" id="heroTitle">
-                Vinculación B2B
-                <span>Inteligente</span>
-            </h1>
-            <p class="hero-desc" id="heroDesc">
-                Centralice sus operaciones comerciales, negocie directamente y gestione su inventario en un solo lugar.
-            </p>
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- ── PANEL IZQUIERDO (FIGMA MARKETING & BRANDING) ── -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="left-panel">
+            <div class="top-stripe" id="topStripe"></div>
 
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-number">4.200+</div>
-                    <div class="metric-label">Proveedores</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-number">18.000+</div>
-                    <div class="metric-label">Productos</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-number">94%</div>
-                    <div class="metric-label">Satisfacción</div>
+            <!-- Header / Logo -->
+            <div class="left-header">
+                <div class="logo-box" id="logoBox">SVC</div>
+                <div class="logo-text-wrap">
+                    <span>Sistema de</span>
+                    <span>Vinculación Comercial</span>
                 </div>
             </div>
-        </div>
 
-        <!-- Right Form Section -->
-        <div>
-            <div class="form-section-card" id="formCard">
-                <h2 class="form-title" id="formTitle">Iniciar Sesión</h2>
-                <p class="form-subtitle" id="formSubtitle">Acceda a su panel de operaciones comerciales.</p>
+            <!-- Marketing Content -->
+            <div class="left-body">
+                <div>
+                    <span class="badge-b2b" id="badgePlatform">Plataforma B2B</span>
+                    <h1 class="hero-title" id="heroTitle">
+                        Vinculación B2B<br>
+                        <span>Inteligente</span>
+                    </h1>
+                    <p class="hero-desc" id="heroDesc">
+                        Centralice sus operaciones comerciales, negocie y gestione su stock en un solo lugar.
+                    </p>
 
-                <div id="msgBox" class="alert-box alert-danger"></div>
-
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label id="emailLabel">Correo Electrónico *</label>
-                        <input type="email" id="email" class="input-svc" placeholder="nombre@empresa.com" required>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="pwd-header-row">
-                            <label>Contraseña *</label>
-                            <a href="forgot-password.html" class="link-forgot" id="linkForgot">¿Olvidó su contraseña?</a>
+                    <!-- Estadísticas Dinámicas de la Plataforma -->
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <span class="stat-number" id="statComerciantes" style="color: var(--svc-primary);">...</span>
+                            <span class="stat-label">Comerciantes</span>
                         </div>
-                        <input type="password" id="password" class="input-svc" placeholder="••••••••" required>
+                        <div class="stat-card">
+                            <span class="stat-number" id="statProductos" style="color: #0f172a;">—</span>
+                            <span class="stat-label">Productos</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number" id="statSatisfaccion" style="color: #28a745;">—</span>
+                            <span class="stat-label">Satisfacción</span>
+                        </div>
                     </div>
 
-                    <button type="submit" id="btnSubmit" class="btn-svc-action">Ingresar &rarr;</button>
-                </form>
+                    <!-- Gráfico de Red SVG Oficial Figma -->
+                    <div class="network-graphic-wrap">
+                        <svg viewBox="0 0 420 300" fill="none" xmlns="http://www.w3.org/2000/svg" class="network-svg" aria-hidden="true">
+                            <!-- Connection lines -->
+                            <line x1="210" y1="150" x2="80" y2="80" stroke="#0056b3" stroke-width="1.5" stroke-dasharray="5 3" opacity="0.45" />
+                            <line x1="210" y1="150" x2="340" y2="80" stroke="#0056b3" stroke-width="1.5" stroke-dasharray="5 3" opacity="0.45" />
+                            <line x1="210" y1="150" x2="80" y2="230" stroke="#0056b3" stroke-width="1.5" stroke-dasharray="5 3" opacity="0.45" />
+                            <line x1="210" y1="150" x2="340" y2="230" stroke="#0056b3" stroke-width="1.5" stroke-dasharray="5 3" opacity="0.45" />
+                            <line x1="80" y1="80" x2="340" y2="80" stroke="#0056b3" stroke-width="1" opacity="0.2" />
+                            <line x1="80" y1="230" x2="340" y2="230" stroke="#0056b3" stroke-width="1" opacity="0.2" />
+                            <line x1="80" y1="80" x2="80" y2="230" stroke="#0056b3" stroke-width="1" opacity="0.2" />
+                            <line x1="340" y1="80" x2="340" y2="230" stroke="#0056b3" stroke-width="1" opacity="0.2" />
+                            <line x1="80" y1="80" x2="20" y2="40" stroke="#0056b3" stroke-width="1" opacity="0.25" />
+                            <line x1="340" y1="80" x2="400" y2="40" stroke="#0056b3" stroke-width="1" opacity="0.25" />
+                            <line x1="80" y1="230" x2="20" y2="270" stroke="#0056b3" stroke-width="1" opacity="0.25" />
+                            <line x1="340" y1="230" x2="400" y2="270" stroke="#0056b3" stroke-width="1" opacity="0.25" />
 
-                <div class="divider-sso">O bien</div>
+                            <!-- Outer small nodes -->
+                            <rect x="12" y="32" width="16" height="16" fill="#c8ddf5" stroke="#0056b3" stroke-width="1.5" />
+                            <rect x="392" y="32" width="16" height="16" fill="#c8ddf5" stroke="#0056b3" stroke-width="1.5" />
+                            <rect x="12" y="262" width="16" height="16" fill="#c8ddf5" stroke="#0056b3" stroke-width="1.5" />
+                            <rect x="392" y="262" width="16" height="16" fill="#c8ddf5" stroke="#0056b3" stroke-width="1.5" />
 
-                <!-- Botón Conmutador a Acceso Corporativo / SSO (CdU05) -->
-                <button type="button" id="btnSSO" class="btn-svc-sso" onclick="conmutarModoAcceso()">Acceso Corporativo SSO</button>
+                            <!-- Mid nodes -->
+                            <rect x="66" y="66" width="28" height="28" fill="#e7f0fb" stroke="#0056b3" stroke-width="2" />
+                            <rect x="326" y="66" width="28" height="28" fill="#e7f0fb" stroke="#0056b3" stroke-width="2" />
+                            <rect x="66" y="216" width="28" height="28" fill="#e7f0fb" stroke="#0056b3" stroke-width="2" />
+                            <rect x="326" y="216" width="28" height="28" fill="#e7f0fb" stroke="#0056b3" stroke-width="2" />
 
-                <div class="security-badges-row">
-                    <span>ISO 27001 Seguridad</span>
-                    <span>SSL 256-Bit Cifrado</span>
-                    <span>Auditoría B2B</span>
+                            <!-- Center hub -->
+                            <rect x="190" y="130" width="40" height="40" fill="#0056b3" stroke="#003d82" stroke-width="2" />
+                            <text x="210" y="155" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="700" font-family="Inter, sans-serif">SVC</text>
+
+                            <!-- Node decor -->
+                            <rect x="72" y="72" width="16" height="16" fill="#0056b3" opacity="0.3" />
+                            <rect x="332" y="72" width="16" height="16" fill="#0056b3" opacity="0.3" />
+                            <rect x="72" y="222" width="16" height="16" fill="#0056b3" opacity="0.3" />
+                            <rect x="332" y="222" width="16" height="16" fill="#0056b3" opacity="0.3" />
+
+                            <!-- Static pulse rings -->
+                            <rect x="182" y="122" width="56" height="56" stroke="#0056b3" stroke-width="1" opacity="0.2" fill="none" />
+                            <rect x="174" y="114" width="72" height="72" stroke="#0056b3" stroke-width="0.75" opacity="0.1" fill="none" />
+                        </svg>
+                    </div>
                 </div>
+
+                <!-- Explorar Rubros -->
+                <div class="rubros-section">
+                    <div class="rubros-header">
+                        <span class="rubros-title">Explorar Rubros</span>
+                        <a class="rubros-link-all" onclick="filtrarRubroVisual('')">
+                            Ver todos &rarr;
+                        </a>
+                    </div>
+                    <div class="rubros-grid" id="rubrosGrid">
+                        <!-- Botones de Rubros Inyectados por JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Izquierdo -->
+            <div class="left-footer">
+                <span>&copy; 2026 SVC — Todos los derechos reservados</span>
+                <span>v0.1.9</span>
             </div>
         </div>
 
-    </div>
 
-    <!-- Footer -->
-    <div class="page-footer">
-        &copy; 2026 SVC — Sistema de Vinculación para el Comercio
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- ── PANEL DERECHO (FORMULARIO DE ACCESO Y ACCIONES) ── -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div class="right-panel">
+            
+            <!-- Topbar -->
+            <div class="right-topbar">
+                <span class="top-register-prompt">¿Nuevo en SVC?</span>
+                <a href="registro.html" class="btn-top-register">Crear cuenta</a>
+            </div>
+
+            <!-- Contenedor Central del Formulario -->
+            <div class="right-form-container">
+                <div class="auth-form-card">
+                    
+                    <div class="auth-header">
+                        <h2 id="authTitle">Iniciar Sesión</h2>
+                        <p id="authSubtitle">Acceda a su panel de operaciones comerciales.</p>
+                    </div>
+
+                    <div id="msgBox" class="alert-box alert-danger"></div>
+
+                    <form id="loginForm">
+                        
+                        <!-- Campo Email -->
+                        <div class="form-group">
+                            <label id="lblEmail" for="email">Correo Electrónico</label>
+                            <div class="input-wrapper">
+                                <input type="email" id="email" class="input-svc" placeholder="nombre@empresa.com" required autocomplete="username">
+                            </div>
+                        </div>
+
+                        <!-- Campo Contraseña -->
+                        <div class="form-group">
+                            <div class="pwd-label-row">
+                                <label for="password">Contraseña</label>
+                                <a href="forgot-password.html" class="link-forgot" id="linkForgot">¿Olvidó su contraseña?</a>
+                            </div>
+                            <div class="input-wrapper">
+                                <input type="password" id="password" class="input-svc input-pwd" placeholder="••••••••" required autocomplete="current-password">
+                                <button type="button" class="btn-toggle-pwd" id="btnTogglePwd" onclick="togglePasswordVisibility()" aria-label="Mostrar/Ocultar Contraseña">
+                                    <!-- Ícono Ojo SVG -->
+                                    <svg id="iconEye" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    <!-- Ícono Ojo Tachado SVG -->
+                                    <svg id="iconEyeOff" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Checkbox Recordar -->
+                        <div class="remember-wrap">
+                            <input type="checkbox" id="rememberMe">
+                            <label for="rememberMe">Mantener sesión iniciada</label>
+                        </div>
+
+                        <!-- Botón Submit -->
+                        <button type="submit" id="btnSubmit" class="btn-submit-login">
+                            <span>Ingresar</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </button>
+                    </form>
+
+                    <!-- Divisor -->
+                    <div class="divider-row">
+                        <span>O bien</span>
+                    </div>
+
+                    <!-- Botón Conmutador a Acceso Corporativo SSO -->
+                    <button type="button" id="btnSSO" class="btn-sso" onclick="conmutarModoAcceso()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="2" width="16" height="20" rx="0"></rect>
+                            <line x1="9" y1="22" x2="9" y2="22.01"></line>
+                            <line x1="15" y1="22" x2="15" y2="22.01"></line>
+                            <line x1="9" y1="6" x2="9" y2="6.01"></line>
+                            <line x1="15" y1="6" x2="15" y2="6.01"></line>
+                            <line x1="9" y1="10" x2="9" y2="10.01"></line>
+                            <line x1="15" y1="10" x2="15" y2="10.01"></line>
+                            <line x1="9" y1="14" x2="9" y2="14.01"></line>
+                            <line x1="15" y1="14" x2="15" y2="14.01"></line>
+                            <line x1="9" y1="18" x2="9" y2="18.01"></line>
+                            <line x1="15" y1="18" x2="15" y2="18.01"></line>
+                        </svg>
+                        <span>Acceso Corporativo SSO</span>
+                    </button>
+
+                    <!-- Trust Badges de Seguridad -->
+                    <div class="trust-badges">
+                        <div class="badge-item">
+                            <span class="badge-title">ISO 27001</span>
+                            <span class="badge-sub">Seguridad</span>
+                        </div>
+                        <div class="badge-item">
+                            <span class="badge-title">SSL 256-bit</span>
+                            <span class="badge-sub">Cifrado</span>
+                        </div>
+                        <div class="badge-item">
+                            <span class="badge-title">GDPR</span>
+                            <span class="badge-sub">Privacidad</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
     </div>
 
     <script>
         const API_URL = "http://127.0.0.1:8080/auth";
         let esModoCorporativo = false;
+        let rubroSeleccionado = null;
 
+        // ── 1. Taxonomía de Rubros e Íconos Vectoriales SVG Embebidos ──
+        const RUBROS_CONFIG = [
+            { label: "Alimentos & Bebidas", path: "M2 22h20M12 2v20M7 7h10M5 12h14M8 17h8" },
+            { label: "Tecnología", path: "M4 4h16v16H4zM9 9h6v6H9zM9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3" },
+            { label: "Construcción", path: "M2 22h20M6 18v4M10 14v8M14 10v12M18 6v16" },
+            { label: "Logística", path: "M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 19a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM18.5 19a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" },
+            { label: "Textil & Moda", path: "M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0" },
+            { label: "Farmacéutica", path: "M10.5 20.5l10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7zM8.5 8.5l7 7" },
+            { label: "Energía", path: "M13 2L3 14h9l-1 8 10-12h-9l1-8z" },
+            { label: "Mayoristas", path: "M16.5 9.4 7.55 4.24a1.78 1.78 0 0 0-2.5 1.55v12.42a1.78 1.78 0 0 0 2.5 1.55L16.5 14.6a1.78 1.78 0 0 0 0-3.2z" },
+            { label: "Retail", path: "M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6zM3 6h18M16 10a4 4 0 0 1-8 0" },
+            { label: "Industria", path: "M4 22V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v18M9 6h1M14 6h1M9 10h1M14 10h1M9 14h1M14 14h1M9 18h1M14 18h1" }
+        ];
+
+        // ── 2. Inicialización Dinámica y Carga de Métricas ──
+        window.addEventListener("DOMContentLoaded", async () => {
+            renderizarBotonesRubros();
+            await consultarMetricasPublicas();
+        });
+
+        function renderizarBotonesRubros() {
+            const container = document.getElementById("rubrosGrid");
+            container.innerHTML = "";
+
+            RUBROS_CONFIG.forEach(r => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "rubro-btn";
+                btn.id = `rubro-btn-${r.label.replace(/\s+/g, '-').toLowerCase()}`;
+                btn.onclick = () => filtrarRubroVisual(r.label);
+
+                btn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="${r.path}"></path>
+                    </svg>
+                    <span>${r.label}</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        async function consultarMetricasPublicas() {
+            try {
+                const response = await fetch(`${API_URL}/metricas-publicas`);
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Conteo real de comerciantes activos en Supabase
+                    const cant = data.comerciantes_activos;
+                    document.getElementById("statComerciantes").innerText = cant > 0 ? `${cant.toLocaleString('es-AR')}+` : "0";
+                    
+                    // Productos y satisfacción quedan en '—' hasta Sprints 3 y 6
+                    document.getElementById("statProductos").innerText = data.productos_disponibles !== null ? `${data.productos_disponibles}+` : "—";
+                    document.getElementById("statSatisfaccion").innerText = data.satisfaccion_promedio !== null ? `${data.satisfaccion_promedio}%` : "—";
+                }
+            } catch (err) {
+                // Mantiene el valor base si el servidor no responde
+                document.getElementById("statComerciantes").innerText = "1+";
+            }
+        }
+
+        function filtrarRubroVisual(rubro) {
+            rubroSeleccionado = rubroSeleccionado === rubro ? null : rubro;
+            document.querySelectorAll(".rubro-btn").forEach(b => b.classList.remove("active"));
+            
+            if (rubroSeleccionado) {
+                const targetBtn = document.getElementById(`rubro-btn-${rubroSeleccionado.replace(/\s+/g, '-').toLowerCase()}`);
+                if (targetBtn) targetBtn.classList.add("active");
+            }
+        }
+
+        // ── 3. Conmutador de Visibilidad de Contraseña ──
+        function togglePasswordVisibility() {
+            const pwdInput = document.getElementById("password");
+            const iconEye = document.getElementById("iconEye");
+            const iconEyeOff = document.getElementById("iconEyeOff");
+
+            if (pwdInput.type === "password") {
+                pwdInput.type = "text";
+                iconEye.style.display = "none";
+                iconEyeOff.style.display = "block";
+            } else {
+                pwdInput.type = "password";
+                iconEye.style.display = "block";
+                iconEyeOff.style.display = "none";
+            }
+        }
+
+        // ── 4. Conmutador de Modo Comercial / Modo Corporativo SSO (RBAC) ──
         function conmutarModoAcceso() {
             esModoCorporativo = !esModoCorporativo;
-            const card = document.getElementById("formCard");
-            const brandLogo = document.getElementById("brandLogo");
+            
+            const topStripe = document.getElementById("topStripe");
+            const logoBox = document.getElementById("logoBox");
             const btnSubmit = document.getElementById("btnSubmit");
             const btnSSO = document.getElementById("btnSSO");
-            const formTitle = document.getElementById("formTitle");
-            const formSubtitle = document.getElementById("formSubtitle");
-            const platformTag = document.getElementById("platformTag");
+            const authTitle = document.getElementById("authTitle");
+            const authSubtitle = document.getElementById("authSubtitle");
+            const badgePlatform = document.getElementById("badgePlatform");
             const msgBox = document.getElementById("msgBox");
 
             msgBox.style.display = "none";
 
             if (esModoCorporativo) {
-                // Modo Administración / Acceso Corporativo (CdU05)
-                card.classList.add("admin-mode");
-                brandLogo.classList.add("admin-mode");
+                // Modo Administración / SSO
+                topStripe.classList.add("admin-mode");
+                logoBox.classList.add("admin-mode");
                 btnSubmit.classList.add("admin-mode");
-                brandLogo.innerText = "SVC ADMIN";
-                platformTag.innerText = "Acceso Institucional";
-                formTitle.innerText = "Acceso Corporativo";
-                formSubtitle.innerText = "Autenticación para Administradores y Gestores Globales.";
-                btnSSO.innerText = "← Volver a Acceso Comercial";
+                logoBox.innerText = "ADMIN";
+                badgePlatform.innerText = "Acceso Institucional";
+                authTitle.innerText = "Acceso Corporativo";
+                authSubtitle.innerText = "Autenticación para Administradores y Gestores Globales.";
+                btnSSO.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span>Volver a Acceso Comercial</span>
+                `;
                 document.getElementById("email").placeholder = "admin@empresa.com";
             } else {
-                // Modo Comerciante Estándar (CdU02)
-                card.classList.remove("admin-mode");
-                brandLogo.classList.remove("admin-mode");
+                // Modo Comerciante B2B
+                topStripe.classList.remove("admin-mode");
+                logoBox.classList.remove("admin-mode");
                 btnSubmit.classList.remove("admin-mode");
-                brandLogo.innerText = "SVC";
-                platformTag.innerText = "Plataforma B2B";
-                formTitle.innerText = "Iniciar Sesión";
-                formSubtitle.innerText = "Acceda a su panel de operaciones comerciales.";
-                btnSSO.innerText = "Acceso Corporativo SSO";
+                logoBox.innerText = "SVC";
+                badgePlatform.innerText = "Plataforma B2B";
+                authTitle.innerText = "Iniciar Sesión";
+                authSubtitle.innerText = "Acceda a su panel de operaciones comerciales.";
+                btnSSO.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="2" width="16" height="20" rx="0"></rect>
+                        <line x1="9" y1="22" x2="9" y2="22.01"></line>
+                        <line x1="15" y1="22" x2="15" y2="22.01"></line>
+                        <line x1="9" y1="6" x2="9" y2="6.01"></line>
+                        <line x1="15" y1="6" x2="15" y2="6.01"></line>
+                    </svg>
+                    <span>Acceso Corporativo SSO</span>
+                `;
                 document.getElementById("email").placeholder = "nombre@empresa.com";
             }
         }
 
+        // ── 5. Envío Transaccional y Autenticación JWT (CdU02) ──
         document.getElementById("loginForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const msgBox = document.getElementById("msgBox");
-            const btn = document.getElementById("btnSubmit");
+            const btnSubmit = document.getElementById("btnSubmit");
 
             msgBox.style.display = "none";
-            btn.disabled = true;
-            btn.innerText = "Autenticando...";
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `
+                <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="animation: spin 1s linear infinite;">
+                    <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+                    <path d="M4 12a8 8 0 018-8v8z" fill="currentColor"></path>
+                </svg>
+                <span>Verificando...</span>
+            `;
 
             const email = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value;
@@ -488,7 +990,7 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Persistir Token JWT y Usuario en localStorage
+                    // Persistencia de Tokens y Datos de Sesión
                     localStorage.setItem("svc_token", data.access_token);
                     localStorage.setItem("svc_usuario", JSON.stringify(data.usuario));
 
@@ -506,8 +1008,14 @@
                 msgBox.innerText = "No se pudo conectar con el servidor backend FastAPI.";
                 msgBox.style.display = "block";
             } finally {
-                btn.disabled = false;
-                btn.innerText = "Ingresar →";
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `
+                    <span>Ingresar</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                `;
             }
         });
     </script>

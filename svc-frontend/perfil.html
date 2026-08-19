@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVC - Mi Perfil Comercial (CdU04 / CdU06)</title>
+    <title>SVC - Mi Perfil Comercial (CdU04 / CdU06 / CdU09)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -23,7 +23,7 @@
 
         * {
             box-sizing: border-box;
-            border-radius: 0px !important; /* REGLA INNEGOCIABLE SVC */
+            border-radius: 0px !important; /* REGLA INNEGOCIABLE SVC: Esquinas a 90° */
         }
 
         body {
@@ -197,7 +197,7 @@
             cursor: not-allowed;
         }
 
-        /* Searchable Input Dropdowns */
+        /* Searchable Select Dropdowns */
         .searchable-select-wrap {
             position: relative;
             width: 100%;
@@ -309,14 +309,59 @@
             background-color: var(--svc-primary-hover);
         }
 
-        /* Modal CdU06 (Cerrar Sesión) */
+        /* Danger Zone (CdU09) */
+        .danger-zone-box {
+            margin-top: 40px;
+            border: 1px solid #fecaca;
+            background-color: #fff5f5;
+            padding: 25px;
+            border-left: 4px solid var(--svc-danger);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .danger-zone-text h4 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            font-weight: 700;
+            color: #991b1b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .danger-zone-text p {
+            margin: 0;
+            font-size: 12px;
+            color: #7f1d1d;
+            line-height: 1.4;
+        }
+
+        .btn-svc-delete-account {
+            background-color: var(--svc-danger);
+            color: #ffffff;
+            border: none;
+            padding: 11px 22px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .btn-svc-delete-account:hover {
+            background-color: var(--svc-danger-hover);
+        }
+
+        /* Modales Rectangulares a 90° */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(15, 23, 42, 0.6);
+            background-color: rgba(15, 23, 42, 0.65);
             display: none;
             align-items: center;
             justify-content: center;
@@ -326,10 +371,10 @@
         .modal-box {
             background: #ffffff;
             width: 100%;
-            max-width: 440px;
-            padding: 30px;
+            max-width: 480px;
+            padding: 35px;
             border: 1px solid #cbd5e1;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
         .modal-title {
@@ -343,13 +388,14 @@
             font-size: 13px;
             color: #475569;
             line-height: 1.5;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .modal-actions {
             display: flex;
             justify-content: flex-end;
             gap: 12px;
+            margin-top: 25px;
         }
 
         .btn-modal-cancel {
@@ -376,6 +422,11 @@
 
         .btn-modal-confirm:hover {
             background: var(--svc-danger-hover);
+        }
+
+        .btn-modal-confirm:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -478,6 +529,15 @@
                     <button type="submit" class="btn-svc-save">Guardar Cambios &rarr;</button>
                 </div>
             </form>
+
+            <!-- Zona de Peligro / Borrado de Cuenta (CdU09) -->
+            <div class="danger-zone-box">
+                <div class="danger-zone-text">
+                    <h4>Dar de baja cuenta comercial</h4>
+                    <p>Se le enviará un correo con un enlace de confirmación seguro (válido por 15 minutos).</p>
+                </div>
+                <button type="button" class="btn-svc-delete-account" onclick="abrirModalBorrarCuenta()">Dar de Baja Cuenta</button>
+            </div>
         </div>
     </div>
 
@@ -493,11 +553,33 @@
         </div>
     </div>
 
+    <!-- Modal Diálogo para Solicitar Baja de Cuenta (CdU09) -->
+    <div id="modalDeleteAccount" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="modal-title" style="color: var(--svc-danger);">Solicitar Baja de Cuenta Comercial</h3>
+            <p class="modal-desc">
+                Por motivos de seguridad, reingrese su contraseña actual. Se despachará un enlace de confirmación por correo electrónico a su casilla registrada:
+            </p>
+            
+            <div id="modalDeleteMsg" class="alert-box alert-danger" style="margin-bottom: 15px;"></div>
+
+            <div class="form-group">
+                <label>Contraseña Actual *</label>
+                <input type="password" id="delete_password_confirm" class="input-svc" placeholder="••••••••" required>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="cerrarModalBorrarCuenta()">Cancelar</button>
+                <button type="button" id="btnConfirmarSolicitudBaja" class="btn-modal-confirm" onclick="solicitarBajaPorEmail()">Enviar Correo de Confirmación &rarr;</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_URL = "http://127.0.0.1:8080/auth";
         const token = localStorage.getItem("svc_token");
 
-        // ── 1. Taxonomía de 50 Rubros Oficiales ──
+        // ── 1. Taxonomía Oficial de Rubros ──
         const TAXONOMIA_SVC = {
             "Alimentos & Bebidas": ["Almacenes", "Supermercados", "Minimercados", "Distribuidoras de alimentos", "Mayoristas de alimentos", "Bebidas", "Carnicerías", "Panaderías", "Lácteos", "Fiambres & Embutidos", "Dietéticas", "Café & Té"],
             "Gastronomía": ["Restaurantes", "Bares", "Cafeterías", "Cervecerías", "Pizzerías", "Rotiserías", "Catering", "Equipamiento gastronómico"],
@@ -521,10 +603,10 @@
             "San Luis", "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán"
         ];
 
-        // ── 2. Verificación de Sesión Inicial ──
+        // ── 2. Carga y Verificación de Sesión ──
         window.addEventListener("DOMContentLoaded", async () => {
             if (!token) {
-                alert("Debe iniciar sesión para acceder a esta sección.");
+                alert("Debe iniciar sesión para acceder a su perfil comercial.");
                 window.location.href = "login.html";
                 return;
             }
@@ -538,25 +620,26 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error("Sesión inválida");
+                    throw new Error("Sesión inválida o expirada");
                 }
 
                 const user = await response.json();
-                document.getElementById("navUserLabel").innerText = user.nombre_razon_social;
-                document.getElementById("titleRazonSocial").innerText = user.nombre_razon_social;
-                document.getElementById("displayCuit").innerText = `CUIT: ${user.cuit_cuil}`;
+                
+                document.getElementById("navUserLabel").innerText = user.nombre_razon_social || "Mi Comercio";
+                document.getElementById("titleRazonSocial").innerText = user.nombre_razon_social || "Mi Comercio";
+                document.getElementById("displayCuit").innerText = `CUIT: ${user.cuit_cuil || "--"}`;
 
-                document.getElementById("nombre_razon_social").value = user.nombre_razon_social;
-                document.getElementById("email").value = user.email;
-                document.getElementById("telefono").value = user.telefono;
-                document.getElementById("direccion").value = user.direccion;
-                document.getElementById("ciudad_localidad").value = user.ciudad_localidad;
+                document.getElementById("nombre_razon_social").value = user.nombre_razon_social || "";
+                document.getElementById("email").value = user.email || "";
+                document.getElementById("telefono").value = user.telefono || "";
+                document.getElementById("direccion").value = user.direccion || "";
+                document.getElementById("ciudad_localidad").value = user.ciudad_localidad || "";
 
-                document.getElementById("rubro_input").value = user.rubro_comercial;
-                document.getElementById("subrubro_input").value = user.subrubro_comercial;
-                document.getElementById("provincia_input").value = user.provincia;
+                document.getElementById("rubro_input").value = user.rubro_comercial || "";
+                document.getElementById("subrubro_input").value = user.subrubro_comercial || "";
+                document.getElementById("provincia_input").value = user.provincia || "";
+                
                 selectReach(user.zona_alcance_logistico || "Regional");
-
                 setupDropdowns();
             } catch (err) {
                 localStorage.removeItem("svc_token");
@@ -666,14 +749,9 @@
             }
         });
 
-        // ── 5. Lógica de Cerrar Sesión (CdU06) ──
-        function abrirModalLogout() {
-            document.getElementById("modalLogout").style.display = "flex";
-        }
-
-        function cerrarModalLogout() {
-            document.getElementById("modalLogout").style.display = "none";
-        }
+        // ── 5. Cerrar Sesión (CdU06) ──
+        function abrirModalLogout() { document.getElementById("modalLogout").style.display = "flex"; }
+        function cerrarModalLogout() { document.getElementById("modalLogout").style.display = "none"; }
 
         async function ejecutarLogout() {
             try {
@@ -682,11 +760,67 @@
                     headers: { "Authorization": `Bearer ${token}` }
                 });
             } catch (e) {
-                // Invalida de todos modos en el cliente ante contingencia
+                // Invalida en cliente
             } finally {
                 localStorage.removeItem("svc_token");
                 localStorage.removeItem("svc_usuario");
                 window.location.href = "login.html";
+            }
+        }
+
+        // ── 6. Solicitar Baja de Cuenta por Email (CdU09) ──
+        function abrirModalBorrarCuenta() {
+            document.getElementById("modalDeleteMsg").style.display = "none";
+            document.getElementById("delete_password_confirm").value = "";
+            document.getElementById("modalDeleteAccount").style.display = "flex";
+            document.getElementById("delete_password_confirm").focus();
+        }
+
+        function cerrarModalBorrarCuenta() {
+            document.getElementById("modalDeleteAccount").style.display = "none";
+        }
+
+        async function solicitarBajaPorEmail() {
+            const modalMsg = document.getElementById("modalDeleteMsg");
+            const btnConfirm = document.getElementById("btnConfirmarSolicitudBaja");
+            modalMsg.style.display = "none";
+
+            const pwdConfirm = document.getElementById("delete_password_confirm").value;
+
+            if (!pwdConfirm) {
+                modalMsg.innerText = "Debe ingresar su contraseña actual.";
+                modalMsg.style.display = "block";
+                return;
+            }
+
+            btnConfirm.disabled = true;
+            btnConfirm.innerText = "Despachando correo...";
+
+            try {
+                const response = await fetch(`${API_URL}/solicitar-baja-cuenta`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ password_confirmacion: pwdConfirm })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.mensaje);
+                    cerrarModalBorrarCuenta();
+                } else {
+                    modalMsg.innerText = data.detail || "Contraseña incorrecta o error al procesar.";
+                    modalMsg.style.display = "block";
+                }
+            } catch (err) {
+                modalMsg.innerText = "No se pudo conectar con el servidor backend FastAPI.";
+                modalMsg.style.display = "block";
+            } finally {
+                btnConfirm.disabled = false;
+                btnConfirm.innerText = "Enviar Correo de Confirmación →";
             }
         }
     </script>

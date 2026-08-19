@@ -8,7 +8,9 @@ from app.schemas.usuario_schema import (
     LoginResponse,
     ComerciantePerfilUpdate,
     RecuperarPasswordRequest,
-    RestablecerPasswordRequest
+    RestablecerPasswordRequest,
+    SolicitarBajaCuentaRequest,
+    ConfirmarBajaCuentaRequest
 )
 from app.core.security import (
     get_password_hash, 
@@ -16,32 +18,59 @@ from app.core.security import (
     create_access_token, 
     get_current_user_id
 )
-from app.core.email_service import enviar_correo_recuperacion
+from app.core.email_service import (
+    enviar_correo_recuperacion, 
+    enviar_correo_confirmacion_baja
+)
 from app.db.supabase_client import supabase
 
-router = APIRouter(prefix="/auth", tags=["Gestión de Identidad (Sprint 1)"])
+router = APIRouter(prefix="/auth", tags=["Gestión de Identidad y Acceso (Sprint 1)"])
 
-@router.post("/registro", response_model=ComercianteRegistroResponse, status_code=status.HTTP_201_CREATED)
+# ==============================================================================
+# 1. CdU01 - REGISTRAR NUEVO COMERCIANTE
+# ==============================================================================
+@router.post(
+    "/registro", 
+    response_model=ComercianteRegistroResponse, 
+    status_code=status.HTTP_201_CREATED,
+    summary="Registrar un nuevo perfil comercial en SVC (CdU01)"
+)
 def registrar_comerciante(datos: ComercianteRegistroCreate):
-    email_check = supabase.table("comerciantes").select("id").eq("email", datos.email).execute()
+    """
+    Registra una nueva cuenta comercial B2B en la plataforma.
+    Valida la no duplicidad de correo y CUIT contra cuentas activas o inhabilitadas.
+    """
+    email_check = (
+        supabase.table("comerciantes")
+        .select("id")
+        .eq("email", datos.email)
+        .neq("estado", "baja")
+        .execute()
+    )
     if email_check.data:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El correo electrónico ingresado ya se encuentra registrado en SVC."
+            detail="El correo electrónico ingresado ya se encuentra registrado en una cuenta activa de SVC."
         )
 
-    cuit_check = supabase.table("comerciantes").select("id").eq("cuit_cuil", datos.cuit_cuil).execute()
+    cuit_check = (
+        supabase.table("comerciantes")
+        .select("id")
+        .eq("cuit_cuil", datos.cuit_cuil)
+        .neq("estado", "baja")
+        .execute()
+    )
     if cuit_check.data:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El CUIT/CUIL ingresado ya se encuentra registrado en SVC."
+            detail="El CUIT/CUIL ingresado ya se encuentra registrado en una cuenta activa de SVC."
         )
 
     alcances_validos = ["Regional", "Nacional", "Internacional"]
     if datos.zona_alcance_logistico not in alcances_validos:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Zona de alcance logístico no válida."
+            detail=f"Zona de alcance no válida. Opciones permitidas: {', '.join(alcances_validos)}."
         )
 
     hashed_pwd = get_password_hash(datos.password)
@@ -73,21 +102,83 @@ def registrar_comerciante(datos: ComercianteRegistroCreate):
 
     return resultado.data[0]
 
-@router.post("/login", response_model=LoginResponse)
+
+# ==============================================================================
+# 2. CdU02 - INICIAR SESIÓN (UNIFICADO / ACCESO CORPORATIVO)
+# ==============================================================================
+@router.post(
+    "/login", 
+    response_model=LoginResponse,
+    summary="Iniciar sesión en la plataforma (CdU02)"
+)
 def iniciar_sesion(datos: LoginRequest):
-    res = supabase.table("comerciantes").select("*").eq("email", datos.email).execute()
-    if not res.data:
+    """
+    Autentica credenciales contra Administradores y Comerciantes.
+    Genera un Bearer Token JWT firmado con claims de rol correspondientes.
+    """
+    # 1. Comprobar si el correo pertenece a un Administrador
+    admin_res = supabase.table("administradores").select("*").eq("email", datos.email).execute()
+    if admin_res.data:
+        admin = admin_res.data[0]
+        
+        if admin.get("estado") != "activo":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, 
+                detail="La cuenta administrativa se encuentra suspendida o inhabilitada."
+            )
+            
+        if not verify_password(datos.password, admin["password_hash"]):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                detail="Credenciales de acceso inválidas."
+            )
+        
+        token = create_access_token({
+            "sub": admin["id"],
+            "email": admin["email"],
+            "rol": "administrador",
+            "nombre": admin["nombre_completo"]
+        })
+        
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "usuario": {
+                "id": admin["id"],
+                "email": admin["email"],
+                "nombre_razon_social": admin["nombre_completo"],
+                "rol": "administrador",
+                "estado": admin["estado"]
+            }
+        }
+
+    # 2. Comprobar si el correo pertenece a un Comerciante
+    com_res = (
+        supabase.table("comerciantes")
+        .select("*")
+        .eq("email", datos.email)
+        .order("creado_el", desc=True)
+        .execute()
+    )
+    
+    if not com_res.data:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales de acceso inválidas."
         )
 
-    usuario = res.data[0]
+    usuario = com_res.data[0]
+
+    if usuario.get("estado") == "baja":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Esta cuenta comercial ha sido dada de baja voluntariamente por su titular."
+        )
 
     if usuario.get("estado") != "activo":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="La cuenta se encuentra inhabilitada o suspendida por la administración."
+            detail="La cuenta se encuentra inhabilitada o suspendida por la administración de SVC."
         )
 
     if not verify_password(datos.password, usuario["password_hash"]):
@@ -99,7 +190,7 @@ def iniciar_sesion(datos: LoginRequest):
     token = create_access_token({
         "sub": usuario["id"],
         "email": usuario["email"],
-        "rol": usuario["rol"]
+        "rol": usuario.get("rol", "comerciante")
     })
 
     return {
@@ -108,18 +199,47 @@ def iniciar_sesion(datos: LoginRequest):
         "usuario": usuario
     }
 
-@router.get("/me", response_model=ComercianteRegistroResponse)
-def obtener_perfil_actual(user_id: str = Depends(get_current_user_id)):
-    res = supabase.table("comerciantes").select("*").eq("id", user_id).execute()
-    if not res.data:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado.")
-    return res.data[0]
 
-@router.put("/perfil", response_model=ComercianteRegistroResponse)
+# ==============================================================================
+# 3. CdU04 - PERFIL DE USUARIO
+# ==============================================================================
+@router.get(
+    "/me", 
+    summary="Obtener entidad del usuario autenticado en la sesión"
+)
+def obtener_perfil_actual(user_id: str = Depends(get_current_user_id)):
+    com_res = supabase.table("comerciantes").select("*").eq("id", user_id).execute()
+    if com_res.data:
+        usuario = com_res.data[0]
+        if usuario.get("estado") != "activo":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, 
+                detail="La cuenta comercial no se encuentra activa."
+            )
+        return usuario
+    
+    adm_res = supabase.table("administradores").select("*").eq("id", user_id).execute()
+    if adm_res.data:
+        return adm_res.data[0]
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND, 
+        detail="Registro de usuario no encontrado."
+    )
+
+
+@router.put(
+    "/perfil", 
+    response_model=ComercianteRegistroResponse,
+    summary="Actualizar los datos comerciales del perfil autenticado (CdU04)"
+)
 def modificar_perfil(datos: ComerciantePerfilUpdate, user_id: str = Depends(get_current_user_id)):
     alcances_validos = ["Regional", "Nacional", "Internacional"]
     if datos.zona_alcance_logistico not in alcances_validos:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Zona de alcance no válida.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=f"Zona de alcance no válida. Permitidas: {', '.join(alcances_validos)}."
+        )
 
     actualizacion = {
         "nombre_razon_social": datos.nombre_razon_social,
@@ -136,26 +256,50 @@ def modificar_perfil(datos: ComerciantePerfilUpdate, user_id: str = Depends(get_
 
     res = supabase.table("comerciantes").update(actualizacion).eq("id", user_id).execute()
     if not res.data:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="No se pudo actualizar el perfil.")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail="Error al persistir las modificaciones en la base de datos."
+        )
 
     return res.data[0]
 
-@router.post("/logout")
-def cerrar_sesion(user_id: str = Depends(get_current_user_id)):
-    return {"mensaje": "Sesión finalizada correctamente.", "estado": "logout_success"}
 
-# ── CdU03: Recuperar Contraseña de Acceso ──────────────────────────────
-@router.post("/solicitar-recuperacion")
+# ==============================================================================
+# 4. CdU06 - CERRAR SESIÓN
+# ==============================================================================
+@router.post(
+    "/logout", 
+    summary="Cerrar la sesión de trabajo (CdU06)"
+)
+def cerrar_sesion(user_id: str = Depends(get_current_user_id)):
+    return {
+        "mensaje": "Sesión finalizada de forma segura en SVC.",
+        "estado": "logout_success"
+    }
+
+
+# ==============================================================================
+# 5. CdU03 - RECUPERAR CONTRASEÑA POR CORREO SMTP
+# ==============================================================================
+@router.post(
+    "/solicitar-recuperacion",
+    summary="Generar y despachar enlace de recuperación (CdU03)"
+)
 def solicitar_recuperacion_password(datos: RecuperarPasswordRequest):
-    # 1. Validar que el correo pertenezca a un comerciante activo en Supabase
-    user_res = supabase.table("comerciantes").select("id, email, estado").eq("email", datos.email).execute()
-    if not user_res.data or user_res.data[0]["estado"] != "activo":
+    user_res = (
+        supabase.table("comerciantes")
+        .select("id, email, estado")
+        .eq("email", datos.email)
+        .eq("estado", "activo")
+        .execute()
+    )
+    
+    if not user_res.data:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="El correo ingresado no pertenece a ninguna cuenta activa de SVC."
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="El correo ingresado no pertenece a ninguna cuenta comercial activa de SVC."
         )
 
-    # 2. Generar token único con expiración estricta de 30 minutos (ERS Secc. 4.4 CdU03)
     token_str = secrets.token_urlsafe(32)
     expiracion = datetime.now(timezone.utc) + timedelta(minutes=30)
 
@@ -166,20 +310,19 @@ def solicitar_recuperacion_password(datos: RecuperarPasswordRequest):
         "usado": False
     }
 
-    token_res = supabase.table("tokens_recuperacion").insert(registro_token).execute()
-    if not token_res.data:
+    insert_res = supabase.table("tokens_recuperacion").insert(registro_token).execute()
+    if not insert_res.data:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error al registrar el token de recuperación en la base de datos."
+            detail="Error al registrar la solicitud de recuperación."
         )
 
-    # 3. Despacho SMTP
     try:
         enviar_correo_recuperacion(datos.email, token_str)
     except Exception as e:
         supabase.table("tokens_recuperacion").delete().eq("token", token_str).execute()
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
             detail=f"Fallo en el servidor SMTP al despachar el correo: {str(e)}"
         )
 
@@ -188,34 +331,47 @@ def solicitar_recuperacion_password(datos: RecuperarPasswordRequest):
         "estado": "email_sent_success"
     }
 
-@router.post("/restablecer-password")
+
+@router.post(
+    "/restablecer-password",
+    summary="Restablecer la contraseña con el token temporal (CdU03)"
+)
 def restablecer_password(datos: RestablecerPasswordRequest):
-    # 1. Validar token existente y no usado
-    token_query = supabase.table("tokens_recuperacion").select("*").eq("token", datos.token).eq("usado", False).execute()
+    token_query = (
+        supabase.table("tokens_recuperacion")
+        .select("*")
+        .eq("token", datos.token)
+        .eq("usado", False)
+        .execute()
+    )
+    
     if not token_query.data:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_400_BAD_REQUEST, 
             detail="El enlace de recuperación es inválido o ya ha sido utilizado."
         )
 
     token_record = token_query.data[0]
     expiracion_dt = datetime.fromisoformat(token_record["expiracion"].replace("Z", "+00:00"))
 
-    # 2. Validar ventana de expiración de 30 minutos
     if datetime.now(timezone.utc) > expiracion_dt:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_400_BAD_REQUEST, 
             detail="El enlace de recuperación ha expirado (límite: 30 minutos). Solicite uno nuevo."
         )
 
-    # 3. Cifrar la nueva contraseña con bcrypt nativo
     nuevo_hash = get_password_hash(datos.nueva_password)
 
-    # 4. Actualizar contraseña del comerciante
-    update_res = supabase.table("comerciantes").update({
-        "password_hash": nuevo_hash,
-        "actualizado_el": "now()"
-    }).eq("email", token_record["email"]).execute()
+    update_res = (
+        supabase.table("comerciantes")
+        .update({
+            "password_hash": nuevo_hash, 
+            "actualizado_el": "now()"
+        })
+        .eq("email", token_record["email"])
+        .eq("estado", "activo")
+        .execute()
+    )
 
     if not update_res.data:
         raise HTTPException(
@@ -223,10 +379,117 @@ def restablecer_password(datos: RestablecerPasswordRequest):
             detail="Error al actualizar la contraseña en la base de datos."
         )
 
-    # 5. Invalidar el token utilizado
     supabase.table("tokens_recuperacion").update({"usado": True}).eq("id", token_record["id"]).execute()
 
     return {
         "mensaje": "Contraseña restablecida exitosamente. Ya puede iniciar sesión con su nueva clave.",
         "estado": "password_reset_success"
+    }
+
+
+# ==============================================================================
+# 6. CdU09 - BAJA DE CUENTA CON CONFIRMACIÓN 2FA POR EMAIL
+# ==============================================================================
+@router.post(
+    "/solicitar-baja-cuenta",
+    summary="Solicitar confirmación por correo para baja de cuenta (CdU09 - Paso 1)"
+)
+def solicitar_baja_cuenta(datos: SolicitarBajaCuentaRequest, user_id: str = Depends(get_current_user_id)):
+    res = supabase.table("comerciantes").select("*").eq("id", user_id).execute()
+    if not res.data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Cuenta comercial no encontrada."
+        )
+
+    usuario = res.data[0]
+
+    if not verify_password(datos.password_confirmacion, usuario["password_hash"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="La contraseña ingresada para confirmar la baja es incorrecta."
+        )
+
+    token_str = secrets.token_urlsafe(32)
+    expiracion = datetime.now(timezone.utc) + timedelta(minutes=15)
+
+    registro_token = {
+        "usuario_id": user_id,
+        "email": usuario["email"],
+        "token": token_str,
+        "expiracion": expiracion.isoformat(),
+        "usado": False
+    }
+
+    token_res = supabase.table("tokens_baja_cuenta").insert(registro_token).execute()
+    if not token_res.data:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error al registrar la solicitud de baja en la base de datos."
+        )
+
+    try:
+        enviar_correo_confirmacion_baja(usuario["email"], usuario["nombre_razon_social"], token_str)
+    except Exception as e:
+        supabase.table("tokens_baja_cuenta").delete().eq("token", token_str).execute()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail=f"Fallo en el servidor SMTP al despachar el correo de baja: {str(e)}"
+        )
+
+    return {
+        "mensaje": f"Se ha enviado un correo de confirmación a {usuario['email']}. Por favor acceda al enlace para confirmar la baja.",
+        "estado": "email_confirmacion_baja_enviado"
+    }
+
+
+@router.post(
+    "/confirmar-baja-cuenta",
+    summary="Confirmar y ejecutar la baja lógica de la cuenta (CdU09 - Paso 2)"
+)
+def confirmar_baja_cuenta(datos: ConfirmarBajaCuentaRequest):
+    token_query = (
+        supabase.table("tokens_baja_cuenta")
+        .select("*")
+        .eq("token", datos.token)
+        .eq("usado", False)
+        .execute()
+    )
+    
+    if not token_query.data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="El enlace de confirmación es inválido o ya ha sido utilizado."
+        )
+
+    token_record = token_query.data[0]
+    expiracion_dt = datetime.fromisoformat(token_record["expiracion"].replace("Z", "+00:00"))
+
+    if datetime.now(timezone.utc) > expiracion_dt:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="El enlace de confirmación ha expirado (límite: 15 minutos)."
+        )
+
+    baja_res = (
+        supabase.table("comerciantes")
+        .update({
+            "estado": "baja", 
+            "actualizado_el": "now()"
+        })
+        .eq("id", token_record["usuario_id"])
+        .execute()
+    )
+
+    if not baja_res.data:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error al procesar la baja de la cuenta en la base de datos."
+        )
+
+    supabase.table("tokens_baja_cuenta").update({"usado": True}).eq("id", token_record["id"]).execute()
+
+    return {
+        "mensaje": "Su cuenta comercial ha sido dada de baja definitivamente de la plataforma SVC.",
+        "estado": "cuenta_dada_de_baja_success"
     }

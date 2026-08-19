@@ -1,39 +1,71 @@
-import bcrypt
 import os
-import jwt
-from datetime import datetime, timedelta
-from fastapi import HTTPException, Security, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from datetime import datetime, timedelta, timezone
+from jose import JWTError, jwt
+import bcrypt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from dotenv import load_dotenv
 
-JWT_SECRET = os.getenv("JWT_SECRET", "svc_secret_key_seminario_2026")
+load_dotenv()
+
+SECRET_KEY = os.getenv("JWT_SECRET", "svc_clave_secreta_desarrollo_seminario_2026_x987123")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "120"))
 
-security_bearer = HTTPBearer()
-
-def get_password_hash(password: str) -> str:
-    pwd_bytes = password.encode('utf-8')[:72]
-    salt = bcrypt.gensalt(rounds=12)
-    return bcrypt.hashpw(pwd_bytes, salt).decode('utf-8')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    pwd_bytes = plain_password.encode('utf-8')[:72]
-    hash_bytes = hashed_password.encode('utf-8')
-    return bcrypt.checkpw(pwd_bytes, hash_bytes)
+    """Verifica si la contraseña en texto plano coincide con el hash bcrypt."""
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+def get_password_hash(password: str) -> str:
+    """Genera un hash seguro utilizando bcrypt nativo."""
+    salt = bcrypt.gensalt(rounds=12)
+    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
 
 def create_access_token(data: dict) -> str:
+    """Genera un Bearer Token JWT firmado con tiempo de expiración."""
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, JWT_SECRET, algorithm=ALGORITHM)
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def get_current_user_id(credentials: HTTPAuthorizationCredentials = Security(security_bearer)) -> str:
-    token = credentials.credentials
+def get_current_user_id(token: str = Depends(oauth2_scheme)) -> str:
+    """Extrae y valida el ID de usuario desde el token JWT."""
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="No se pudieron validar las credenciales de acceso.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
         if user_id is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token no válido.")
+            raise credentials_exception
         return user_id
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales expiradas o inválidas.")
+    except JWTError:
+        raise credentials_exception
+
+def get_current_admin(token: str = Depends(oauth2_scheme)) -> dict:
+    """
+    Control de Acceso Basado en Roles (RBAC):
+    Valida que el token pertenezca estrictamente a un usuario con rol de Administrador.
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Sesión inválida o expirada.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        rol: str = payload.get("rol")
+        
+        if user_id is None or rol != "administrador":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Acceso restringido: Se requieren privilegios de Administrador Global."
+            )
+        return {"id": user_id, "email": payload.get("email"), "rol": rol}
+    except JWTError:
+        raise credentials_exception

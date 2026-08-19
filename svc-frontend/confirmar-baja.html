@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Confirmar Baja de Cuenta Comercial (CdU09)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-bg-page: #f8f9fa;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-danger: #dc3545;
+            --svc-danger-hover: #bd2130;
+            --svc-border-radius: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important; /* REGLA INNEGOCIABLE SVC: Esquinas a 90° */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .top-navbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo-box {
+            background-color: var(--svc-danger);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-title-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .center-card-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-top: 4px solid var(--svc-danger);
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .form-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #991b1b;
+            margin: 0 0 12px 0;
+        }
+
+        .form-desc {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .btn-svc-delete-final {
+            width: 100%;
+            background-color: var(--svc-danger);
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-svc-delete-final:hover {
+            background-color: var(--svc-danger-hover);
+        }
+
+        .btn-svc-delete-final:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .alert-box {
+            padding: 14px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+            line-height: 1.4;
+            text-align: left;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+        .alert-success { background-color: #d4edda; color: #28a745; border: 1px solid #c3e6cb; }
+
+        .back-link {
+            margin-top: 25px;
+            font-size: 13px;
+        }
+
+        .back-link a {
+            color: var(--svc-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .page-footer {
+            text-align: center;
+            font-size: 12px;
+            color: var(--svc-text-muted);
+            padding: 20px 0;
+            border-top: 1px solid #e9ecef;
+            background: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-navbar">
+        <div class="brand-logo-container">
+            <div class="brand-logo-box">SVC</div>
+            <div class="brand-title-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+        </div>
+        <div style="font-size: 13px;">
+            <a href="login.html" style="color: var(--svc-primary); font-weight: 600; text-decoration: none;">&larr; Ir a Inicio de Sesión</a>
+        </div>
+    </div>
+
+    <div class="center-card-wrap">
+        <div class="auth-card">
+            <h1 class="form-title">Confirmar Baja Comercial</h1>
+            <p class="form-desc">
+                Ha accedido mediante el enlace de seguridad despachado a su correo electrónico.<br><br>
+                Al hacer clic en el botón inferior, se ejecutará la <strong>baja definitiva</strong> de su cuenta comercial. Su perfil e inventario dejarán de estar disponibles en la red B2B.
+            </p>
+
+            <div id="msgBox" class="alert-box"></div>
+
+            <button type="button" id="btnConfirmarBaja" class="btn-svc-delete-final" onclick="ejecutarBajaFinal()">Confirmar Baja Definitiva &rarr;</button>
+
+            <div class="back-link">
+                ¿Desea mantener su cuenta activa? <a href="login.html">Regresar al acceso seguro</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-footer">
+        &copy; 2026 SVC — Sistema de Vinculación para el Comercio
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        if (!token) {
+            const msgBox = document.getElementById('msgBox');
+            msgBox.className = 'alert-box alert-danger';
+            msgBox.innerText = 'Token de confirmación no detectado o inválido. Solicite la baja nuevamente desde su perfil.';
+            msgBox.style.display = 'block';
+            document.getElementById('btnConfirmarBaja').style.display = 'none';
+        }
+
+        async function ejecutarBajaFinal() {
+            const msgBox = document.getElementById('msgBox');
+            const btn = document.getElementById('btnConfirmarBaja');
+
+            msgBox.style.display = 'none';
+            btn.disabled = true;
+            btn.innerText = 'Procesando baja en base de datos...';
+
+            try {
+                const response = await fetch('http://127.0.0.1:8080/auth/confirmar-baja-cuenta', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    msgBox.className = 'alert-box alert-success';
+                    msgBox.innerHTML = `<strong>¡Cuenta dada de baja exitosamente!</strong><br>${data.mensaje}<br><br><a href="login.html" style="color: #28a745; font-weight: bold; text-decoration: underline;">Volver a la pantalla de acceso &rarr;</a>`;
+                    msgBox.style.display = 'block';
+                    btn.style.display = 'none';
+
+                    // Limpieza total del cliente
+                    localStorage.removeItem('svc_token');
+                    localStorage.removeItem('svc_usuario');
+                } else {
+                    msgBox.className = 'alert-box alert-danger';
+                    msgBox.innerText = data.detail || 'Error al confirmar la baja de la cuenta.';
+                    msgBox.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerText = 'Confirmar Baja Definitiva →';
+                }
+            } catch (err) {
+                msgBox.className = 'alert-box alert-danger';
+                msgBox.innerText = 'No se pudo conectar con el servidor backend FastAPI.';
+                msgBox.style.display = 'block';
+                btn.disabled = false;
+                btn.innerText = 'Confirmar Baja Definitiva →';
+            }
+        }
+    </script>
+</body>
+</html>

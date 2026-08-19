@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Panel de Gestión y Control de Usuarios (CdU05 / CdU07 / CdU08)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-primary-hover: #004085;
+            --svc-bg-page: #f8f9fa;
+            --svc-bg-surface: #ffffff;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-danger: #dc3545;
+            --svc-danger-hover: #bd2130;
+            --svc-success: #28a745;
+            --svc-admin-dark: #0f172a;
+            --svc-border-radius: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important; /* REGLA INNEGOCIABLE SVC: Esquinas a 90° */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo-box {
+            background-color: var(--svc-admin-dark);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-title-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .user-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-badge-admin {
+            background-color: #e2e8f0;
+            color: #0f172a;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-svc-logout-nav {
+            background: transparent;
+            border: 1px solid var(--svc-danger);
+            color: var(--svc-danger);
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.15s ease;
+        }
+
+        .btn-svc-logout-nav:hover {
+            background-color: var(--svc-danger);
+            color: #ffffff;
+        }
+
+        /* Main Container */
+        .admin-container {
+            max-width: 1240px;
+            margin: 30px auto 50px auto;
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        .admin-header-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-top: 4px solid var(--svc-primary);
+            padding: 25px 30px;
+        }
+
+        .admin-header-title h1 {
+            margin: 0 0 5px 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .admin-header-title p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--svc-text-muted);
+        }
+
+        .btn-svc-primary {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border: none;
+            padding: 12px 20px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-svc-primary:hover {
+            background-color: var(--svc-primary-hover);
+        }
+
+        /* Tabs */
+        .tabs-header-row {
+            display: flex;
+            gap: 5px;
+            margin-bottom: -1px;
+        }
+
+        .tab-btn {
+            background: #e2e8f0;
+            border: 1px solid #cbd5e1;
+            border-bottom: none;
+            padding: 12px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-btn.active {
+            background: #ffffff;
+            color: var(--svc-primary);
+            border-top: 3px solid var(--svc-primary);
+            border-bottom: 1px solid #ffffff;
+        }
+
+        /* Filter Box */
+        .filter-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: grid;
+            grid-template-columns: 2fr 1.2fr 1.2fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group-filter {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group-filter label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .input-svc-filter {
+            padding: 9px 12px;
+            border: 1px solid var(--svc-border);
+            font-size: 13px;
+            outline: none;
+            background: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .input-svc-filter:focus {
+            border-color: var(--svc-primary);
+        }
+
+        .btn-filter-action {
+            background-color: #334155;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            height: 38px;
+        }
+
+        .btn-filter-action:hover {
+            background-color: #0f172a;
+        }
+
+        /* Table */
+        .table-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            overflow-x: auto;
+        }
+
+        .svc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .svc-table th {
+            background-color: #f8fafc;
+            color: #334155;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            padding: 14px 16px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .svc-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+            vertical-align: middle;
+        }
+
+        .svc-table tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-activo { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
+        .badge-inhabilitado { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+        .badge-baja { background-color: #e2e8f0; color: #64748b; border: 1px solid #cbd5e1; }
+
+        /* Actions */
+        .btn-table-action {
+            border: none;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-action-ban {
+            background-color: #fee2e2;
+            color: var(--svc-danger);
+            border: 1px solid #fca5a5;
+        }
+        .btn-action-ban:hover {
+            background-color: var(--svc-danger);
+            color: #ffffff;
+        }
+
+        .btn-action-unban {
+            background-color: #dcfce7;
+            color: var(--svc-success);
+            border: 1px solid #86efac;
+        }
+        .btn-action-unban:hover {
+            background-color: var(--svc-success);
+            color: #ffffff;
+        }
+
+        /* Pagination */
+        .pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            font-size: 12px;
+            color: var(--svc-text-muted);
+        }
+
+        .pagination-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-page {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-page:hover:not(:disabled) { background-color: #f1f5f9; }
+        .btn-page:disabled { color: #cbd5e1; cursor: not-allowed; }
+
+        /* Alerts */
+        .alert-box {
+            padding: 14px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+        .alert-success { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
+
+        /* Modales */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(15, 23, 42, 0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            width: 100%;
+            max-width: 500px;
+            padding: 35px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 10px 0;
+        }
+
+        .modal-desc {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .form-group-modal {
+            margin-bottom: 16px;
+        }
+
+        .form-group-modal label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .input-svc-modal {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--svc-border);
+            background-color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: var(--svc-text);
+            outline: none;
+        }
+
+        .input-svc-modal:focus {
+            border-color: var(--svc-primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .btn-modal-cancel {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            color: #334155;
+            padding: 10px 18px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-modal-submit-admin {
+            background: var(--svc-primary);
+            border: none;
+            color: #ffffff;
+            padding: 10px 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-modal-submit-danger {
+            background: var(--svc-danger);
+            border: none;
+            color: #ffffff;
+            padding: 10px 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .page-footer {
+            text-align: center;
+            font-size: 12px;
+            color: var(--svc-text-muted);
+            padding: 20px 0;
+            border-top: 1px solid #e9ecef;
+            background: #ffffff;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <div class="top-navbar">
+        <div class="brand-logo-container">
+            <div class="brand-logo-box">SVC ADMIN</div>
+            <div class="brand-title-sub">Gestión Centralizada<br><strong>PANEL DE CONTROL B2B</strong></div>
+        </div>
+        <div class="user-nav-actions">
+            <span class="user-badge-admin" id="adminLabel">ADMINISTRADOR</span>
+            <button class="btn-svc-logout-nav" onclick="cerrarSesionAdmin()">Cerrar Sesión &times;</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="admin-container">
+        
+        <div class="admin-header-strip">
+            <div class="admin-header-title">
+                <h1>Padrón General de Usuarios y Gestores</h1>
+                <p>Auditoría de comerciantes, aplicación de inhabilitaciones y control del equipo de administración</p>
+            </div>
+            <button type="button" class="btn-svc-primary" onclick="abrirModalNuevoAdmin()">+ Registrar Administrador</button>
+        </div>
+
+        <div id="globalMsgBox" class="alert-box"></div>
+
+        <!-- Conmutador de Pestañas -->
+        <div class="tabs-header-row">
+            <button type="button" id="tabComerciantes" class="tab-btn active" onclick="cambiarTab('comerciantes')">Comerciantes B2B</button>
+            <button type="button" id="tabAdmins" class="tab-btn" onclick="cambiarTab('admins')">Equipo de Administradores</button>
+        </div>
+
+        <!-- Filtros Comerciantes -->
+        <div id="filterSection" class="filter-card">
+            <div class="form-group-filter">
+                <label>Buscar por Texto</label>
+                <input type="text" id="filterBusqueda" class="input-svc-filter" placeholder="Razón social, CUIT o Email...">
+            </div>
+            <div class="form-group-filter">
+                <label>Estado de Cuenta</label>
+                <select id="filterEstado" class="input-svc-filter">
+                    <option value="">Todos los Estados</option>
+                    <option value="activo">Activo</option>
+                    <option value="inhabilitado">Inhabilitado</option>
+                    <option value="baja">Baja</option>
+                </select>
+            </div>
+            <div class="form-group-filter">
+                <label>Rubro Comercial</label>
+                <select id="filterRubro" class="input-svc-filter">
+                    <option value="">Todos los Rubros</option>
+                    <option value="Alimentos & Bebidas">Alimentos & Bebidas</option>
+                    <option value="Gastronomía">Gastronomía</option>
+                    <option value="Textil & Indumentaria">Textil & Indumentaria</option>
+                    <option value="Tecnología & Electrónica">Tecnología & Electrónica</option>
+                    <option value="Informática & Software">Informática & Software</option>
+                    <option value="Construcción & Materiales">Construcción & Materiales</option>
+                    <option value="Ferretería & Herramientas">Ferretería & Herramientas</option>
+                    <option value="Limpieza & Mantenimiento">Limpieza & Mantenimiento</option>
+                </select>
+            </div>
+            <button type="button" class="btn-filter-action" onclick="cargarComerciantes(1)">Filtrar Padrón</button>
+        </div>
+
+        <!-- Tabla -->
+        <div class="table-card">
+            <table class="svc-table">
+                <thead id="tableHead"></thead>
+                <tbody id="usuariosTableBody">
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">
+                            Cargando datos del sistema...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        <div id="paginationBar" class="pagination-bar">
+            <span id="paginationInfo">Mostrando 0 de 0 registros</span>
+            <div class="pagination-buttons">
+                <button type="button" id="btnPrevPage" class="btn-page" onclick="cambiarPagina(-1)" disabled>&larr; Anterior</button>
+                <button type="button" id="btnNextPage" class="btn-page" onclick="cambiarPagina(1)" disabled>Siguiente &rarr;</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Inhabilitación (CdU07) -->
+    <div id="modalInhabilitar" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="modal-title" style="color: var(--svc-danger);">Inhabilitar Cuenta de Usuario</h3>
+            <p class="modal-desc">
+                Esta acción suspenderá de inmediato el acceso de <strong id="inhabilitarTargetName">--</strong> a la plataforma.<br><br>
+                <strong>Por requerimiento de auditoría (ERS Secc. 3.3), ingrese el motivo de la sanción:</strong>
+            </p>
+
+            <div id="modalInhabilitarMsg" class="alert-box alert-danger"></div>
+
+            <form id="inhabilitarForm">
+                <input type="hidden" id="inhabilitarTargetId">
+                <input type="hidden" id="inhabilitarTargetType">
+
+                <div class="form-group-modal">
+                    <label>Justificación / Motivo de la Sanción *</label>
+                    <textarea id="inhabilitarMotivo" class="input-svc-modal" rows="4" placeholder="Redacte detalladamente el motivo..." required minlength="5"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-modal-cancel" onclick="cerrarModalInhabilitar()">Cancelar</button>
+                    <button type="submit" id="btnConfirmarInhabilitar" class="btn-modal-submit-danger">Confirmar Inhabilitación &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Admin (CdU05) -->
+    <div id="modalNuevoAdmin" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="modal-title">Registrar Nuevo Administrador</h3>
+            <p class="modal-desc">
+                Ingrese los datos del nuevo gestor institucional. Se enviará un correo de bienvenida con su contraseña provisoria.
+            </p>
+
+            <div id="modalAdminMsg" class="alert-box alert-danger"></div>
+
+            <form id="nuevoAdminForm">
+                <div class="form-group-modal">
+                    <label>Nombre Completo *</label>
+                    <input type="text" id="admin_nombre" class="input-svc-modal" placeholder="Ej: Lic. Martín Gómez" required>
+                </div>
+
+                <div class="form-group-modal">
+                    <label>Correo Electrónico Institucional *</label>
+                    <input type="email" id="admin_email" class="input-svc-modal" placeholder="nombre@empresa.com" required>
+                </div>
+
+                <div class="form-group-modal">
+                    <label>Contraseña Provisoria *</label>
+                    <input type="password" id="admin_password" class="input-svc-modal" placeholder="Mínimo 8 caracteres" required minlength="8">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-modal-cancel" onclick="cerrarModalNuevoAdmin()">Cancelar</button>
+                    <button type="submit" id="btnCrearAdmin" class="btn-modal-submit-admin">Crear Cuenta Admin &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="page-footer">
+        &copy; 2026 SVC — Sistema de Vinculación para el Comercio
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8080";
+        const token = localStorage.getItem("svc_token");
+        let pestanaActiva = "comerciantes";
+        let paginaActual = 1;
+        let totalPaginasDisponibles = 1;
+        let usuarioSesionActual = null;
+
+        // 1. Verificación de Seguridad y Sesión RBAC
+        window.addEventListener("DOMContentLoaded", async () => {
+            if (!token) {
+                alert("Acceso restringido: Inicie sesión como Administrador.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error("Sesión inválida");
+
+                usuarioSesionActual = await response.json();
+                if (usuarioSesionActual.rol !== "administrador") {
+                    alert("Acceso denegado: Requiere rol de Administrador Global.");
+                    window.location.href = "perfil.html";
+                    return;
+                }
+
+                document.getElementById("adminLabel").innerText = `ADMIN: ${usuarioSesionActual.nombre_completo || usuarioSesionActual.email}`;
+                await cambiarTab("comerciantes");
+            } catch (err) {
+                localStorage.removeItem("svc_token");
+                localStorage.removeItem("svc_usuario");
+                window.location.href = "login.html";
+            }
+        });
+
+        // 2. Control de Pestañas
+        async function cambiarTab(tab) {
+            pestanaActiva = tab;
+            const tabCom = document.getElementById("tabComerciantes");
+            const tabAdm = document.getElementById("tabAdmins");
+            const filterSec = document.getElementById("filterSection");
+            const pagBar = document.getElementById("paginationBar");
+            const thead = document.getElementById("tableHead");
+
+            if (tab === "comerciantes") {
+                tabCom.classList.add("active");
+                tabAdm.classList.remove("active");
+                filterSec.style.display = "grid";
+                pagBar.style.display = "flex";
+                thead.innerHTML = `
+                    <tr>
+                        <th>Razón Social</th>
+                        <th>CUIT / CUIL</th>
+                        <th>Correo Electrónico</th>
+                        <th>Rubro Comercial</th>
+                        <th>Ubicación</th>
+                        <th>Estado</th>
+                        <th style="text-align: right;">Acciones</th>
+                    </tr>
+                `;
+                await cargarComerciantes(1);
+            } else {
+                tabCom.classList.remove("active");
+                tabAdm.classList.add("active");
+                filterSec.style.display = "none";
+                pagBar.style.display = "none";
+                thead.innerHTML = `
+                    <tr>
+                        <th>Nombre y Apellido</th>
+                        <th>Correo Institucional</th>
+                        <th>Rol Asignado</th>
+                        <th>Fecha de Alta</th>
+                        <th>Estado</th>
+                        <th style="text-align: right;">Acciones</th>
+                    </tr>
+                `;
+                await cargarAdministradores();
+            }
+        }
+
+        // 3. Cargar Comerciantes Paginados (CdU08)
+        async function cargarComerciantes(pagina = 1) {
+            paginaActual = pagina;
+            const tbody = document.getElementById("usuariosTableBody");
+            const busqueda = document.getElementById("filterBusqueda").value.trim();
+            const estado = document.getElementById("filterEstado").value;
+            const rubro = document.getElementById("filterRubro").value;
+
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">Actualizando comerciantes...</td></tr>`;
+
+            const params = new URLSearchParams({ pagina: paginaActual, limite: 8 });
+            if (busqueda) params.append("busqueda", busqueda);
+            if (estado) params.append("estado", estado);
+            if (rubro) params.append("rubro", rubro);
+
+            try {
+                const response = await fetch(`${API_URL}/admin/usuarios?${params.toString()}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (!response.ok) throw new Error("Error al consultar");
+
+                const data = await response.json();
+                totalPaginasDisponibles = data.total_paginas;
+
+                renderTablaComerciantes(data.usuarios);
+                actualizarPaginador(data.total, data.pagina, data.limite);
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-danger); padding: 30px;">Error al conectar con el backend.</td></tr>`;
+            }
+        }
+
+        function renderTablaComerciantes(usuarios) {
+            const tbody = document.getElementById("usuariosTableBody");
+            tbody.innerHTML = "";
+
+            if (!usuarios || usuarios.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">No se encontraron comerciantes con los filtros aplicados.</td></tr>`;
+                return;
+            }
+
+            usuarios.forEach(u => {
+                const tr = document.createElement("tr");
+                const badgeClass = `badge-${u.estado || 'activo'}`;
+                const ubicacion = `${u.ciudad_localidad || '--'}, ${u.provincia || '--'}`;
+
+                let actionButton = "";
+                if (u.estado === "activo") {
+                    actionButton = `<button class="btn-table-action btn-action-ban" onclick="abrirModalInhabilitar('${u.id}', '${u.nombre_razon_social}', 'comerciante')">Inhabilitar</button>`;
+                } else if (u.estado === "inhabilitado") {
+                    actionButton = `<button class="btn-table-action btn-action-unban" onclick="ejecutarReactivacion('${u.id}', '${u.nombre_razon_social}', 'comerciante')">Reactivar</button>`;
+                } else {
+                    actionButton = `<span style="font-size: 11px; color: #64748b; font-weight: 600;">BAJA VOLUNTARIA</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td><strong>${u.nombre_razon_social}</strong></td>
+                    <td><code>${u.cuit_cuil}</code></td>
+                    <td>${u.email}</td>
+                    <td>${u.rubro_comercial || '--'}</td>
+                    <td>${ubicacion}</td>
+                    <td><span class="status-badge ${badgeClass}">${u.estado}</span></td>
+                    <td style="text-align: right;">${actionButton}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 4. Cargar Administradores
+        async function cargarAdministradores() {
+            const tbody = document.getElementById("usuariosTableBody");
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">Consultando equipo de administración...</td></tr>`;
+
+            try {
+                const response = await fetch(`${API_URL}/admin/administradores`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (!response.ok) throw new Error("Error al consultar administradores");
+
+                const data = await response.json();
+                renderTablaAdministradores(data.administradores);
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--svc-danger); padding: 30px;">Error al consultar administradores.</td></tr>`;
+            }
+        }
+
+        function renderTablaAdministradores(admins) {
+            const tbody = document.getElementById("usuariosTableBody");
+            tbody.innerHTML = "";
+
+            if (!admins || admins.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">No se registran administradores adicionales.</td></tr>`;
+                return;
+            }
+
+            admins.forEach(a => {
+                const tr = document.createElement("tr");
+                const badgeClass = `badge-${a.estado || 'activo'}`;
+                const fechaAlta = new Date(a.creado_el).toLocaleDateString('es-AR');
+
+                let actionButton = "";
+                const esAdminRaiz = a.email === "svc.team.oficial@gmail.com";
+                const esPropiaCuenta = usuarioSesionActual && a.id === usuarioSesionActual.id;
+
+                if (esAdminRaiz) {
+                    actionButton = `<span style="font-size: 11px; color: var(--svc-primary); font-weight: 700;">ADMIN PRINCIPAL</span>`;
+                } else if (esPropiaCuenta) {
+                    actionButton = `<span style="font-size: 11px; color: #64748b; font-weight: 600;">SESIÓN ACTUAL</span>`;
+                } else if (a.estado === "activo") {
+                    actionButton = `<button class="btn-table-action btn-action-ban" onclick="abrirModalInhabilitar('${a.id}', '${a.nombre_completo}', 'admin')">Inhabilitar</button>`;
+                } else if (a.estado === "inhabilitado") {
+                    actionButton = `<button class="btn-table-action btn-action-unban" onclick="ejecutarReactivacion('${a.id}', '${a.nombre_completo}', 'admin')">Reactivar</button>`;
+                }
+
+                tr.innerHTML = `
+                    <td><strong>${a.nombre_completo}</strong></td>
+                    <td>${a.email}</td>
+                    <td><span style="font-weight: 600; text-transform: uppercase; font-size: 11px; color: var(--svc-admin-dark);">${a.rol}</span></td>
+                    <td>${fechaAlta}</td>
+                    <td><span class="status-badge ${badgeClass}">${a.estado}</span></td>
+                    <td style="text-align: right;">${actionButton}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function actualizarPaginador(total, pagina, limite) {
+            const info = document.getElementById("paginationInfo");
+            const btnPrev = document.getElementById("btnPrevPage");
+            const btnNext = document.getElementById("btnNextPage");
+
+            const inicio = total === 0 ? 0 : ((pagina - 1) * limite) + 1;
+            const fin = Math.min(pagina * limite, total);
+
+            info.innerText = `Mostrando ${inicio} - ${fin} de ${total} comerciantes registrados`;
+            btnPrev.disabled = pagina <= 1;
+            btnNext.disabled = pagina >= totalPaginasDisponibles;
+        }
+
+        function cambiarPagina(delta) {
+            const nueva = paginaActual + delta;
+            if (nueva >= 1 && nueva <= totalPaginasDisponibles) {
+                cargarComerciantes(nueva);
+            }
+        }
+
+        // 5. Inhabilitación con Modal (CdU07)
+        function abrirModalInhabilitar(id, nombre, tipo) {
+            document.getElementById("modalInhabilitarMsg").style.display = "none";
+            document.getElementById("inhabilitarTargetId").value = id;
+            document.getElementById("inhabilitarTargetType").value = tipo;
+            document.getElementById("inhabilitarTargetName").innerText = nombre;
+            document.getElementById("inhabilitarMotivo").value = "";
+            document.getElementById("modalInhabilitar").style.display = "flex";
+            document.getElementById("inhabilitarMotivo").focus();
+        }
+
+        function cerrarModalInhabilitar() {
+            document.getElementById("modalInhabilitar").style.display = "none";
+        }
+
+        document.getElementById("inhabilitarForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const msgBox = document.getElementById("modalInhabilitarMsg");
+            const btn = document.getElementById("btnConfirmarInhabilitar");
+            const targetId = document.getElementById("inhabilitarTargetId").value;
+            const targetType = document.getElementById("inhabilitarTargetType").value;
+            const motivo = document.getElementById("inhabilitarMotivo").value.trim();
+
+            msgBox.style.display = "none";
+            btn.disabled = true;
+            btn.innerText = "Procesando sanción...";
+
+            const endpoint = targetType === "admin" 
+                ? `${API_URL}/admin/administradores/${targetId}/inhabilitar`
+                : `${API_URL}/admin/usuarios/${targetId}/inhabilitar`;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ motivo_justificacion: motivo })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    cerrarModalInhabilitar();
+                    const globalMsg = document.getElementById("globalMsgBox");
+                    globalMsg.className = "alert-box alert-success";
+                    globalMsg.innerHTML = `<strong>¡Sanción aplicada exitosamente!</strong> ${data.mensaje} Se envió la notificación formal por correo electrónico.`;
+                    globalMsg.style.display = "block";
+                    
+                    if (pestanaActiva === "comerciantes") await cargarComerciantes(paginaActual);
+                    else await cargarAdministradores();
+                } else {
+                    msgBox.className = "alert-box alert-danger";
+                    msgBox.innerText = data.detail || "Error al inhabilitar la cuenta.";
+                    msgBox.style.display = "block";
+                }
+            } catch (err) {
+                msgBox.className = "alert-box alert-danger";
+                msgBox.innerText = "No se pudo conectar con el servidor backend FastAPI.";
+                msgBox.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar Inhabilitación →";
+            }
+        });
+
+        // 6. Reactivación Directa con Notificación SMTP (CdU07)
+        async function ejecutarReactivacion(id, nombre, tipo) {
+            const rolTexto = tipo === "admin" ? "del administrador" : "del comerciante";
+            if (!confirm(`¿Reactivar la cuenta ${rolTexto} '${nombre}'? Se le enviará un correo informando la rehabilitación.`)) return;
+
+            const endpoint = tipo === "admin"
+                ? `${API_URL}/admin/administradores/${id}/reactivar`
+                : `${API_URL}/admin/usuarios/${id}/reactivar`;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const globalMsg = document.getElementById("globalMsgBox");
+                    globalMsg.className = "alert-box alert-success";
+                    globalMsg.innerText = data.mensaje;
+                    globalMsg.style.display = "block";
+                    
+                    if (pestanaActiva === "comerciantes") await cargarComerciantes(paginaActual);
+                    else await cargarAdministradores();
+                } else {
+                    alert(data.detail || "Error al reactivar la cuenta.");
+                }
+            } catch (err) {
+                alert("Error al conectar con el servidor backend.");
+            }
+        }
+
+        // 7. Registro de Administradores (CdU05)
+        function abrirModalNuevoAdmin() {
+            document.getElementById("modalAdminMsg").style.display = "none";
+            document.getElementById("nuevoAdminForm").reset();
+            document.getElementById("modalNuevoAdmin").style.display = "flex";
+            document.getElementById("admin_nombre").focus();
+        }
+
+        function cerrarModalNuevoAdmin() {
+            document.getElementById("modalNuevoAdmin").style.display = "none";
+        }
+
+        document.getElementById("nuevoAdminForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const msgBox = document.getElementById("modalAdminMsg");
+            const btn = document.getElementById("btnCrearAdmin");
+
+            msgBox.style.display = "none";
+            btn.disabled = true;
+            btn.innerText = "Registrando y enviando email...";
+
+            const payload = {
+                nombre_completo: document.getElementById("admin_nombre").value.trim(),
+                email: document.getElementById("admin_email").value.trim(),
+                password_provisoria: document.getElementById("admin_password").value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/admin/usuarios/administrador`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    cerrarModalNuevoAdmin();
+                    const globalMsg = document.getElementById("globalMsgBox");
+                    globalMsg.className = "alert-box alert-success";
+                    globalMsg.innerHTML = `<strong>¡Administrador registrado exitosamente!</strong> Se ha otorgado acceso a <strong>${data.email}</strong> y se despacharon sus credenciales provisorias por correo.`;
+                    globalMsg.style.display = "block";
+
+                    if (pestanaActiva === "admins") await cargarAdministradores();
+                } else {
+                    msgBox.className = "alert-box alert-danger";
+                    msgBox.innerText = data.detail || "Error al registrar el administrador.";
+                    msgBox.style.display = "block";
+                }
+            } catch (err) {
+                msgBox.className = "alert-box alert-danger";
+                msgBox.innerText = "No se pudo conectar con el servidor backend FastAPI.";
+                msgBox.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Crear Cuenta Admin →";
+            }
+        });
+
+        // 8. Cierre de Sesión
+        function cerrarSesionAdmin() {
+            localStorage.removeItem("svc_token");
+            localStorage.removeItem("svc_usuario");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

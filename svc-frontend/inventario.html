@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Mi Inventario y Stock (CdU43 / CdU44 / CdU45 / CdU46 / CdU47)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-primary-hover: #004085;
+            --svc-bg-page: #f8f9fa;
+            --svc-bg-surface: #ffffff;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-danger: #dc3545;
+            --svc-danger-hover: #bd2130;
+            --svc-warning: #ffc107;
+            --svc-success: #28a745;
+            --svc-border-radius: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important; /* REGLA INNEGOCIABLE SVC: Esquinas a 90° */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── SIDEBAR DRAWER DESPLEGABLE (3 LÍNEAS) ── */
+        .sidebar-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1200;
+            transition: left 0.25s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-drawer.open {
+            left: 0;
+        }
+
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1100;
+            display: none;
+        }
+
+        .drawer-backdrop.open {
+            display: block;
+        }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-box {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--svc-text-muted);
+            padding: 4px 8px;
+        }
+
+        .btn-close-drawer:hover {
+            color: var(--svc-text);
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-left: 4px solid var(--svc-primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        /* ── CONTENIDO PRINCIPAL ── */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 65px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-hamburger {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-hamburger:hover {
+            background-color: var(--svc-bg-surface);
+            border-color: var(--svc-primary);
+        }
+
+        .btn-hamburger .bar {
+            width: 18px;
+            height: 2px;
+            background-color: #1e293b;
+        }
+
+        .topbar-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--svc-danger);
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-logout:hover {
+            background-color: #f8d7da;
+            border-color: var(--svc-danger);
+        }
+
+        .content-body {
+            padding: 30px 40px;
+        }
+
+        .inventory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header-title-wrap h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 4px 0;
+        }
+
+        .header-title-wrap p {
+            font-size: 13px;
+            color: var(--svc-text-muted);
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-svc-primary {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border: none;
+            height: 40px;
+            padding: 0 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-svc-primary:hover {
+            background-color: var(--svc-primary-hover);
+        }
+
+        .btn-svc-outline {
+            background-color: #ffffff;
+            color: #1e293b;
+            border: 1px solid var(--svc-border);
+            height: 40px;
+            padding: 0 16px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-svc-outline:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+        }
+
+        /* Tabla de Catálogo */
+        .table-container {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+        }
+
+        .table-svc {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .table-svc th {
+            background-color: #f8fafc;
+            padding: 12px 18px;
+            font-weight: 700;
+            font-size: 11px;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table-svc td {
+            padding: 14px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .table-svc tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .item-name {
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 2px;
+        }
+
+        .item-desc {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-disponible { background-color: #d4edda; color: var(--svc-success); }
+        .badge-bajo-stock { background-color: #fff3cd; color: #856404; }
+        .badge-sin-stock { background-color: #f8d7da; color: var(--svc-danger); }
+
+        .btn-action-cell {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--svc-primary);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-action-cell:hover {
+            background-color: #e7f0fb;
+            border-color: var(--svc-primary);
+        }
+
+        .btn-action-danger {
+            color: var(--svc-danger);
+            border-color: #fecaca;
+        }
+
+        .btn-action-danger:hover {
+            background-color: #fee2e2;
+            border-color: var(--svc-danger);
+        }
+
+        /* Modales SVC (Esquinas a 90°) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            width: 100%;
+            max-width: 560px;
+            padding: 28px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .modal-card.modal-danger {
+            border-top-color: var(--svc-danger);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 6px 0;
+        }
+
+        .modal-subtitle {
+            font-size: 12px;
+            color: var(--svc-text-muted);
+            margin: 0 0 20px 0;
+            line-height: 1.4;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-group { flex: 1; }
+
+        .input-modal {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--svc-border);
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .input-modal:focus { border-color: var(--svc-primary); }
+
+        .input-modal:disabled {
+            background-color: #f8fafc;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
+        .currency-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            color: #334155;
+            pointer-events: none;
+        }
+
+        .input-currency {
+            padding-left: 28px !important;
+            font-weight: 600;
+        }
+
+        .field-help {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            margin-top: 4px;
+        }
+
+        .stock-preview-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 12px 14px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stock-preview-lbl {
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+        }
+
+        .stock-preview-val {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-modal-danger {
+            background-color: var(--svc-danger);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-modal-danger:hover {
+            background-color: var(--svc-danger-hover);
+        }
+
+        .btn-modal-danger:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .alert-box {
+            padding: 10px 14px;
+            margin-bottom: 15px;
+            display: none;
+            font-size: 13px;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+        .alert-success { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
+    </style>
+</head>
+<body>
+
+    <!-- Backdrop del Drawer -->
+    <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
+
+    <!-- Sidebar Drawer (Menú de tres líneas) -->
+    <div id="sidebarDrawer" class="sidebar-drawer">
+        <div>
+            <div class="sidebar-brand">
+                <div class="brand-info">
+                    <div class="brand-box">SVC</div>
+                    <div class="brand-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+                </div>
+                <button class="btn-close-drawer" onclick="toggleDrawer()" title="Cerrar menú">&times;</button>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
+                <li class="nav-item active"><a href="inventario.html">Mi Inventario y Stock</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 3 (WPT-03)'); return false;">Muro de Ventas</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 4 (WPT-05)'); return false;">Comunidades B2B</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 5 (WPT-04)'); return false;">Negociaciones & Chat</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            &copy; 2026 SVC — v0.2.0 (Sprint 2)
+        </div>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="main-wrapper">
+        
+        <!-- Topbar con Botón Hamburguesa -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="btn-hamburger" onclick="toggleDrawer()" title="Abrir menú de navegación">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </button>
+                <div class="topbar-title">Módulo de Inventario y Catálogo Privado (CdU43 al CdU47)</div>
+            </div>
+            <div class="user-badge">
+                <span id="userNameDisplay">Cargando comercio...</span>
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="content-body">
+            
+            <div id="mainAlert" class="alert-box"></div>
+
+            <!-- Encabezado y Acciones Principales -->
+            <div class="inventory-header">
+                <div class="header-title-wrap">
+                    <h1>Mi Inventario</h1>
+                    <p>Gestione el stock físico disponible para sus futuras publicaciones de venta.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-svc-outline" id="btnDescargarPdf" onclick="descargarReporteInventarioPdf()">
+                        <span>⬇ Exportar Reporte (PDF)</span>
+                    </button>
+                    <button class="btn-svc-primary" onclick="abrirModalNuevoProducto()">
+                        <span>+ Cargar Nuevo Producto</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de Inventario -->
+            <div class="table-container">
+                <table class="table-svc">
+                    <thead>
+                        <tr>
+                            <th>Producto / Descripción</th>
+                            <th>Rubro / Subrubro</th>
+                            <th>Marca / Modelo</th>
+                            <th>Precio Unit.</th>
+                            <th>Stock Disponible</th>
+                            <th>Umbral Alerta</th>
+                            <th>Estado</th>
+                            <th style="text-align: right;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventarioTbody">
+                        <tr><td colspan="8" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">Cargando catálogo privado...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 1: CARGAR NUEVO PRODUCTO (CdU43)                         -->
+    <!-- ============================================================== -->
+    <div id="modalNuevoProducto" class="modal-overlay">
+        <div class="modal-card">
+            <h2 class="modal-title">Cargar Nuevo Producto</h2>
+            <p class="modal-subtitle">Ingrese los datos comerciales y de existencias físicas para su catálogo privado.</p>
+            
+            <div id="modalAlert" class="alert-box alert-danger"></div>
+
+            <form id="formNuevoProducto">
+                <div class="form-group">
+                    <label>Nombre del Producto *</label>
+                    <input type="text" id="itemNombre" class="input-modal" placeholder="Ej: Motherboard B460 Pro" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción / Especificaciones</label>
+                    <textarea id="itemDescripcion" class="input-modal" rows="2" placeholder="Presentación, especificaciones técnicas, lote..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Rubro Comercial (Asignado)</label>
+                        <input type="text" id="itemRubro" class="input-modal" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Subrubro (Asignado)</label>
+                        <input type="text" id="itemSubrubro" class="input-modal" disabled>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Marca</label>
+                        <input type="text" id="itemMarca" class="input-modal" placeholder="Ej: Asus">
+                    </div>
+                    <div class="form-group">
+                        <label>Modelo / Versión</label>
+                        <input type="text" id="itemModelo" class="input-modal" placeholder="Ej: B460">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Precio Unitario (ARS) *</label>
+                        <div class="currency-input-wrap">
+                            <span class="currency-symbol">$</span>
+                            <input type="text" id="itemPrecioVisual" class="input-modal input-currency" placeholder="0,00" required oninput="formatearMonedaInput(this, 'itemPrecioReal')">
+                        </div>
+                        <input type="hidden" id="itemPrecioReal" value="0.0">
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Físico Inicial *</label>
+                        <input type="number" id="itemStock" class="input-modal" min="0" value="0" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Alerta de Stock Mínimo (Umbral de aviso) *</label>
+                    <input type="number" id="itemStockMin" class="input-modal" min="0" value="3" required>
+                    <div class="field-help">El sistema notificará cuando las existencias igualen o caigan por debajo de este valor.</div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-svc-outline" onclick="cerrarModalNuevoProducto()">Cancelar</button>
+                    <button type="submit" id="btnGuardarProducto" class="btn-svc-primary">Guardar Ítem</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 2: EDITAR ÍTEM EXISTENTE (CdU44)                         -->
+    <!-- ============================================================== -->
+    <div id="modalEditarProducto" class="modal-overlay">
+        <div class="modal-card">
+            <h2 class="modal-title">Editar Información de Producto</h2>
+            <p class="modal-subtitle">Actualice los atributos descriptivos, precio y umbral de alerta (ERS CdU44).</p>
+            
+            <div id="modalEditAlert" class="alert-box alert-danger"></div>
+
+            <form id="formEditarProducto">
+                <input type="hidden" id="editItemId">
+
+                <div class="form-group">
+                    <label>Nombre del Producto *</label>
+                    <input type="text" id="editItemNombre" class="input-modal" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción / Especificaciones</label>
+                    <textarea id="editItemDescripcion" class="input-modal" rows="2"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Rubro Comercial (Inmutable)</label>
+                        <input type="text" id="editItemRubro" class="input-modal" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Subrubro (Inmutable)</label>
+                        <input type="text" id="editItemSubrubro" class="input-modal" disabled>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Marca</label>
+                        <input type="text" id="editItemMarca" class="input-modal">
+                    </div>
+                    <div class="form-group">
+                        <label>Modelo / Versión</label>
+                        <input type="text" id="editItemModelo" class="input-modal">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Precio Unitario (ARS) *</label>
+                        <div class="currency-input-wrap">
+                            <span class="currency-symbol">$</span>
+                            <input type="text" id="editItemPrecioVisual" class="input-modal input-currency" required oninput="formatearMonedaInput(this, 'editItemPrecioReal')">
+                        </div>
+                        <input type="hidden" id="editItemPrecioReal" value="0.0">
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Físico Actual (Inmutable en Edición)</label>
+                        <input type="text" id="editItemStockActual" class="input-modal" disabled>
+                        <div class="field-help">Los cambios de saldo físico se gestionan mediante Ajuste de Stock (CdU45).</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Alerta de Stock Mínimo (Umbral de aviso) *</label>
+                    <input type="number" id="editItemStockMin" class="input-modal" min="0" required>
+                    <div class="field-help">Recalcula el estado de disponibilidad automáticamente.</div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-svc-outline" onclick="cerrarModalEditarProducto()">Cancelar</button>
+                    <button type="submit" id="btnActualizarProducto" class="btn-svc-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 3: AJUSTAR STOCK DE INVENTARIO (CdU45)                   -->
+    <!-- ============================================================== -->
+    <div id="modalAjustarStock" class="modal-overlay">
+        <div class="modal-card">
+            <h2 class="modal-title">Ajustar Stock Físico</h2>
+            <p class="modal-subtitle" id="ajusteItemSubtitle">Registre entradas o salidas de mercadería (ERS CdU45).</p>
+            
+            <div id="modalAjusteAlert" class="alert-box alert-danger"></div>
+
+            <form id="formAjustarStock">
+                <input type="hidden" id="ajusteItemId">
+                <input type="hidden" id="ajusteStockActualVal" value="0">
+
+                <div class="form-group">
+                    <label>Tipo de Operación *</label>
+                    <select id="ajusteTipoMovimiento" class="input-modal" style="background-color: #ffffff; cursor: pointer;" onchange="calcularPrevisualizacionStock()">
+                        <option value="ingreso">Ingreso de Mercadería (+ Sumar al Stock)</option>
+                        <option value="egreso">Egreso / Merma / Venta (- Restar del Stock)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Cantidad de Unidades a Ajustar *</label>
+                    <input type="number" id="ajusteCantidad" class="input-modal" min="1" value="1" required oninput="calcularPrevisualizacionStock()">
+                </div>
+
+                <div class="form-group">
+                    <label>Motivo o Justificación del Movimiento (Opcional)</label>
+                    <input type="text" id="ajusteMotivo" class="input-modal" placeholder="Ej: Recepción de pedido, rotura de bulto, conteo...">
+                </div>
+
+                <div class="stock-preview-box">
+                    <span class="stock-preview-lbl">Nuevo Saldo Resultante:</span>
+                    <span class="stock-preview-val" id="ajusteSaldoResultanteDisplay">0 unidades</span>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-svc-outline" onclick="cerrarModalAjustarStock()">Cancelar</button>
+                    <button type="submit" id="btnConfirmarAjuste" class="btn-svc-primary">Confirmar Ajuste</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 4: ELIMINAR ÍTEM DEL INVENTARIO (CdU46)                  -->
+    <!-- ============================================================== -->
+    <div id="modalEliminarProducto" class="modal-overlay">
+        <div class="modal-card modal-danger">
+            <h2 class="modal-title" style="color: var(--svc-danger);">Eliminar Producto del Catálogo</h2>
+            <p class="modal-subtitle" id="eliminarItemSubtitle">
+                Esta acción es irreversible y removerá el ítem de su inventario privado.
+            </p>
+            
+            <div id="modalEliminarAlert" class="alert-box alert-danger"></div>
+
+            <form id="formEliminarProducto">
+                <input type="hidden" id="eliminarItemId">
+
+                <div class="form-group">
+                    <label id="lblConfirmacionTexto">Para confirmar, escriba <strong>ELIMINAR</strong> en el siguiente campo:</label>
+                    <input type="text" id="inputConfirmacionPalabra" class="input-modal" placeholder="ELIMINAR" autocomplete="off" oninput="validarTextoConfirmacionEliminacion()">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-svc-outline" onclick="cerrarModalEliminarProducto()">Cancelar</button>
+                    <button type="submit" id="btnConfirmarEliminacion" class="btn-modal-danger" disabled>Confirmar Eliminación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8080";
+        const token = localStorage.getItem("svc_token");
+        let usuarioActual = null;
+        let inventarioCache = [];
+
+        if (!token) {
+            window.location.href = "login.html";
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            cargarPerfilUsuario();
+            cargarListaInventario();
+        });
+
+        function toggleDrawer() {
+            const drawer = document.getElementById("sidebarDrawer");
+            const backdrop = document.getElementById("drawerBackdrop");
+            drawer.classList.toggle("open");
+            backdrop.classList.toggle("open");
+        }
+
+        function formatearMonedaInput(input, hiddenId) {
+            let valorLimpio = input.value.replace(/\D/g, "");
+            if (!valorLimpio) {
+                input.value = "";
+                document.getElementById(hiddenId).value = "0.0";
+                return;
+            }
+
+            let numero = (parseFloat(valorLimpio) / 100).toFixed(2);
+            document.getElementById(hiddenId).value = numero;
+
+            let partes = numero.split(".");
+            let enteros = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            let decimales = partes[1];
+
+            input.value = `${enteros},${decimales}`;
+        }
+
+        function setValorMonedaEnInput(num, inputId, hiddenId) {
+            let val = Number(num || 0).toFixed(2);
+            document.getElementById(hiddenId).value = val;
+            let partes = val.split(".");
+            let enteros = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            let decimales = partes[1];
+            document.getElementById(inputId).value = `${enteros},${decimales}`;
+        }
+
+        async function cargarPerfilUsuario() {
+            try {
+                const res = await fetch(`${API_URL}/auth/me`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    usuarioActual = await res.json();
+                    document.getElementById("userNameDisplay").innerText = usuarioActual.nombre_razon_social || usuarioActual.email;
+                    document.getElementById("itemRubro").value = usuarioActual.rubro_comercial || "General";
+                    document.getElementById("itemSubrubro").value = usuarioActual.subrubro_comercial || "General";
+                } else {
+                    cerrarSesion();
+                }
+            } catch (err) {
+                document.getElementById("userNameDisplay").innerText = "Comercio Conectado";
+            }
+        }
+
+        async function cargarListaInventario() {
+            const tbody = document.getElementById("inventarioTbody");
+
+            try {
+                const res = await fetch(`${API_URL}/inventario/items`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    inventarioCache = await res.json();
+                    renderizarTabla(inventarioCache);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--svc-danger); padding: 30px;">Error al cargar el catálogo de inventario.</td></tr>`;
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--svc-danger); padding: 30px;">No se pudo conectar con el servidor backend.</td></tr>`;
+            }
+        }
+
+        function renderizarTabla(items) {
+            const tbody = document.getElementById("inventarioTbody");
+            tbody.innerHTML = "";
+
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--svc-text-muted); padding: 35px;">Aún no posee productos registrados en su catálogo privado. Utilice el botón "+ Cargar Nuevo Producto" para comenzar.</td></tr>`;
+                return;
+            }
+
+            items.forEach(item => {
+                const tr = document.createElement("tr");
+
+                let badgeClass = "badge-disponible";
+                let badgeTxt = "Disponible";
+                if (item.estado === "bajo_stock") { badgeClass = "badge-bajo-stock"; badgeTxt = "Bajo Stock"; }
+                if (item.estado === "sin_stock") { badgeClass = "badge-sin-stock"; badgeTxt = "Sin Stock"; }
+
+                const rubroCompleto = [item.rubro, item.subrubro].filter(Boolean).join(" / ");
+                const marcaModelo = [item.marca, item.modelo].filter(Boolean).join(" / ") || "—";
+                const precioFormateado = Number(item.precio_unitario).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                tr.innerHTML = `
+                    <td>
+                        <div class="item-name">${item.nombre}</div>
+                        <div class="item-desc">${item.descripcion || 'Sin especificaciones'}</div>
+                    </td>
+                    <td><span style="font-weight: 600; color: #475569;">${rubroCompleto}</span></td>
+                    <td><span style="font-weight: 500; color: #334155;">${marcaModelo}</span></td>
+                    <td><strong>$ ${precioFormateado}</strong></td>
+                    <td><strong style="font-size: 14px; color: #0f172a;">${item.stock_actual}</strong> <span style="font-size: 11px; color: var(--svc-text-muted);">unidades</span></td>
+                    <td>${item.stock_minimo_alerta}</td>
+                    <td><span class="badge-status ${badgeClass}">${badgeTxt}</span></td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <button class="btn-action-cell" onclick="abrirModalAjustarStock('${item.id}')">Ajustar Stock</button>
+                        <button class="btn-action-cell" onclick="abrirModalEditarProducto('${item.id}')">Editar</button>
+                        <button class="btn-action-cell btn-action-danger" onclick="abrirModalEliminarProducto('${item.id}')">Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ── 1. Cargar Nuevo Producto (CdU43) ──
+        function abrirModalNuevoProducto() {
+            document.getElementById("modalAlert").style.display = "none";
+            document.getElementById("formNuevoProducto").reset();
+            document.getElementById("itemPrecioReal").value = "0.0";
+            
+            if (usuarioActual) {
+                document.getElementById("itemRubro").value = usuarioActual.rubro_comercial || "General";
+                document.getElementById("itemSubrubro").value = usuarioActual.subrubro_comercial || "General";
+            }
+
+            document.getElementById("modalNuevoProducto").style.display = "flex";
+            document.getElementById("itemNombre").focus();
+        }
+
+        function cerrarModalNuevoProducto() {
+            document.getElementById("modalNuevoProducto").style.display = "none";
+        }
+
+        document.getElementById("formNuevoProducto").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const alertEl = document.getElementById("modalAlert");
+            const btn = document.getElementById("btnGuardarProducto");
+            alertEl.style.display = "none";
+
+            btn.disabled = true;
+            btn.innerText = "Guardando en inventario...";
+
+            const precioFinal = parseFloat(document.getElementById("itemPrecioReal").value) || 0.0;
+
+            const payload = {
+                nombre: document.getElementById("itemNombre").value.trim(),
+                descripcion: document.getElementById("itemDescripcion").value.trim() || null,
+                rubro: document.getElementById("itemRubro").value.trim(),
+                subrubro: document.getElementById("itemSubrubro").value.trim() || null,
+                marca: document.getElementById("itemMarca").value.trim() || null,
+                modelo: document.getElementById("itemModelo").value.trim() || null,
+                precio_unitario: precioFinal,
+                stock_actual: parseInt(document.getElementById("itemStock").value),
+                stock_minimo_alerta: parseInt(document.getElementById("itemStockMin").value)
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/inventario/items`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalNuevoProducto();
+                    cargarListaInventario();
+                    mostrarAlertaPrincipal(`Ítem "${data.nombre}" registrado exitosamente en su inventario.`, "success");
+                } else {
+                    alertEl.innerText = data.detail || "Error al registrar el producto.";
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "Fallo de comunicación con el backend.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Guardar Ítem";
+            }
+        });
+
+        // ── 2. Editar Ítem Existente (CdU44) ──
+        function abrirModalEditarProducto(itemId) {
+            const item = inventarioCache.find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById("modalEditAlert").style.display = "none";
+            document.getElementById("editItemId").value = item.id;
+            document.getElementById("editItemNombre").value = item.nombre;
+            document.getElementById("editItemDescripcion").value = item.descripcion || "";
+            document.getElementById("editItemRubro").value = item.rubro || "";
+            document.getElementById("editItemSubrubro").value = item.subrubro || "";
+            document.getElementById("editItemMarca").value = item.marca || "";
+            document.getElementById("editItemModelo").value = item.modelo || "";
+            document.getElementById("editItemStockActual").value = `${item.stock_actual} unidades`;
+            document.getElementById("editItemStockMin").value = item.stock_minimo_alerta;
+
+            setValorMonedaEnInput(item.precio_unitario, "editItemPrecioVisual", "editItemPrecioReal");
+
+            document.getElementById("modalEditarProducto").style.display = "flex";
+            document.getElementById("editItemNombre").focus();
+        }
+
+        function cerrarModalEditarProducto() {
+            document.getElementById("modalEditarProducto").style.display = "none";
+        }
+
+        document.getElementById("formEditarProducto").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const alertEl = document.getElementById("modalEditAlert");
+            const btn = document.getElementById("btnActualizarProducto");
+            alertEl.style.display = "none";
+
+            const itemId = document.getElementById("editItemId").value;
+            const precioFinal = parseFloat(document.getElementById("editItemPrecioReal").value) || 0.0;
+
+            btn.disabled = true;
+            btn.innerText = "Guardando cambios...";
+
+            const payload = {
+                nombre: document.getElementById("editItemNombre").value.trim(),
+                descripcion: document.getElementById("editItemDescripcion").value.trim() || null,
+                marca: document.getElementById("editItemMarca").value.trim() || null,
+                modelo: document.getElementById("editItemModelo").value.trim() || null,
+                precio_unitario: precioFinal,
+                stock_minimo_alerta: parseInt(document.getElementById("editItemStockMin").value)
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/inventario/items/${itemId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalEditarProducto();
+                    cargarListaInventario();
+                    mostrarAlertaPrincipal(`Producto "${data.nombre}" actualizado exitosamente.`, "success");
+                } else {
+                    alertEl.innerText = data.detail || "Error al actualizar los datos del producto.";
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "No se pudo conectar con el servidor backend.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Guardar Cambios";
+            }
+        });
+
+        // ── 3. Ajustar Stock de Inventario (CdU45) ──
+        function abrirModalAjustarStock(itemId) {
+            const item = inventarioCache.find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById("modalAjusteAlert").style.display = "none";
+            document.getElementById("formAjustarStock").reset();
+            document.getElementById("ajusteItemId").value = item.id;
+            document.getElementById("ajusteStockActualVal").value = item.stock_actual;
+            document.getElementById("ajusteItemSubtitle").innerText = `Producto: ${item.nombre} | Existencias actuales: ${item.stock_actual} unidades.`;
+
+            calcularPrevisualizacionStock();
+            document.getElementById("modalAjustarStock").style.display = "flex";
+            document.getElementById("ajusteCantidad").focus();
+        }
+
+        function cerrarModalAjustarStock() {
+            document.getElementById("modalAjustarStock").style.display = "none";
+        }
+
+        function calcularPrevisualizacionStock() {
+            const stockActual = parseInt(document.getElementById("ajusteStockActualVal").value) || 0;
+            const tipo = document.getElementById("ajusteTipoMovimiento").value;
+            const cant = parseInt(document.getElementById("ajusteCantidad").value) || 0;
+            const display = document.getElementById("ajusteSaldoResultanteDisplay");
+
+            let res = (tipo === "ingreso") ? (stockActual + cant) : (stockActual - cant);
+
+            if (res < 0) {
+                display.innerText = `${res} unidades (¡Inválido: Negativo!)`;
+                display.style.color = "var(--svc-danger)";
+            } else {
+                display.innerText = `${res} unidades`;
+                display.style.color = "#0f172a";
+            }
+        }
+
+        document.getElementById("formAjustarStock").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const alertEl = document.getElementById("modalAjusteAlert");
+            const btn = document.getElementById("btnConfirmarAjuste");
+            alertEl.style.display = "none";
+
+            const itemId = document.getElementById("ajusteItemId").value;
+            const tipo = document.getElementById("ajusteTipoMovimiento").value;
+            const cant = parseInt(document.getElementById("ajusteCantidad").value);
+            const motivo = document.getElementById("ajusteMotivo").value.trim();
+
+            btn.disabled = true;
+            btn.innerText = "Ajustando stock...";
+
+            const payload = {
+                tipo_movimiento: tipo,
+                cantidad: cant,
+                motivo: motivo || null
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/inventario/items/${itemId}/ajustar-stock`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalAjustarStock();
+                    cargarListaInventario();
+                    mostrarAlertaPrincipal(`Stock físico de "${data.nombre}" ajustado a ${data.stock_actual} unidades.`, "success");
+                } else {
+                    alertEl.innerText = data.detail || "Error al realizar el ajuste de stock.";
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "No se pudo establecer comunicación con el backend.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar Ajuste";
+            }
+        });
+
+        // ── 4. Eliminar Ítem del Inventario (CdU46) ──
+        function abrirModalEliminarProducto(itemId) {
+            const item = inventarioCache.find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById("modalEliminarAlert").style.display = "none";
+            document.getElementById("formEliminarProducto").reset();
+            document.getElementById("eliminarItemId").value = item.id;
+            document.getElementById("eliminarItemSubtitle").innerText = `¿Está seguro de que desea eliminar permanentemente "${item.nombre}"? Esta acción validará que no posea publicaciones de venta activas vinculadas.`;
+
+            const btnEliminar = document.getElementById("btnConfirmarEliminacion");
+            btnEliminar.disabled = true;
+
+            document.getElementById("modalEliminarProducto").style.display = "flex";
+            document.getElementById("inputConfirmacionPalabra").focus();
+        }
+
+        function cerrarModalEliminarProducto() {
+            document.getElementById("modalEliminarProducto").style.display = "none";
+        }
+
+        function validarTextoConfirmacionEliminacion() {
+            const inputVal = document.getElementById("inputConfirmacionPalabra").value.trim().toUpperCase();
+            const btnEliminar = document.getElementById("btnConfirmarEliminacion");
+            btnEliminar.disabled = (inputVal !== "ELIMINAR");
+        }
+
+        document.getElementById("formEliminarProducto").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const alertEl = document.getElementById("modalEliminarAlert");
+            const btn = document.getElementById("btnConfirmarEliminacion");
+            alertEl.style.display = "none";
+
+            const itemId = document.getElementById("eliminarItemId").value;
+
+            btn.disabled = true;
+            btn.innerText = "Eliminando registro...";
+
+            try {
+                const res = await fetch(`${API_URL}/inventario/items/${itemId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalEliminarProducto();
+                    cargarListaInventario();
+                    mostrarAlertaPrincipal(data.mensaje || "Producto eliminado exitosamente de su inventario.", "success");
+                } else {
+                    alertEl.innerText = data.detail || "Error al intentar eliminar el producto.";
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "Fallo de comunicación con el servidor backend.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                validarTextoConfirmacionEliminacion();
+                btn.innerText = "Confirmar Eliminación";
+            }
+        });
+
+        // ── 5. Exportar Reporte de Inventario en PDF (CdU47) ──
+        async function descargarReporteInventarioPdf() {
+            if (!inventarioCache || inventarioCache.length === 0) {
+                mostrarAlertaPrincipal("No posee productos en el inventario para exportar un reporte.", "danger");
+                return;
+            }
+
+            const btn = document.getElementById("btnDescargarPdf");
+            btn.disabled = true;
+            btn.innerHTML = `<span>⏳ Generando PDF...</span>`;
+
+            try {
+                const response = await fetch(`${API_URL}/inventario/exportar-pdf`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    // Extraer el nombre de archivo enviado por el backend desde Content-Disposition
+                    let nombreDescarga = null;
+                    const disposition = response.headers.get('content-disposition');
+                    if (disposition && disposition.indexOf('filename=') !== -1) {
+                        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                        if (matches != null && matches[1]) {
+                            nombreDescarga = matches[1].replace(/['"]/g, '');
+                        }
+                    }
+
+                    // Fallback dinámico si no se detectó el header
+                    if (!nombreDescarga) {
+                        const razon = (usuarioActual && usuarioActual.nombre_razon_social) ? usuarioActual.nombre_razon_social.replace(/\s+/g, '_') : 'Comercio';
+                        const ahora = new Date();
+                        const pad = (n) => String(n).padStart(2, '0');
+                        const ts = `${ahora.getFullYear()}${pad(ahora.getMonth()+1)}${pad(ahora.getDate())}_${pad(ahora.getHours())}${pad(ahora.getMinutes())}${pad(ahora.getSeconds())}`;
+                        nombreDescarga = `${razon}_reporte-inventario-SVC_${ts}.pdf`;
+                    }
+
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = nombreDescarga;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(downloadUrl);
+
+                    mostrarAlertaPrincipal(`Reporte "${nombreDescarga}" descargado exitosamente.`, "success");
+                } else {
+                    const errData = await response.json();
+                    mostrarAlertaPrincipal(errData.detail || "Error al generar el archivo PDF de inventario.", "danger");
+                }
+            } catch (err) {
+                mostrarAlertaPrincipal("No se pudo establecer comunicación con el backend para descargar el reporte.", "danger");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span>⬇ Exportar Reporte (PDF)</span>`;
+            }
+        }
+
+        function mostrarAlertaPrincipal(msg, tipo) {
+            const el = document.getElementById("mainAlert");
+            el.className = `alert-box alert-${tipo}`;
+            el.innerText = msg;
+            el.style.display = "block";
+            setTimeout(() => { el.style.display = "none"; }, 4000);
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("svc_token");
+            localStorage.removeItem("svc_usuario");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

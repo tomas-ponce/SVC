@@ -15,17 +15,21 @@ FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL", "file:///C:/Users/ponce/SVC/s
 
 def _enviar_email_smtp(destinatario: str, asunto: str, html_body: str) -> None:
     """Función base para transporte SMTP seguro mediante STARTTLS."""
-    mensaje = MIMEMultipart("alternative")
-    mensaje["Subject"] = asunto
-    mensaje["From"] = f"Sistema de Vinculación para el Comercio <{SMTP_FROM_EMAIL}>"
-    mensaje["To"] = destinatario
-    mensaje.attach(MIMEText(html_body, "html"))
+    try:
+        mensaje = MIMEMultipart("alternative")
+        mensaje["Subject"] = asunto
+        mensaje["From"] = f"Sistema de Vinculación para el Comercio <{SMTP_FROM_EMAIL}>"
+        mensaje["To"] = destinatario
+        mensaje.attach(MIMEText(html_body, "html"))
 
-    servidor = smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15)
-    servidor.starttls()
-    servidor.login(SMTP_USER, SMTP_PASSWORD)
-    servidor.sendmail(SMTP_FROM_EMAIL, destinatario, mensaje.as_string())
-    servidor.quit()
+        servidor = smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15)
+        servidor.starttls()
+        servidor.login(SMTP_USER, SMTP_PASSWORD)
+        servidor.sendmail(SMTP_FROM_EMAIL, destinatario, mensaje.as_string())
+        servidor.quit()
+        print(f"[SMTP OK] Correo enviado a: {destinatario} | Asunto: {asunto}")
+    except Exception as e:
+        print(f"[SMTP FALLBACK LOG] Error enviando correo a {destinatario}: {str(e)}")
 
 # ── CdU03: Recuperación de Contraseña ──────────────────────────────────
 def enviar_correo_recuperacion(destinatario: str, token: str) -> None:
@@ -68,6 +72,9 @@ def enviar_correo_confirmacion_baja(destinatario: str, razon_social: str, token:
         .badge {{ background-color: #dc3545; color: #ffffff; font-weight: bold; font-size: 14px; padding: 6px 10px; display: inline-block; border-radius: 0px !important; }}
         .title {{ font-size: 20px; font-weight: bold; color: #991b1b; margin: 20px 0 10px 0; }}
         .text {{ font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 20px; }}
+        .code-box {{ background-color: #fff5f5; border: 1px dashed #dc3545; padding: 15px; margin: 20px 0; text-align: center; border-radius: 0px !important; }}
+        .code-label {{ font-size: 11px; font-weight: 700; color: #991b1b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }}
+        .code-val {{ font-family: 'Courier New', monospace; font-size: 18px; font-weight: 700; color: #0f172a; word-break: break-all; letter-spacing: 1px; }}
         .btn {{ display: inline-block; background-color: #dc3545; color: #ffffff !important; padding: 12px 25px; text-decoration: none; font-weight: bold; font-size: 13px; text-transform: uppercase; border-radius: 0px !important; }}
         .warn {{ font-size: 11px; color: #6c757d; margin-top: 25px; border-top: 1px solid #e9ecef; padding-top: 15px; }}
     </style></head>
@@ -76,8 +83,19 @@ def enviar_correo_confirmacion_baja(destinatario: str, razon_social: str, token:
             <div class="badge">SVC — SEGURIDAD</div>
             <div class="title">Confirmación de Baja de Cuenta</div>
             <p class="text">Estimado/a representante de <strong>{razon_social}</strong>:<br><br>Se ha iniciado el proceso de baja voluntaria de su cuenta comercial en <strong>SVC</strong>.</p>
-            <p style="text-align: center; margin: 30px 0;"><a href="{confirm_url}" target="_blank" rel="noopener noreferrer" class="btn">Confirmar Eliminación Definitiva &rarr;</a></p>
-            <div class="warn">• Válido por <strong>15 minutos</strong>.<br>• Si no lo solicitó, desestime este mensaje.</div>
+            
+            <div class="code-box">
+                <div class="code-label">Su código / token de confirmación:</div>
+                <div class="code-val">{token}</div>
+            </div>
+
+            <p class="text" style="font-size: 12px;">Puede copiar el código anterior y pegarlo en la ventana de su perfil, o bien hacer clic directamente en el siguiente botón:</p>
+
+            <p style="text-align: center; margin: 25px 0;">
+                <a href="{confirm_url}" target="_blank" rel="noopener noreferrer" class="btn">Confirmar Eliminación Definitiva &rarr;</a>
+            </p>
+            
+            <div class="warn">• Válido por <strong>15 minutos</strong>.<br>• Si no lo solicitó, desestime este mensaje y cambie su contraseña de acceso inmediatamente.</div>
         </div>
     </body>
     </html>
@@ -229,3 +247,71 @@ def enviar_correo_reactivacion_admin(destinatario: str, nombre_completo: str) ->
     </html>
     """
     _enviar_email_smtp(destinatario, "SVC - Rehabilitación de Credenciales Administrativas", html)
+
+# ── CdU09: Notificación de Baja de Cuenta Comercial ────────────────────
+def enviar_correo_notificacion_baja(destinatario: str, razon_social: str = "Comercio") -> None:
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head><meta charset="UTF-8"><style>
+        body {{ font-family: 'Inter', Arial, sans-serif; background-color: #f8f9fa; color: #212529; margin: 0; padding: 20px; }}
+        .box {{ max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #ced4da; border-top: 4px solid #6c757d; padding: 30px; border-radius: 0px !important; }}
+        .badge {{ background-color: #6c757d; color: #ffffff; font-weight: bold; font-size: 14px; padding: 6px 10px; display: inline-block; border-radius: 0px !important; }}
+        .title {{ font-size: 20px; font-weight: bold; color: #334155; margin: 20px 0 10px 0; }}
+        .text {{ font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 15px; }}
+        .warn {{ font-size: 11px; color: #6c757d; margin-top: 25px; border-top: 1px solid #e9ecef; padding-top: 15px; }}
+    </style></head>
+    <body>
+        <div class="box">
+            <div class="badge">SVC — CUENTA DADA DE BAJA</div>
+            <div class="title">Baja de Cuenta Procesada</div>
+            <p class="text">Estimado/a representante de <strong>{razon_social}</strong>:<br><br>Le informamos que su cuenta comercial ha sido dada de baja voluntariamente del Sistema de Vinculación para el Comercio (SVC).</p>
+            <p class="text" style="font-size: 12px;">Sus publicaciones y catálogo han sido pausados de la vista pública.</p>
+            <div class="warn">• Sus datos han sido resguardados de acuerdo a las normativas de auditoría.</div>
+        </div>
+    </body>
+    </html>
+    """
+    _enviar_email_smtp(destinatario, "SVC - Notificación de Baja de Cuenta", html)
+
+# ── CdU43/CdU44: Alerta Automática de Bajo Stock (RF06 / RF07) ─────────
+def enviar_correo_alerta_bajo_stock(destinatario: str, razon_social: str, nombre_producto: str, stock_actual: int, stock_minimo: int) -> None:
+    inv_url = f"{FRONTEND_BASE_URL}/inventario.html"
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head><meta charset="UTF-8"><style>
+        body {{ font-family: 'Inter', Arial, sans-serif; background-color: #f8f9fa; color: #212529; margin: 0; padding: 20px; }}
+        .box {{ max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #ced4da; border-top: 4px solid #ffc107; padding: 30px; border-radius: 0px !important; }}
+        .badge {{ background-color: #ffc107; color: #000000; font-weight: bold; font-size: 14px; padding: 6px 10px; display: inline-block; border-radius: 0px !important; }}
+        .title {{ font-size: 20px; font-weight: bold; color: #b45309; margin: 20px 0 10px 0; }}
+        .text {{ font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 15px; }}
+        .stock-box {{ background-color: #fffbeb; border: 1px solid #fde68a; padding: 15px; margin: 20px 0; font-size: 13px; color: #92400e; }}
+        .btn {{ display: inline-block; background-color: #0056b3; color: #ffffff !important; padding: 12px 25px; text-decoration: none; font-weight: bold; font-size: 13px; text-transform: uppercase; border-radius: 0px !important; }}
+        .warn {{ font-size: 11px; color: #6c757d; margin-top: 25px; border-top: 1px solid #e9ecef; padding-top: 15px; }}
+    </style></head>
+    <body>
+        <div class="box">
+            <div class="badge">SVC — ALERTA DE INVENTARIO</div>
+            <div class="title">Advertencia de Stock Bajo</div>
+            <p class="text">Estimado/a representante de <strong>{razon_social}</strong>:<br><br>Le notificamos que el producto <strong>"{nombre_producto}"</strong> ha alcanzado o cruzado su umbral mínimo de existencias en el catálogo de inventario.</p>
+            <div class="stock-box">
+                <strong>Existencias Actuales:</strong> {stock_actual} unidades<br>
+                <strong>Umbral de Alerta Configurado:</strong> {stock_minimo} unidades
+            </div>
+            <p class="text">Le sugerimos realizar un ajuste de reposición de mercadería para evitar la interrupción de sus publicaciones comerciales.</p>
+            <p style="text-align: center; margin: 25px 0;"><a href="{inv_url}" target="_blank" rel="noopener noreferrer" class="btn">Gestionar mi Inventario &rarr;</a></p>
+            <div class="warn">• Esta es una notificación automática generada por el módulo de inventario de SVC.</div>
+        </div>
+    </body>
+    </html>
+    """
+    _enviar_email_smtp(destinatario, f"SVC — Alerta de Stock Bajo: {nombre_producto}", html)
+
+# ── ALIAS DE COMPATIBILIDAD ───────────────────────────────────────────
+enviar_email_recuperacion = enviar_correo_recuperacion
+enviar_email_confirmacion_baja = enviar_correo_confirmacion_baja
+enviar_email_bienvenida_admin = enviar_correo_bienvenida_admin
+enviar_email_inhabilitacion = enviar_correo_inhabilitacion_comerciante
+enviar_email_reactivacion = enviar_correo_reactivacion_comerciante
+enviar_email_notificacion_baja = enviar_correo_notificacion_baja

@@ -1,14 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, admin
+from app.routers import auth, admin, inventario
 
 app = FastAPI(
-    title="SVC - Sistema de Vinculación para el Comercio",
-    description="API Backend transaccional B2B (Seminario de Integración Profesional 2026)",
-    version="1.0.0"
+    title="SVC — Sistema de Vinculación para el Comercio (Backend API)",
+    description="API RESTful oficial para la plataforma SaaS B2B SVC.",
+    version="0.2.0"
 )
 
-# Configuración de CORS para desarrollo local y producción
+# Configuración de CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,15 +17,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Registro modular de routers
+# Inclusión de Routers Modulares
 app.include_router(auth.router)
 app.include_router(admin.router)
+app.include_router(inventario.router)
 
-@app.get("/")
+@app.get("/", tags=["Diagnóstico y Salud"])
 def root():
     return {
-        "sistema": "Sistema de Vinculación para el Comercio (SVC)",
-        "estado": "En línea",
-        "entorno": "Desarrollo Local / AWS ASP",
-        "version": "1.0.0"
+        "sistema": "SVC — Sistema de Vinculación para el Comercio",
+        "version": "0.2.0",
+        "sprint": "Sprint 2 (WPT-02)",
+        "estado": "Operativo"
     }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVC - Mi Perfil Comercial (CdU04 / CdU06 / CdU09)</title>
+    <title>SVC - Mi Perfil Comercial (CdU04 / CdU09)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -18,7 +18,7 @@
             --svc-danger: #dc3545;
             --svc-danger-hover: #bd2130;
             --svc-success: #28a745;
-            --svc-border-radius: 0px; 
+            --svc-border-radius: 0px;
         }
 
         * {
@@ -32,25 +32,62 @@
             color: var(--svc-text);
             margin: 0;
             padding: 0;
-        }
-
-        /* Top Navbar */
-        .top-navbar {
-            background-color: #ffffff;
-            border-bottom: 1px solid #e9ecef;
-            padding: 12px 40px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .brand-logo-container {
+        /* ── SIDEBAR DRAWER DESPLEGABLE (3 LÍNEAS) ── */
+        .sidebar-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1200;
+            transition: left 0.25s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-drawer.open {
+            left: 0;
+        }
+
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1100;
+            display: none;
+        }
+
+        .drawer-backdrop.open {
+            display: block;
+        }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .brand-info {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .brand-logo-box {
+        .brand-box {
             background-color: var(--svc-primary);
             color: #ffffff;
             font-weight: 700;
@@ -58,7 +95,7 @@
             padding: 6px 10px;
         }
 
-        .brand-title-sub {
+        .brand-sub {
             font-size: 11px;
             color: var(--svc-text-muted);
             text-transform: uppercase;
@@ -66,96 +103,180 @@
             line-height: 1.2;
         }
 
-        .user-nav-actions {
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--svc-text-muted);
+            padding: 4px 8px;
+        }
+
+        .btn-close-drawer:hover {
+            color: var(--svc-text);
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .nav-item a {
             display: flex;
             align-items: center;
-            gap: 20px;
-        }
-
-        .user-greeting {
+            gap: 12px;
+            padding: 14px 24px;
+            color: #475569;
+            text-decoration: none;
             font-size: 13px;
             font-weight: 600;
-            color: #1e293b;
-        }
-
-        .btn-svc-logout-nav {
-            background: transparent;
-            border: 1px solid var(--svc-danger);
-            color: var(--svc-danger);
-            padding: 6px 14px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            text-transform: uppercase;
             transition: all 0.15s ease;
         }
 
-        .btn-svc-logout-nav:hover {
-            background-color: var(--svc-danger);
-            color: #ffffff;
+        .nav-item.active a, .nav-item a:hover {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-left: 4px solid var(--svc-primary);
         }
 
-        /* Main Container */
-        .profile-container {
-            max-width: 820px;
-            margin: 30px auto 50px auto;
-            padding: 0 20px;
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        /* ── CONTENIDO PRINCIPAL ── */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 65px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-hamburger {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-hamburger:hover {
+            background-color: var(--svc-bg-surface);
+            border-color: var(--svc-primary);
+        }
+
+        .btn-hamburger .bar {
+            width: 18px;
+            height: 2px;
+            background-color: #1e293b;
+        }
+
+        .topbar-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--svc-danger);
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-logout:hover {
+            background-color: #f8d7da;
+            border-color: var(--svc-danger);
+        }
+
+        .content-body {
+            padding: 35px 40px;
+            display: flex;
+            justify-content: center;
         }
 
         .profile-card {
             background: #ffffff;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #e2e8f0;
             border-top: 4px solid var(--svc-primary);
-            padding: 35px;
+            padding: 35px 40px;
+            width: 100%;
+            max-width: 760px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .profile-header-strip {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #f1f5f9;
+        .profile-title-wrap {
             margin-bottom: 25px;
         }
 
-        .profile-title-block h1 {
-            margin: 0 0 5px 0;
+        .profile-title-wrap h1 {
             font-size: 22px;
             font-weight: 700;
             color: #0f172a;
+            margin: 0 0 4px 0;
         }
 
-        .profile-title-block p {
-            margin: 0;
+        .profile-title-wrap p {
             font-size: 13px;
             color: var(--svc-text-muted);
+            margin: 0;
         }
 
-        .badge-cuit {
-            background-color: #f1f5f9;
-            border: 1px solid #cbd5e1;
-            padding: 6px 12px;
-            font-size: 12px;
+        .section-header {
+            font-size: 13px;
             font-weight: 700;
-            color: #334155;
-            letter-spacing: 0.5px;
-        }
-
-        .section-subtitle {
-            font-size: 14px;
-            font-weight: 700;
-            color: #1e293b;
-            margin: 25px 0 15px 0;
-            padding-bottom: 6px;
-            border-bottom: 1px solid #f1f5f9;
+            color: #0f172a;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            margin: 26px 0 14px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #f1f5f9;
         }
 
-        .form-group {
-            margin-bottom: 18px;
-        }
+        .section-header:first-of-type { margin-top: 0; }
+
+        .form-group { margin-bottom: 16px; }
 
         .form-group label {
             display: block;
@@ -167,97 +288,34 @@
             letter-spacing: 0.5px;
         }
 
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
+        .form-row { display: flex; gap: 14px; }
+        .form-row .form-group { flex: 1; }
 
         .input-svc {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid var(--svc-border);
             background-color: #ffffff;
-            font-family: 'Inter', sans-serif;
             font-size: 13px;
             color: var(--svc-text);
             outline: none;
+            font-family: inherit;
         }
 
-        .input-svc:focus {
-            border-color: var(--svc-primary);
-        }
+        .input-svc:focus { border-color: var(--svc-primary); }
 
         .input-svc:disabled {
             background-color: #f8fafc;
-            color: #94a3b8;
+            color: #64748b;
             cursor: not-allowed;
         }
 
-        /* Searchable Select Dropdowns */
-        .searchable-select-wrap {
-            position: relative;
-            width: 100%;
-        }
-
-        .searchable-input {
-            width: 100%;
-            padding: 10px 30px 10px 12px;
-            border: 1px solid var(--svc-border);
-            background-color: #ffffff;
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            color: var(--svc-text);
-            outline: none;
-            cursor: pointer;
-        }
-
-        .searchable-input:focus {
-            border-color: var(--svc-primary);
-        }
-
-        .select-caret {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-            font-size: 10px;
+        .field-help {
+            font-size: 11px;
             color: var(--svc-text-muted);
+            margin-top: 4px;
         }
 
-        .dropdown-options-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            max-height: 200px;
-            overflow-y: auto;
-            background: #ffffff;
-            border: 1px solid var(--svc-border);
-            border-top: none;
-            z-index: 100;
-            display: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .dropdown-item {
-            padding: 8px 12px;
-            font-size: 13px;
-            cursor: pointer;
-            border-bottom: 1px solid #f8f9fa;
-        }
-
-        .dropdown-item:hover {
-            background-color: #e7f0fb;
-            color: var(--svc-primary);
-            font-weight: 600;
-        }
-
-        /* Reach Buttons */
         .reach-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -267,7 +325,7 @@
         .reach-btn {
             border: 1px solid var(--svc-border);
             background: #ffffff;
-            padding: 12px 10px;
+            padding: 11px 10px;
             font-size: 12px;
             font-weight: 700;
             color: #475569;
@@ -284,294 +342,335 @@
             border-color: var(--svc-primary);
         }
 
-        .alert-box {
-            padding: 12px;
-            margin-bottom: 20px;
-            display: none;
-            font-size: 13px;
-        }
-        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
-        .alert-success { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
-
-        .btn-svc-save {
+        .btn-svc-primary {
             background-color: var(--svc-primary);
             color: #ffffff;
             border: none;
-            padding: 12px 30px;
+            padding: 12px 28px;
+            font-size: 12px;
             font-weight: 700;
-            font-size: 13px;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            transition: background-color 0.15s ease;
         }
 
-        .btn-svc-save:hover {
-            background-color: var(--svc-primary-hover);
-        }
+        .btn-svc-primary:hover { background-color: var(--svc-primary-hover); }
+        .btn-svc-primary:disabled { background-color: #94a3b8; cursor: not-allowed; }
 
-        /* Danger Zone (CdU09) */
-        .danger-zone-box {
+        /* Zona de Riesgo / Baja Voluntaria (CdU09) */
+        .danger-zone {
             margin-top: 40px;
-            border: 1px solid #fecaca;
-            background-color: #fff5f5;
-            padding: 25px;
-            border-left: 4px solid var(--svc-danger);
+            padding-top: 25px;
+            border-top: 1px solid #fee2e2;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 20px;
         }
 
-        .danger-zone-text h4 {
-            margin: 0 0 5px 0;
-            font-size: 14px;
-            font-weight: 700;
-            color: #991b1b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .danger-title { font-size: 13px; font-weight: 700; color: var(--svc-danger); text-transform: uppercase; }
+        .danger-desc { font-size: 12px; color: var(--svc-text-muted); margin-top: 2px; }
 
-        .danger-zone-text p {
-            margin: 0;
-            font-size: 12px;
-            color: #7f1d1d;
-            line-height: 1.4;
-        }
-
-        .btn-svc-delete-account {
-            background-color: var(--svc-danger);
-            color: #ffffff;
-            border: none;
-            padding: 11px 22px;
-            font-size: 12px;
+        .btn-danger-outline {
+            background: transparent;
+            border: 1px solid var(--svc-danger);
+            color: var(--svc-danger);
+            padding: 10px 18px;
+            font-size: 11px;
             font-weight: 700;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             white-space: nowrap;
+            transition: all 0.15s ease;
         }
 
-        .btn-svc-delete-account:hover {
-            background-color: var(--svc-danger-hover);
+        .btn-danger-outline:hover {
+            background-color: #f8d7da;
         }
 
-        /* Modales Rectangulares a 90° */
+        .alert-box {
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+        .alert-success { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
+
+        /* Modales Estrictos 90° */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(15, 23, 42, 0.65);
+            background-color: rgba(15, 23, 42, 0.6);
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 999;
+            z-index: 1500;
+            padding: 20px;
         }
 
-        .modal-box {
-            background: #ffffff;
+        .modal-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-danger);
             width: 100%;
             max-width: 480px;
-            padding: 35px;
-            border: 1px solid #cbd5e1;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            padding: 28px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
         .modal-title {
             font-size: 18px;
             font-weight: 700;
             color: #0f172a;
-            margin: 0 0 10px 0;
+            margin: 0 0 6px 0;
         }
 
-        .modal-desc {
-            font-size: 13px;
-            color: #475569;
-            line-height: 1.5;
-            margin-bottom: 20px;
+        .modal-subtitle {
+            font-size: 12px;
+            color: var(--svc-text-muted);
+            margin: 0 0 20px 0;
+            line-height: 1.4;
         }
 
         .modal-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 12px;
+            gap: 10px;
             margin-top: 25px;
         }
 
         .btn-modal-cancel {
             background: #ffffff;
             border: 1px solid var(--svc-border);
-            color: #334155;
-            padding: 10px 18px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-
-        .btn-modal-confirm {
-            background: var(--svc-danger);
-            border: 1px solid var(--svc-danger);
-            color: #ffffff;
-            padding: 10px 20px;
+            color: #1e293b;
+            padding: 10px 16px;
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
             text-transform: uppercase;
         }
 
-        .btn-modal-confirm:hover {
-            background: var(--svc-danger-hover);
+        .btn-modal-cancel:hover { border-color: var(--svc-primary); color: var(--svc-primary); }
+
+        .btn-modal-danger {
+            background-color: var(--svc-danger);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .btn-modal-confirm:disabled {
-            background-color: #6c757d;
-            cursor: not-allowed;
-        }
+        .btn-modal-danger:hover { background-color: var(--svc-danger-hover); }
+        .btn-modal-danger:disabled { background-color: #94a3b8; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-    <!-- Top Navbar -->
-    <div class="top-navbar">
-        <div class="brand-logo-container">
-            <div class="brand-logo-box">SVC</div>
-            <div class="brand-title-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+    <!-- Backdrop del Drawer -->
+    <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
+
+    <!-- Sidebar Drawer (Menú de tres líneas) -->
+    <div id="sidebarDrawer" class="sidebar-drawer">
+        <div>
+            <div class="sidebar-brand">
+                <div class="brand-info">
+                    <div class="brand-box">SVC</div>
+                    <div class="brand-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+                </div>
+                <button class="btn-close-drawer" onclick="toggleDrawer()" title="Cerrar menú">&times;</button>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item active"><a href="perfil.html">Mi Perfil Comercial</a></li>
+                <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 3 (WPT-03)'); return false;">Muro de Ventas</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 4 (WPT-05)'); return false;">Comunidades B2B</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 5 (WPT-04)'); return false;">Negociaciones & Chat</a></li>
+            </ul>
         </div>
-        <div class="user-nav-actions">
-            <span id="navUserLabel" class="user-greeting">Cargando...</span>
-            <button class="btn-svc-logout-nav" onclick="abrirModalLogout()">Cerrar Sesión &times;</button>
+        <div class="sidebar-footer">
+            &copy; 2026 SVC — v0.2.0 (Sprint 2)
         </div>
     </div>
 
-    <!-- Main Container (CdU04) -->
-    <div class="profile-container">
-        <div class="profile-card">
-            <div class="profile-header-strip">
-                <div class="profile-title-block">
-                    <h1 id="titleRazonSocial">Configuración del Perfil</h1>
-                    <p>Mantenga actualizada la información de su comercio frente a la red B2B</p>
-                </div>
-                <div id="displayCuit" class="badge-cuit">CUIT: --</div>
+    <!-- Contenedor Principal -->
+    <div class="main-wrapper">
+        
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="btn-hamburger" onclick="toggleDrawer()" title="Abrir menú de navegación">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </button>
+                <div class="topbar-title">Configuración de Perfil Comercial (CdU04)</div>
             </div>
+            <div class="user-badge">
+                <span id="userNameTop">Cargando comercio...</span>
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </div>
 
-            <div id="msgBox" class="alert-box"></div>
-
-            <form id="perfilForm">
-                <div class="form-group">
-                    <label>Nombre o Razón Social *</label>
-                    <input type="text" id="nombre_razon_social" class="input-svc" required>
+        <div class="content-body">
+            <div class="profile-card">
+                
+                <div class="profile-title-wrap">
+                    <h1>Perfil Comercial de la Empresa</h1>
+                    <p>Mantenga actualizada la información visible para otros comerciantes y proveedores de la red B2B.</p>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Correo Electrónico (No editable)</label>
-                        <input type="email" id="email" class="input-svc" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>Teléfono de Contacto *</label>
-                        <input type="text" id="telefono" class="input-svc" required>
-                    </div>
-                </div>
+                <div id="msgBox" class="alert-box"></div>
 
-                <div class="section-subtitle">Taxonomía Comercial</div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Rubro Comercial *</label>
-                        <div class="searchable-select-wrap">
-                            <input type="text" id="rubro_input" class="searchable-input" autocomplete="off" required>
-                            <span class="select-caret">&#9660;</span>
-                            <div id="rubro_list" class="dropdown-options-list"></div>
+                <!-- Formulario de Edición de Perfil (CdU04) -->
+                <form id="perfilForm">
+                    <div class="section-header">Identificación Fiscal y Registro</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre o Razón Social *</label>
+                            <input type="text" id="nombre_razon_social" class="input-svc" required>
+                        </div>
+                        <div class="form-group">
+                            <label>CUIT / CUIL (Inmutable)</label>
+                            <input type="text" id="cuit_cuil" class="input-svc" disabled>
+                            <div class="field-help">Dato fiscal inmutable conforme a la ERS.</div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Sub-rubro Comercial *</label>
-                        <div class="searchable-select-wrap">
-                            <input type="text" id="subrubro_input" class="searchable-input" autocomplete="off" required>
-                            <span class="select-caret">&#9660;</span>
-                            <div id="subrubro_list" class="dropdown-options-list"></div>
+
+                    <div class="section-header">Actividad y Taxonomía Comercial</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rubro Comercial *</label>
+                            <input type="text" id="rubro_comercial" class="input-svc" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Sub-rubro Comercial *</label>
+                            <input type="text" id="subrubro_comercial" class="input-svc" required>
                         </div>
                     </div>
-                </div>
 
-                <div class="section-subtitle">Ubicación y Logística</div>
-                <div class="form-group">
-                    <label>Dirección Fiscal / Depósito *</label>
-                    <input type="text" id="direccion" class="input-svc" required>
-                </div>
+                    <div class="section-header">Ubicación y Alcance Logístico</div>
 
-                <div class="form-row">
                     <div class="form-group">
-                        <label>Provincia *</label>
-                        <div class="searchable-select-wrap">
-                            <input type="text" id="provincia_input" class="searchable-input" autocomplete="off" required>
-                            <span class="select-caret">&#9660;</span>
-                            <div id="provincia_list" class="dropdown-options-list"></div>
+                        <label>Dirección Fiscal o Depósito *</label>
+                        <input type="text" id="direccion" class="input-svc" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Provincia *</label>
+                            <input type="text" id="provincia" class="input-svc" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Ciudad / Localidad *</label>
+                            <input type="text" id="ciudad_localidad" class="input-svc" required>
                         </div>
                     </div>
+
                     <div class="form-group">
-                        <label>Ciudad / Localidad *</label>
-                        <input type="text" id="ciudad_localidad" class="input-svc" required>
+                        <label>Zona de Alcance Logístico Declarada *</label>
+                        <div class="reach-grid">
+                            <div id="btnReachRegional" class="reach-btn" onclick="selectReach('Regional')">Regional</div>
+                            <div id="btnReachNacional" class="reach-btn" onclick="selectReach('Nacional')">Nacional</div>
+                            <div id="btnReachInternacional" class="reach-btn" onclick="selectReach('Internacional')">Internacional</div>
+                        </div>
+                        <input type="hidden" id="zona_alcance_logistico" value="Regional">
                     </div>
+
+                    <div class="section-header">Contacto Comercial Oficial</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Teléfono Comercial *</label>
+                            <input type="tel" id="telefono" class="input-svc" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Correo Electrónico Principal (Inmutable)</label>
+                            <input type="email" id="email" class="input-svc" disabled>
+                            <div class="field-help">Identificador de cuenta y acceso al sistema.</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
+                        <button type="submit" id="btnGuardar" class="btn-svc-primary">Guardar Cambios &rarr;</button>
+                    </div>
+                </form>
+
+                <!-- Zona de Riesgo: Baja Voluntaria de Cuenta (CdU09) -->
+                <div class="danger-zone">
+                    <div>
+                        <div class="danger-title">Zona de Riesgo / Baja Voluntaria</div>
+                        <div class="danger-desc">Dar de baja definitiva su cuenta comercial, pausar publicaciones y archivar su historial.</div>
+                    </div>
+                    <button type="button" class="btn-danger-outline" onclick="abrirModalBajaPaso1()">Borrar Cuenta</button>
                 </div>
 
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODAL: SOLICITUD DE BAJA DE CUENTA (CdU09 - PASO 1)            -->
+    <!-- ============================================================== -->
+    <div id="modalBajaPaso1" class="modal-overlay">
+        <div class="modal-card">
+            <h2 class="modal-title">Baja de Cuenta Comercial</h2>
+            <p class="modal-subtitle">
+                Esta acción aplicará una <strong>baja lógica</strong> sobre su perfil comercial. Se pausarán sus ofertas públicas y se desvinculará su inventario.<br><br>
+                Por seguridad, confirme su contraseña actual para recibir un código de confirmación por correo:
+            </p>
+
+            <div id="modalBajaAlert1" class="alert-box alert-danger"></div>
+
+            <form id="formBajaPaso1">
                 <div class="form-group">
-                    <label>Zona de Alcance Logístico *</label>
-                    <div class="reach-grid">
-                        <div id="btnReachRegional" class="reach-btn" onclick="selectReach('Regional')">Regional</div>
-                        <div id="btnReachNacional" class="reach-btn" onclick="selectReach('Nacional')">Nacional</div>
-                        <div id="btnReachInternacional" class="reach-btn" onclick="selectReach('Internacional')">Internacional</div>
-                    </div>
-                    <input type="hidden" id="zona_alcance_logistico" value="Regional">
+                    <label>Contraseña Actual *</label>
+                    <input type="password" id="bajaPassword" class="input-svc" placeholder="••••••••" required>
                 </div>
 
-                <div style="margin-top: 30px; text-align: right;">
-                    <button type="submit" class="btn-svc-save">Guardar Cambios &rarr;</button>
+                <div class="modal-actions">
+                    <button type="button" class="btn-modal-cancel" onclick="cerrarModalBajaPaso1()">Cancelar</button>
+                    <button type="submit" id="btnConfirmarBaja1" class="btn-modal-danger">Solicitar Baja por Correo &rarr;</button>
                 </div>
             </form>
-
-            <!-- Zona de Peligro / Borrado de Cuenta (CdU09) -->
-            <div class="danger-zone-box">
-                <div class="danger-zone-text">
-                    <h4>Dar de baja cuenta comercial</h4>
-                    <p>Se le enviará un correo con un enlace de confirmación seguro (válido por 15 minutos).</p>
-                </div>
-                <button type="button" class="btn-svc-delete-account" onclick="abrirModalBorrarCuenta()">Dar de Baja Cuenta</button>
-            </div>
         </div>
     </div>
 
-    <!-- Modal Diálogo de Confirmación para Cerrar Sesión (CdU06) -->
-    <div id="modalLogout" class="modal-overlay">
-        <div class="modal-box">
-            <h3 class="modal-title">¿Finalizar sesión actual?</h3>
-            <p class="modal-desc">Se cerrará su sesión de trabajo de forma segura y será redirigido a la pantalla de acceso.</p>
-            <div class="modal-actions">
-                <button type="button" class="btn-modal-cancel" onclick="cerrarModalLogout()">Cancelar</button>
-                <button type="button" class="btn-modal-confirm" onclick="ejecutarLogout()">Cerrar Sesión</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Diálogo para Solicitar Baja de Cuenta (CdU09) -->
-    <div id="modalDeleteAccount" class="modal-overlay">
-        <div class="modal-box">
-            <h3 class="modal-title" style="color: var(--svc-danger);">Solicitar Baja de Cuenta Comercial</h3>
-            <p class="modal-desc">
-                Por motivos de seguridad, reingrese su contraseña actual. Se despachará un enlace de confirmación por correo electrónico a su casilla registrada:
+    <!-- ============================================================== -->
+    <!-- MODAL: CONFIRMACIÓN DE TOKEN DE BAJA (CdU09 - PASO 2)          -->
+    <!-- ============================================================== -->
+    <div id="modalBajaPaso2" class="modal-overlay">
+        <div class="modal-card">
+            <h2 class="modal-title">Confirmar Código de Baja</h2>
+            <p class="modal-subtitle">
+                Hemos enviado un código o token de confirmación a su correo electrónico. Ingréselo para ejecutar la baja definitiva:
             </p>
-            
-            <div id="modalDeleteMsg" class="alert-box alert-danger" style="margin-bottom: 15px;"></div>
 
-            <div class="form-group">
-                <label>Contraseña Actual *</label>
-                <input type="password" id="delete_password_confirm" class="input-svc" placeholder="••••••••" required>
-            </div>
+            <div id="modalBajaAlert2" class="alert-box alert-danger"></div>
 
-            <div class="modal-actions">
-                <button type="button" class="btn-modal-cancel" onclick="cerrarModalBorrarCuenta()">Cancelar</button>
-                <button type="button" id="btnConfirmarSolicitudBaja" class="btn-modal-confirm" onclick="solicitarBajaPorEmail()">Enviar Correo de Confirmación &rarr;</button>
-            </div>
+            <form id="formBajaPaso2">
+                <div class="form-group">
+                    <label>Token / Código de Confirmación *</label>
+                    <input type="text" id="bajaToken" class="input-svc" placeholder="Pegue el código recibido por email" required>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-modal-cancel" onclick="cerrarModalBajaPaso2()">Cancelar</button>
+                    <button type="submit" id="btnConfirmarBaja2" class="btn-modal-danger">Ejecutar Baja Definitiva</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -579,148 +678,79 @@
         const API_URL = "http://127.0.0.1:8080/auth";
         const token = localStorage.getItem("svc_token");
 
-        // ── 1. Taxonomía Oficial de Rubros ──
-        const TAXONOMIA_SVC = {
-            "Alimentos & Bebidas": ["Almacenes", "Supermercados", "Minimercados", "Distribuidoras de alimentos", "Mayoristas de alimentos", "Bebidas", "Carnicerías", "Panaderías", "Lácteos", "Fiambres & Embutidos", "Dietéticas", "Café & Té"],
-            "Gastronomía": ["Restaurantes", "Bares", "Cafeterías", "Cervecerías", "Pizzerías", "Rotiserías", "Catering", "Equipamiento gastronómico"],
-            "Textil & Indumentaria": ["Ropa femenina", "Ropa masculina", "Ropa infantil", "Ropa de trabajo", "Uniformes", "Telas", "Hilados", "Confección textil"],
-            "Calzado & Marroquinería": ["Calzado", "Zapatillas", "Calzado de seguridad", "Carteras", "Bolsos", "Artículos de cuero"],
-            "Tecnología & Electrónica": ["Electrónica", "Computación", "Hardware", "Componentes de PC", "Notebooks", "Telefonía celular", "Audio", "Domótica"],
-            "Informática & Software": ["Desarrollo de software", "Desarrollo web", "Sistemas empresariales", "Software de gestión", "Servicios IT", "Ciberseguridad"],
-            "Telecomunicaciones": ["Internet", "Telefonía", "Fibra óptica", "Redes", "Infraestructura"],
-            "Electrodomésticos": ["Línea blanca", "Pequeños electrodomésticos", "Climatización", "Heladeras", "Lavarropas"],
-            "Construcción & Materiales": ["Materiales de construcción", "Corralones", "Cemento", "Hormigón", "Ladrillos", "Pisos", "Pinturas"],
-            "Ferretería & Herramientas": ["Ferreterías", "Herramientas manuales", "Herramientas eléctricas", "Bulonería", "Soldadura", "Compresores"],
-            "Limpieza & Mantenimiento": ["Productos de limpieza", "Insumos de higiene", "Limpieza empresarial", "Limpieza industrial", "Servicios generales"],
-            "Servicios Profesionales": ["Consultoría", "Administración", "Recursos humanos", "Auditoría", "Traducción", "Servicios administrativos"],
-            "Otros": ["Otros comercios", "Otros servicios", "Otros fabricantes"]
-        };
+        if (!token) {
+            window.location.href = "login.html";
+        }
 
-        const PROVINCIAS_ARGENTINA = [
-            "Buenos Aires", "CABA", "Catamarca", "Chaco", "Chubut", "Córdoba",
-            "Corrientes", "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja",
-            "Mendoza", "Misiones", "Neuquén", "Río Negro", "Salta", "San Juan",
-            "San Luis", "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán"
-        ];
-
-        // ── 2. Carga y Verificación de Sesión ──
-        window.addEventListener("DOMContentLoaded", async () => {
-            if (!token) {
-                alert("Debe iniciar sesión para acceder a su perfil comercial.");
-                window.location.href = "login.html";
-                return;
-            }
-            await cargarDatosPerfil();
+        window.addEventListener("DOMContentLoaded", () => {
+            cargarPerfil();
         });
 
-        async function cargarDatosPerfil() {
-            try {
-                const response = await fetch(`${API_URL}/me`, {
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-
-                if (!response.ok) {
-                    throw new Error("Sesión inválida o expirada");
-                }
-
-                const user = await response.json();
-                
-                document.getElementById("navUserLabel").innerText = user.nombre_razon_social || "Mi Comercio";
-                document.getElementById("titleRazonSocial").innerText = user.nombre_razon_social || "Mi Comercio";
-                document.getElementById("displayCuit").innerText = `CUIT: ${user.cuit_cuil || "--"}`;
-
-                document.getElementById("nombre_razon_social").value = user.nombre_razon_social || "";
-                document.getElementById("email").value = user.email || "";
-                document.getElementById("telefono").value = user.telefono || "";
-                document.getElementById("direccion").value = user.direccion || "";
-                document.getElementById("ciudad_localidad").value = user.ciudad_localidad || "";
-
-                document.getElementById("rubro_input").value = user.rubro_comercial || "";
-                document.getElementById("subrubro_input").value = user.subrubro_comercial || "";
-                document.getElementById("provincia_input").value = user.provincia || "";
-                
-                selectReach(user.zona_alcance_logistico || "Regional");
-                setupDropdowns();
-            } catch (err) {
-                localStorage.removeItem("svc_token");
-                localStorage.removeItem("svc_usuario");
-                window.location.href = "login.html";
-            }
+        // ── 1. Drawer de Navegación ──
+        function toggleDrawer() {
+            const drawer = document.getElementById("sidebarDrawer");
+            const backdrop = document.getElementById("drawerBackdrop");
+            drawer.classList.toggle("open");
+            backdrop.classList.toggle("open");
         }
 
-        // ── 3. Componentes Searchable ──
-        function setupSearchable(inputId, listId, dataProvider, onSelect) {
-            const input = document.getElementById(inputId);
-            const list = document.getElementById(listId);
-
-            function renderOptions(filterText = "") {
-                const items = typeof dataProvider === "function" ? dataProvider() : dataProvider;
-                list.innerHTML = "";
-                const filtered = items.filter(item => item.toLowerCase().includes(filterText.toLowerCase()));
-
-                if (filtered.length === 0) {
-                    list.innerHTML = '<div class="dropdown-item" style="color: #94a3b8; cursor: default;">Sin coincidencias</div>';
-                } else {
-                    filtered.forEach(item => {
-                        const div = document.createElement("div");
-                        div.className = "dropdown-item";
-                        div.innerText = item;
-                        div.onmousedown = (e) => {
-                            e.preventDefault();
-                            input.value = item;
-                            list.style.display = "none";
-                            if (onSelect) onSelect(item);
-                        };
-                        list.appendChild(div);
-                    });
-                }
-            }
-
-            input.addEventListener("focus", () => { renderOptions(input.value); list.style.display = "block"; });
-            input.addEventListener("input", () => { renderOptions(input.value); list.style.display = "block"; });
-            input.addEventListener("blur", () => { setTimeout(() => { list.style.display = "none"; }, 180); });
-        }
-
-        function setupDropdowns() {
-            setupSearchable("rubro_input", "rubro_list", Object.keys(TAXONOMIA_SVC), (rubroSel) => {
-                const subrubroInput = document.getElementById("subrubro_input");
-                subrubroInput.value = "";
-                setupSearchable("subrubro_input", "subrubro_list", () => TAXONOMIA_SVC[rubroSel] || []);
-                subrubroInput.focus();
-            });
-
-            const rubroActual = document.getElementById("rubro_input").value;
-            setupSearchable("subrubro_input", "subrubro_list", () => TAXONOMIA_SVC[rubroActual] || ["General"]);
-            setupSearchable("provincia_input", "provincia_list", PROVINCIAS_ARGENTINA);
-        }
-
+        // ── 2. Selector de Alcance Logístico ──
         function selectReach(val) {
-            document.querySelectorAll(".reach-btn").forEach(btn => btn.classList.remove("selected"));
+            document.querySelectorAll(".reach-btn").forEach(b => b.classList.remove("selected"));
             document.getElementById("zona_alcance_logistico").value = val;
             if (val === "Regional") document.getElementById("btnReachRegional").classList.add("selected");
             if (val === "Nacional") document.getElementById("btnReachNacional").classList.add("selected");
             if (val === "Internacional") document.getElementById("btnReachInternacional").classList.add("selected");
         }
 
-        // ── 4. Guardar Perfil (CdU04) ──
+        // ── 3. Cargar Datos del Perfil (CdU04) ──
+        async function cargarPerfil() {
+            try {
+                const res = await fetch(`${API_URL}/me`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const u = await res.json();
+                    document.getElementById("userNameTop").innerText = u.nombre_razon_social || u.email;
+                    document.getElementById("nombre_razon_social").value = u.nombre_razon_social || "";
+                    document.getElementById("cuit_cuil").value = u.cuit_cuil || "";
+                    document.getElementById("rubro_comercial").value = u.rubro_comercial || "";
+                    document.getElementById("subrubro_comercial").value = u.subrubro_comercial || "";
+                    document.getElementById("direccion").value = u.direccion || "";
+                    document.getElementById("provincia").value = u.provincia || "";
+                    document.getElementById("ciudad_localidad").value = u.ciudad_localidad || "";
+                    document.getElementById("telefono").value = u.telefono || "";
+                    document.getElementById("email").value = u.email || "";
+                    selectReach(u.zona_alcance_logistico || "Regional");
+                } else {
+                    cerrarSesion();
+                }
+            } catch (err) {
+                mostrarAlerta("Error al conectar con el servidor backend FastAPI.", "danger");
+            }
+        }
+
+        // ── 4. Guardar Modificaciones del Perfil (CdU04) ──
         document.getElementById("perfilForm").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const msgBox = document.getElementById("msgBox");
-            msgBox.style.display = "none";
+            const btn = document.getElementById("btnGuardar");
+            btn.disabled = true;
+            btn.innerText = "Guardando...";
 
             const payload = {
                 nombre_razon_social: document.getElementById("nombre_razon_social").value.trim(),
                 telefono: document.getElementById("telefono").value.trim(),
-                rubro_comercial: document.getElementById("rubro_input").value.trim(),
-                subrubro_comercial: document.getElementById("subrubro_input").value.trim(),
+                rubro_comercial: document.getElementById("rubro_comercial").value.trim(),
+                subrubro_comercial: document.getElementById("subrubro_comercial").value.trim(),
                 direccion: document.getElementById("direccion").value.trim(),
-                provincia: document.getElementById("provincia_input").value.trim(),
+                provincia: document.getElementById("provincia").value.trim(),
                 ciudad_localidad: document.getElementById("ciudad_localidad").value.trim(),
                 zona_alcance_logistico: document.getElementById("zona_alcance_logistico").value
             };
 
             try {
-                const response = await fetch(`${API_URL}/perfil`, {
+                const res = await fetch(`${API_URL}/perfil`, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
@@ -729,99 +759,133 @@
                     body: JSON.stringify(payload)
                 });
 
-                const data = await response.json();
+                const data = await res.json();
 
-                if (response.ok) {
-                    msgBox.className = "alert-box alert-success";
-                    msgBox.innerText = "¡Perfil comercial actualizado exitosamente en SVC!";
-                    msgBox.style.display = "block";
-                    document.getElementById("navUserLabel").innerText = data.nombre_razon_social;
-                    document.getElementById("titleRazonSocial").innerText = data.nombre_razon_social;
+                if (res.ok) {
+                    mostrarAlerta("Perfil comercial actualizado exitosamente en la base de datos.", "success");
+                    cargarPerfil();
                 } else {
-                    msgBox.className = "alert-box alert-danger";
-                    msgBox.innerText = data.detail || "Error al actualizar los datos.";
-                    msgBox.style.display = "block";
+                    mostrarAlerta(data.detail || "Error al actualizar el perfil comercial.", "danger");
                 }
             } catch (err) {
-                msgBox.className = "alert-box alert-danger";
-                msgBox.innerText = "No se pudo conectar con el servidor backend FastAPI.";
-                msgBox.style.display = "block";
+                mostrarAlerta("No se pudo establecer conexión con el backend.", "danger");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Guardar Cambios →";
             }
         });
 
-        // ── 5. Cerrar Sesión (CdU06) ──
-        function abrirModalLogout() { document.getElementById("modalLogout").style.display = "flex"; }
-        function cerrarModalLogout() { document.getElementById("modalLogout").style.display = "none"; }
-
-        async function ejecutarLogout() {
-            try {
-                await fetch(`${API_URL}/logout`, {
-                    method: "POST",
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-            } catch (e) {
-                // Invalida en cliente
-            } finally {
-                localStorage.removeItem("svc_token");
-                localStorage.removeItem("svc_usuario");
-                window.location.href = "login.html";
-            }
+        // ── 5. Gestión de Baja de Cuenta (CdU09) ──
+        function abrirModalBajaPaso1() {
+            document.getElementById("modalBajaAlert1").style.display = "none";
+            document.getElementById("formBajaPaso1").reset();
+            document.getElementById("modalBajaPaso1").style.display = "flex";
+            document.getElementById("bajaPassword").focus();
         }
 
-        // ── 6. Solicitar Baja de Cuenta por Email (CdU09) ──
-        function abrirModalBorrarCuenta() {
-            document.getElementById("modalDeleteMsg").style.display = "none";
-            document.getElementById("delete_password_confirm").value = "";
-            document.getElementById("modalDeleteAccount").style.display = "flex";
-            document.getElementById("delete_password_confirm").focus();
+        function cerrarModalBajaPaso1() {
+            document.getElementById("modalBajaPaso1").style.display = "none";
         }
 
-        function cerrarModalBorrarCuenta() {
-            document.getElementById("modalDeleteAccount").style.display = "none";
+        function abrirModalBajaPaso2() {
+            document.getElementById("modalBajaAlert2").style.display = "none";
+            document.getElementById("formBajaPaso2").reset();
+            document.getElementById("modalBajaPaso2").style.display = "flex";
+            document.getElementById("bajaToken").focus();
         }
 
-        async function solicitarBajaPorEmail() {
-            const modalMsg = document.getElementById("modalDeleteMsg");
-            const btnConfirm = document.getElementById("btnConfirmarSolicitudBaja");
-            modalMsg.style.display = "none";
+        function cerrarModalBajaPaso2() {
+            document.getElementById("modalBajaPaso2").style.display = "none";
+        }
 
-            const pwdConfirm = document.getElementById("delete_password_confirm").value;
+        // Paso 1: Solicitar baja y despachar correo SMTP
+        document.getElementById("formBajaPaso1").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const alertEl = document.getElementById("modalBajaAlert1");
+            const btn = document.getElementById("btnConfirmarBaja1");
+            alertEl.style.display = "none";
 
-            if (!pwdConfirm) {
-                modalMsg.innerText = "Debe ingresar su contraseña actual.";
-                modalMsg.style.display = "block";
-                return;
-            }
-
-            btnConfirm.disabled = true;
-            btnConfirm.innerText = "Despachando correo...";
+            const pwd = document.getElementById("bajaPassword").value;
+            btn.disabled = true;
+            btn.innerText = "Despachando correo 2FA...";
 
             try {
-                const response = await fetch(`${API_URL}/solicitar-baja-cuenta`, {
+                const res = await fetch(`${API_URL}/solicitar-baja-cuenta`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
                     },
-                    body: JSON.stringify({ password_confirmacion: pwdConfirm })
+                    body: JSON.stringify({ password_confirmacion: pwd })
                 });
 
-                const data = await response.json();
+                const data = await res.json();
 
-                if (response.ok) {
-                    alert(data.mensaje);
-                    cerrarModalBorrarCuenta();
+                if (res.ok) {
+                    cerrarModalBajaPaso1();
+                    abrirModalBajaPaso2();
                 } else {
-                    modalMsg.innerText = data.detail || "Contraseña incorrecta o error al procesar.";
-                    modalMsg.style.display = "block";
+                    alertEl.innerText = data.detail || "Error al verificar la contraseña.";
+                    alertEl.style.display = "block";
                 }
             } catch (err) {
-                modalMsg.innerText = "No se pudo conectar con el servidor backend FastAPI.";
-                modalMsg.style.display = "block";
+                alertEl.innerText = "Fallo de comunicación con el backend.";
+                alertEl.style.display = "block";
             } finally {
-                btnConfirm.disabled = false;
-                btnConfirm.innerText = "Enviar Correo de Confirmación →";
+                btn.disabled = false;
+                btn.innerText = "Solicitar Baja por Correo →";
             }
+        });
+
+        // Paso 2: Validar Token y Ejecutar Baja Lógica
+        document.getElementById("formBajaPaso2").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const alertEl = document.getElementById("modalBajaAlert2");
+            const btn = document.getElementById("btnConfirmarBaja2");
+            alertEl.style.display = "none";
+
+            const tokenInput = document.getElementById("bajaToken").value.trim();
+            btn.disabled = true;
+            btn.innerText = "Procesando baja...";
+
+            try {
+                const res = await fetch(`${API_URL}/confirmar-baja-cuenta`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token: tokenInput })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert(data.mensaje || "Su cuenta comercial ha sido dada de baja.");
+                    cerrarSesion();
+                } else {
+                    alertEl.innerText = data.detail || "Token de confirmación inválido o expirado.";
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "No se pudo conectar con el servidor.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Ejecutar Baja Definitiva";
+            }
+        });
+
+        function mostrarAlerta(msg, tipo) {
+            const el = document.getElementById("msgBox");
+            el.className = `alert-box alert-${tipo}`;
+            el.innerText = msg;
+            el.style.display = "block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => { el.style.display = "none"; }, 5000);
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("svc_token");
+            localStorage.removeItem("svc_usuario");
+            window.location.href = "login.html";
         }
     </script>
 </body>

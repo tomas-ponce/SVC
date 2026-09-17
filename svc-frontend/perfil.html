@@ -37,7 +37,6 @@
             overflow-x: hidden;
         }
 
-        /* ── SIDEBAR DRAWER DESPLEGABLE (3 LÍNEAS) ── */
         .sidebar-drawer {
             position: fixed;
             top: 0;
@@ -54,9 +53,7 @@
             box-shadow: 2px 0 10px rgba(0,0,0,0.08);
         }
 
-        .sidebar-drawer.open {
-            left: 0;
-        }
+        .sidebar-drawer.open { left: 0; }
 
         .drawer-backdrop {
             position: fixed;
@@ -69,9 +66,7 @@
             display: none;
         }
 
-        .drawer-backdrop.open {
-            display: block;
-        }
+        .drawer-backdrop.open { display: block; }
 
         .sidebar-brand {
             padding: 24px;
@@ -112,9 +107,7 @@
             padding: 4px 8px;
         }
 
-        .btn-close-drawer:hover {
-            color: var(--svc-text);
-        }
+        .btn-close-drawer:hover { color: var(--svc-text); }
 
         .nav-list {
             list-style: none;
@@ -147,7 +140,6 @@
             color: var(--svc-text-muted);
         }
 
-        /* ── CONTENIDO PRINCIPAL ── */
         .main-wrapper {
             flex: 1;
             display: flex;
@@ -358,7 +350,6 @@
         .btn-svc-primary:hover { background-color: var(--svc-primary-hover); }
         .btn-svc-primary:disabled { background-color: #94a3b8; cursor: not-allowed; }
 
-        /* Zona de Riesgo / Baja Voluntaria (CdU09) */
         .danger-zone {
             margin-top: 40px;
             padding-top: 25px;
@@ -400,7 +391,6 @@
         .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
         .alert-success { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
 
-        /* Modales Estrictos 90° */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -477,10 +467,9 @@
 </head>
 <body>
 
-    <!-- Backdrop del Drawer -->
     <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
 
-    <!-- Sidebar Drawer (Menú de tres líneas) -->
+    <!-- Sidebar Drawer (Sin enlace redundante) -->
     <div id="sidebarDrawer" class="sidebar-drawer">
         <div>
             <div class="sidebar-brand">
@@ -488,27 +477,27 @@
                     <div class="brand-box">SVC</div>
                     <div class="brand-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
                 </div>
-                <button class="btn-close-drawer" onclick="toggleDrawer()" title="Cerrar menú">&times;</button>
+                <button class="btn-close-drawer" onclick="toggleDrawer()">&times;</button>
             </div>
             <ul class="nav-list">
                 <li class="nav-item active"><a href="perfil.html">Mi Perfil Comercial</a></li>
                 <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
+                <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
                 <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 3 (WPT-03)'); return false;">Muro de Ventas</a></li>
                 <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 4 (WPT-05)'); return false;">Comunidades B2B</a></li>
                 <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 5 (WPT-04)'); return false;">Negociaciones & Chat</a></li>
             </ul>
         </div>
         <div class="sidebar-footer">
-            &copy; 2026 SVC — v0.2.0 (Sprint 2)
+            &copy; 2026 SVC — v0.3.0 (Sprint 3)
         </div>
     </div>
 
-    <!-- Contenedor Principal -->
     <div class="main-wrapper">
-        
         <div class="topbar">
             <div class="topbar-left">
-                <button class="btn-hamburger" onclick="toggleDrawer()" title="Abrir menú de navegación">
+                <button class="btn-hamburger" onclick="toggleDrawer()">
                     <div class="bar"></div>
                     <div class="bar"></div>
                     <div class="bar"></div>
@@ -523,7 +512,6 @@
 
         <div class="content-body">
             <div class="profile-card">
-                
                 <div class="profile-title-wrap">
                     <h1>Perfil Comercial de la Empresa</h1>
                     <p>Mantenga actualizada la información visible para otros comerciantes y proveedores de la red B2B.</p>
@@ -531,7 +519,6 @@
 
                 <div id="msgBox" class="alert-box"></div>
 
-                <!-- Formulario de Edición de Perfil (CdU04) -->
                 <form id="perfilForm">
                     <div class="section-header">Identificación Fiscal y Registro</div>
 
@@ -607,7 +594,6 @@
                     </div>
                 </form>
 
-                <!-- Zona de Riesgo: Baja Voluntaria de Cuenta (CdU09) -->
                 <div class="danger-zone">
                     <div>
                         <div class="danger-title">Zona de Riesgo / Baja Voluntaria</div>
@@ -615,15 +601,11 @@
                     </div>
                     <button type="button" class="btn-danger-outline" onclick="abrirModalBajaPaso1()">Borrar Cuenta</button>
                 </div>
-
             </div>
         </div>
-
     </div>
 
-    <!-- ============================================================== -->
-    <!-- MODAL: SOLICITUD DE BAJA DE CUENTA (CdU09 - PASO 1)            -->
-    <!-- ============================================================== -->
+    <!-- MODAL 1: SOLICITUD DE BAJA DE CUENTA -->
     <div id="modalBajaPaso1" class="modal-overlay">
         <div class="modal-card">
             <h2 class="modal-title">Baja de Cuenta Comercial</h2>
@@ -631,15 +613,12 @@
                 Esta acción aplicará una <strong>baja lógica</strong> sobre su perfil comercial. Se pausarán sus ofertas públicas y se desvinculará su inventario.<br><br>
                 Por seguridad, confirme su contraseña actual para recibir un código de confirmación por correo:
             </p>
-
             <div id="modalBajaAlert1" class="alert-box alert-danger"></div>
-
             <form id="formBajaPaso1">
                 <div class="form-group">
                     <label>Contraseña Actual *</label>
                     <input type="password" id="bajaPassword" class="input-svc" placeholder="••••••••" required>
                 </div>
-
                 <div class="modal-actions">
                     <button type="button" class="btn-modal-cancel" onclick="cerrarModalBajaPaso1()">Cancelar</button>
                     <button type="submit" id="btnConfirmarBaja1" class="btn-modal-danger">Solicitar Baja por Correo &rarr;</button>
@@ -648,24 +627,19 @@
         </div>
     </div>
 
-    <!-- ============================================================== -->
-    <!-- MODAL: CONFIRMACIÓN DE TOKEN DE BAJA (CdU09 - PASO 2)          -->
-    <!-- ============================================================== -->
+    <!-- MODAL 2: CONFIRMACIÓN DE TOKEN DE BAJA -->
     <div id="modalBajaPaso2" class="modal-overlay">
         <div class="modal-card">
             <h2 class="modal-title">Confirmar Código de Baja</h2>
             <p class="modal-subtitle">
                 Hemos enviado un código o token de confirmación a su correo electrónico. Ingréselo para ejecutar la baja definitiva:
             </p>
-
             <div id="modalBajaAlert2" class="alert-box alert-danger"></div>
-
             <form id="formBajaPaso2">
                 <div class="form-group">
                     <label>Token / Código de Confirmación *</label>
                     <input type="text" id="bajaToken" class="input-svc" placeholder="Pegue el código recibido por email" required>
                 </div>
-
                 <div class="modal-actions">
                     <button type="button" class="btn-modal-cancel" onclick="cerrarModalBajaPaso2()">Cancelar</button>
                     <button type="submit" id="btnConfirmarBaja2" class="btn-modal-danger">Ejecutar Baja Definitiva</button>
@@ -686,15 +660,11 @@
             cargarPerfil();
         });
 
-        // ── 1. Drawer de Navegación ──
         function toggleDrawer() {
-            const drawer = document.getElementById("sidebarDrawer");
-            const backdrop = document.getElementById("drawerBackdrop");
-            drawer.classList.toggle("open");
-            backdrop.classList.toggle("open");
+            document.getElementById("sidebarDrawer").classList.toggle("open");
+            document.getElementById("drawerBackdrop").classList.toggle("open");
         }
 
-        // ── 2. Selector de Alcance Logístico ──
         function selectReach(val) {
             document.querySelectorAll(".reach-btn").forEach(b => b.classList.remove("selected"));
             document.getElementById("zona_alcance_logistico").value = val;
@@ -703,7 +673,6 @@
             if (val === "Internacional") document.getElementById("btnReachInternacional").classList.add("selected");
         }
 
-        // ── 3. Cargar Datos del Perfil (CdU04) ──
         async function cargarPerfil() {
             try {
                 const res = await fetch(`${API_URL}/me`, {
@@ -731,7 +700,6 @@
             }
         }
 
-        // ── 4. Guardar Modificaciones del Perfil (CdU04) ──
         document.getElementById("perfilForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const btn = document.getElementById("btnGuardar");
@@ -775,7 +743,6 @@
             }
         });
 
-        // ── 5. Gestión de Baja de Cuenta (CdU09) ──
         function abrirModalBajaPaso1() {
             document.getElementById("modalBajaAlert1").style.display = "none";
             document.getElementById("formBajaPaso1").reset();
@@ -798,7 +765,6 @@
             document.getElementById("modalBajaPaso2").style.display = "none";
         }
 
-        // Paso 1: Solicitar baja y despachar correo SMTP
         document.getElementById("formBajaPaso1").addEventListener("submit", async (e) => {
             e.preventDefault();
             const alertEl = document.getElementById("modalBajaAlert1");
@@ -837,7 +803,6 @@
             }
         });
 
-        // Paso 2: Validar Token y Ejecutar Baja Lógica
         document.getElementById("formBajaPaso2").addEventListener("submit", async (e) => {
             e.preventDefault();
             const alertEl = document.getElementById("modalBajaAlert2");

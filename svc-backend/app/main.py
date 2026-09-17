@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, admin, inventario
+from app.routers import auth, admin, inventario, busqueda, publicaciones
 
 app = FastAPI(
     title="SVC — Sistema de Vinculación para el Comercio (Backend API)",
     description="API RESTful oficial para la plataforma SaaS B2B SVC.",
-    version="0.2.0"
+    version="0.3.0"
 )
 
 # Configuración de CORS
@@ -21,12 +21,14 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(inventario.router)
+app.include_router(busqueda.router)
+app.include_router(publicaciones.router)
 
 @app.get("/", tags=["Diagnóstico y Salud"])
 def root():
     return {
         "sistema": "SVC — Sistema de Vinculación para el Comercio",
-        "version": "0.2.0",
-        "sprint": "Sprint 2 (WPT-02)",
+        "version": "0.3.0",
+        "sprint": "Sprint 3 (WPT-03)",
         "estado": "Operativo"
     }

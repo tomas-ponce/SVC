@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVC ADMIN - Padrón General de Usuarios (CdU05 / CdU07 / CdU08)</title>
+    <title>SVC ADMIN - Panel Centralizado de Moderación y Auditoría (CdU05 / CdU07 / CdU08 / CdU32)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -38,7 +38,6 @@
             flex-direction: column;
         }
 
-        /* Topbar de Administración */
         .admin-topbar {
             height: 60px;
             background-color: #ffffff;
@@ -107,9 +106,8 @@
             color: #ffffff;
         }
 
-        /* Contenedor Principal */
         .main-container {
-            max-width: 1280px;
+            max-width: 1320px;
             width: 100%;
             margin: 30px auto 50px auto;
             padding: 0 30px;
@@ -157,7 +155,6 @@
             background-color: var(--svc-primary-hover);
         }
 
-        /* Pestañas de Navegación */
         .tabs-header {
             display: flex;
             gap: 0;
@@ -187,7 +184,6 @@
             border-top: 3px solid var(--svc-primary);
         }
 
-        /* Barra de Búsqueda y Filtros */
         .filter-bar {
             background-color: #ffffff;
             border: 1px solid #e2e8f0;
@@ -245,7 +241,6 @@
             background-color: #1e293b;
         }
 
-        /* Tabla de Padrón */
         .table-wrap {
             background-color: #ffffff;
             border: 1px solid #e2e8f0;
@@ -288,9 +283,9 @@
             letter-spacing: 0.5px;
         }
 
-        .badge-activo { background-color: #d4edda; color: var(--svc-success); }
-        .badge-inhabilitado { background-color: #f8d7da; color: var(--svc-danger); }
-        .badge-baja { background-color: #e2e8f0; color: #64748b; }
+        .badge-activo, .badge-activa { background-color: #d4edda; color: var(--svc-success); }
+        .badge-inhabilitado, .badge-pausada { background-color: #fff3cd; color: #856404; }
+        .badge-baja, .badge-eliminada { background-color: #f8d7da; color: var(--svc-danger); }
 
         .btn-action {
             background: #ffffff;
@@ -310,7 +305,6 @@
         .btn-action.btn-reactivate { color: var(--svc-success); border-color: #bbf7d0; }
         .btn-action.btn-reactivate:hover { background-color: #dcfce7; }
 
-        /* Modales */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -330,7 +324,7 @@
             border: 1px solid #e2e8f0;
             border-top: 4px solid var(--svc-primary);
             width: 100%;
-            max-width: 500px;
+            max-width: 520px;
             padding: 28px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
@@ -414,26 +408,6 @@
             justify-content: space-between;
             align-items: center;
         }
-
-        .pagination-controls {
-            display: flex;
-            gap: 6px;
-        }
-
-        .btn-page {
-            background: #ffffff;
-            border: 1px solid var(--svc-border);
-            padding: 4px 10px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn-page:disabled {
-            background: #f8fafc;
-            color: #cbd5e1;
-            cursor: not-allowed;
-        }
     </style>
 </head>
 <body>
@@ -450,7 +424,6 @@
         </div>
     </div>
 
-    <!-- Contenedor Principal -->
     <div class="main-container">
         
         <div id="mainAlert" class="alert-box"></div>
@@ -458,31 +431,31 @@
         <!-- Hero Header -->
         <div class="card-header-hero">
             <div class="hero-titles">
-                <h1>Padrón General de Usuarios y Gestores</h1>
-                <p>Auditoría de comerciantes, aplicación de inhabilitaciones y control del equipo de administración</p>
+                <h1 id="heroTitleTxt">Padrón General de Usuarios y Gestores</h1>
+                <p id="heroSubtitleTxt">Auditoría de comerciantes, aplicación de inhabilitaciones y control institucional de ofertas</p>
             </div>
-            <button class="btn-svc-primary" onclick="abrirModalAltaAdmin()">+ Registrar Administrador</button>
+            <button id="btnActionTop" class="btn-svc-primary" onclick="abrirModalAltaAdmin()">+ Registrar Administrador</button>
         </div>
 
-        <!-- Pestañas -->
+        <!-- Pestañas de Navegación -->
         <div class="tabs-header">
             <button id="tabComerciantes" class="tab-btn active" onclick="cambiarTab('comerciante')">Comerciantes B2B</button>
             <button id="tabAdmins" class="tab-btn" onclick="cambiarTab('administrador')">Equipo de Administradores</button>
+            <button id="tabOfertas" class="tab-btn" onclick="cambiarTab('publicaciones')">Ofertas Comerciales B2B (CdU32)</button>
         </div>
 
         <!-- Barra de Búsqueda y Filtrado -->
         <div class="filter-bar">
             <div class="filter-group" style="flex: 2;">
-                <label>Buscar por Texto</label>
+                <label id="lblFiltroTexto">Buscar por Texto</label>
                 <input type="text" id="filtroTexto" class="input-svc" placeholder="Razón social, CUIT o Email...">
             </div>
             <div class="filter-group" id="groupFiltroEstado">
-                <label>Estado de Cuenta</label>
+                <label>Estado</label>
                 <select id="filtroEstado" class="input-svc">
                     <option value="todos">Todos los Estados</option>
-                    <option value="activo">Activos</option>
-                    <option value="inhabilitado">Inhabilitados</option>
-                    <option value="baja">Dados de Baja</option>
+                    <option value="Activa">Activas / Activos</option>
+                    <option value="Pausada">Pausadas / Inhabilitados</option>
                 </select>
             </div>
             <div class="filter-group" id="groupFiltroRubro">
@@ -492,43 +465,31 @@
                     <option value="Alimentos & Bebidas">Alimentos & Bebidas</option>
                     <option value="Gastronomía">Gastronomía</option>
                     <option value="Textil & Indumentaria">Textil & Indumentaria</option>
-                    <option value="Calzado & Marroquinería">Calzado & Marroquinería</option>
                     <option value="Tecnología & Electrónica">Tecnología & Electrónica</option>
                     <option value="Informática & Software">Informática & Software</option>
-                    <option value="Telecomunicaciones">Telecomunicaciones</option>
-                    <option value="Electrodomésticos">Electrodomésticos</option>
                     <option value="Construcción & Materiales">Construcción & Materiales</option>
-                    <option value="Ferretería & Herramientas">Ferretería & Herramientas</option>
-                    <option value="Limpieza & Mantenimiento">Limpieza & Mantenimiento</option>
-                    <option value="Servicios Profesionales">Servicios Profesionales</option>
                     <option value="Otros">Otros</option>
                 </select>
             </div>
-            <button type="button" class="btn-filter" onclick="consultarPadron()">Filtrar Padrón</button>
+            <button type="button" class="btn-filter" onclick="consultarSeccionActual()">Filtrar</button>
         </div>
 
-        <!-- Tabla -->
+        <!-- Tabla Principal -->
         <div class="table-wrap">
             <table class="table-svc">
                 <thead id="tablaHead"></thead>
                 <tbody id="tablaBody">
-                    <tr><td colspan="7" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">Cargando usuarios...</td></tr>
+                    <tr><td colspan="7" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">Cargando datos...</td></tr>
                 </tbody>
             </table>
             <div class="table-footer">
                 <span id="lblTotalRegistros">Mostrando 0 de 0 registros</span>
-                <div class="pagination-controls">
-                    <button type="button" class="btn-page" id="btnPagPrev" disabled>&larr; Anterior</button>
-                    <button type="button" class="btn-page" id="btnPagNext" disabled>Siguiente &rarr;</button>
-                </div>
             </div>
         </div>
 
     </div>
 
-    <!-- ============================================================== -->
-    <!-- MODAL 1: ALTA DE ADMINISTRADOR (CdU05)                        -->
-    <!-- ============================================================== -->
+    <!-- MODAL 1: ALTA DE ADMINISTRADOR (CdU05) -->
     <div id="modalAltaAdmin" class="modal-overlay">
         <div class="modal-card">
             <h2 class="modal-title">Registrar Nuevo Administrador</h2>
@@ -558,9 +519,7 @@
         </div>
     </div>
 
-    <!-- ============================================================== -->
-    <!-- MODAL 2: INHABILITAR USUARIO (CdU07)                           -->
-    <!-- ============================================================== -->
+    <!-- MODAL 2: INHABILITAR USUARIO (CdU07) -->
     <div id="modalInhabilitar" class="modal-overlay">
         <div class="modal-card modal-danger">
             <h2 class="modal-title" style="color: var(--svc-danger);">Inhabilitar Cuenta de Usuario</h2>
@@ -585,11 +544,38 @@
         </div>
     </div>
 
+    <!-- MODAL 3: ELIMINAR PUBLICACIÓN POR ADMINISTRADOR (CdU32 / CdU30) -->
+    <div id="modalBajaOfertaAdmin" class="modal-overlay">
+        <div class="modal-card modal-danger">
+            <h2 class="modal-title" style="color: var(--svc-danger);">Baja de Publicación por Moderación</h2>
+            <p class="modal-subtitle" id="bajaOfertaSubtitle">
+                Se retirará la oferta definitivamente. Si estaba activa, las unidades serán devueltas al comerciante (CdU30) y se le enviará una notificación formal por correo electrónico.
+            </p>
+            
+            <div id="modalBajaOfertaAlert" class="alert-box alert-danger"></div>
+
+            <form id="formBajaOfertaAdmin" onsubmit="ejecutarBajaOfertaAdmin(event)">
+                <input type="hidden" id="bajaOfertaId">
+
+                <div class="form-group-modal">
+                    <label>Motivo Institucional de la Infracción *</label>
+                    <textarea id="bajaOfertaJustificacion" class="input-svc" style="width: 100%; height: 85px; padding: 10px;" placeholder="Explique por qué la oferta infringe los términos de SVC (mínimo 5 caracteres)..." required minlength="5"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-modal-cancel" onclick="cerrarModalBajaOfertaAdmin()">Cancelar</button>
+                    <button type="submit" id="btnConfirmarBajaOferta" class="btn-modal-danger">Confirmar Baja Forzosa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        const API_URL = "http://127.0.0.1:8080/admin";
+        const API_URL = "http://127.0.0.1:8080";
         const token = localStorage.getItem("svc_token");
         const usuarioSesion = JSON.parse(localStorage.getItem("svc_usuario") || "{}");
         let tipoTabActual = "comerciante";
+        let cachePublicacionesAdmin = [];
 
         if (!token || usuarioSesion.rol !== "administrador") {
             alert("Acceso denegado. Debe iniciar sesión con una cuenta de Administrador.");
@@ -600,30 +586,58 @@
             if (usuarioSesion.nombre_completo || usuarioSesion.nombre_razon_social) {
                 document.getElementById("adminNameDisplay").innerText = `Admin: ${usuarioSesion.nombre_completo || usuarioSesion.nombre_razon_social}`;
             }
-            consultarPadron();
+            consultarPadronUsuarios();
         });
 
         function cambiarTab(tipo) {
             tipoTabActual = tipo;
             document.getElementById("tabComerciantes").classList.toggle("active", tipo === "comerciante");
             document.getElementById("tabAdmins").classList.toggle("active", tipo === "administrador");
-            
-            document.getElementById("groupFiltroRubro").style.display = (tipo === "comerciante") ? "flex" : "none";
-            document.getElementById("filtroTexto").value = "";
-            document.getElementById("filtroEstado").value = "todos";
-            document.getElementById("filtroRubro").value = "todos";
-            
-            consultarPadron();
+            document.getElementById("tabOfertas").classList.toggle("active", tipo === "publicaciones");
+
+            const btnTop = document.getElementById("btnActionTop");
+            const lblTexto = document.getElementById("lblFiltroTexto");
+            const inputTexto = document.getElementById("filtroTexto");
+            const groupRubro = document.getElementById("groupFiltroRubro");
+
+            inputTexto.value = "";
+
+            if (tipo === "publicaciones") {
+                document.getElementById("heroTitleTxt").innerText = "Moderación Global de Publicaciones de Venta";
+                document.getElementById("heroSubtitleTxt").innerText = "Supervisión de ofertas activas en la red B2B, retiro por infracción y auditoría";
+                btnTop.style.display = "none";
+                lblTexto.innerText = "Buscar por Título de Oferta o Comercio";
+                inputTexto.placeholder = "Título de oferta, producto o razón social...";
+                groupRubro.style.display = "flex";
+                consultarOfertasAdmin();
+            } else {
+                document.getElementById("heroTitleTxt").innerText = "Padrón General de Usuarios y Gestores";
+                document.getElementById("heroSubtitleTxt").innerText = "Auditoría de comerciantes, aplicación de inhabilitaciones y control del equipo de administración";
+                btnTop.style.display = (tipo === "administrador") ? "block" : "block";
+                lblTexto.innerText = "Buscar por Texto";
+                inputTexto.placeholder = "Razón social, CUIT o Email...";
+                groupRubro.style.display = (tipo === "comerciante") ? "flex" : "none";
+                consultarPadronUsuarios();
+            }
         }
 
-        async function consultarPadron() {
+        function consultarSeccionActual() {
+            if (tipoTabActual === "publicaciones") {
+                filtrarOfertasLocales();
+            } else {
+                consultarPadronUsuarios();
+            }
+        }
+
+        // ── Padrón de Usuarios (CdU08) ──
+        async function consultarPadronUsuarios() {
             const thead = document.getElementById("tablaHead");
             const tbody = document.getElementById("tablaBody");
             const texto = document.getElementById("filtroTexto").value.trim();
             const estado = document.getElementById("filtroEstado").value;
             const rubro = document.getElementById("filtroRubro").value;
 
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">Consultando padrón en backend...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">Consultando padrón...</td></tr>`;
 
             if (tipoTabActual === "comerciante") {
                 thead.innerHTML = `
@@ -654,31 +668,31 @@
                 let params = new URLSearchParams();
                 params.append("tipo", tipoTabActual);
                 if (texto) params.append("busqueda", texto);
-                if (estado !== "todos") params.append("estado", estado);
+                if (estado !== "todos") params.append("estado", estado.toLowerCase());
                 if (tipoTabActual === "comerciante" && rubro !== "todos") params.append("rubro", rubro);
 
-                const res = await fetch(`${API_URL}/usuarios?${params.toString()}`, {
+                const res = await fetch(`${API_URL}/admin/usuarios?${params.toString()}`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
 
                 if (res.ok) {
                     const data = await res.json();
-                    renderizarTabla(data.usuarios || []);
+                    renderizarTablaUsuarios(data.usuarios || []);
                 } else {
                     tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-danger); padding: 30px;">Error al conectar con el backend.</td></tr>`;
                 }
             } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-danger); padding: 30px;">Error al conectar con el backend.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-danger); padding: 30px;">Fallo de conexión con el backend.</td></tr>`;
             }
         }
 
-        function renderizarTabla(lista) {
+        function renderizarTablaUsuarios(lista) {
             const tbody = document.getElementById("tablaBody");
             tbody.innerHTML = "";
             document.getElementById("lblTotalRegistros").innerText = `Mostrando ${lista.length} de ${lista.length} registros`;
 
             if (lista.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">No se encontraron usuarios coincidentes en el padrón.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">No se encontraron usuarios coincidentes.</td></tr>`;
                 return;
             }
 
@@ -728,7 +742,152 @@
             });
         }
 
-        // ── Control Modal Alta Admin (CdU05) ──
+        // ── Moderación de Ofertas Comerciales (CdU32) ──
+        async function consultarOfertasAdmin() {
+            const thead = document.getElementById("tablaHead");
+            const tbody = document.getElementById("tablaBody");
+
+            thead.innerHTML = `
+                <tr>
+                    <th>Oferta Comercial</th>
+                    <th>Comercio Autor</th>
+                    <th>Rubro</th>
+                    <th>Precio Unit.</th>
+                    <th>Unidades</th>
+                    <th>Estado</th>
+                    <th style="text-align: right;">Acción de Moderación</th>
+                </tr>
+            `;
+
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">Recuperando ofertas de la plataforma...</td></tr>`;
+
+            try {
+                const res = await fetch(`${API_URL}/publicaciones/admin/todas`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    cachePublicacionesAdmin = await res.json();
+                    filtrarOfertasLocales();
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-danger); padding: 30px;">Error al cargar publicaciones.</td></tr>`;
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-danger); padding: 30px;">Fallo de conexión con el backend.</td></tr>`;
+            }
+        }
+
+        function filtrarOfertasLocales() {
+            const tbody = document.getElementById("tablaBody");
+            const texto = document.getElementById("filtroTexto").value.trim().toLowerCase();
+            const estado = document.getElementById("filtroEstado").value;
+            const rubro = document.getElementById("filtroRubro").value;
+
+            let filtradas = cachePublicacionesAdmin.filter(p => {
+                const matchTexto = !texto || p.titulo.toLowerCase().includes(texto) || (p.comerciantes && p.comerciantes.nombre_razon_social.toLowerCase().includes(texto));
+                const matchEstado = (estado === "todos") || p.estado.toLowerCase() === estado.toLowerCase();
+                const matchRubro = (rubro === "todos") || p.rubro === rubro;
+                return matchTexto && matchEstado && matchRubro;
+            });
+
+            tbody.innerHTML = "";
+            document.getElementById("lblTotalRegistros").innerText = `Mostrando ${filtradas.length} de ${cachePublicacionesAdmin.length} ofertas`;
+
+            if (filtradas.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">No se encontraron publicaciones que coincidan con los filtros.</td></tr>`;
+                return;
+            }
+
+            filtradas.forEach(p => {
+                const tr = document.createElement("tr");
+                const badgeClass = p.estado === "Activa" ? "badge-activa" : "badge-pausada";
+                const precioFmt = Number(p.precio).toLocaleString('es-AR', { minimumFractionDigits: 2 });
+                const nombreComercio = p.comerciantes ? p.comerciantes.nombre_razon_social : '—';
+                const emailComercio = p.comerciantes ? p.comerciantes.email : '—';
+
+                tr.innerHTML = `
+                    <td>
+                        <strong style="color: #0f172a;">${p.titulo}</strong>
+                        <div style="font-size: 11px; color: var(--svc-text-muted);">${p.descripcion || 'Sin descripción'}</div>
+                    </td>
+                    <td>
+                        <strong>${nombreComercio}</strong><br>
+                        <span style="font-size: 11px; color: var(--svc-text-muted);">${emailComercio}</span>
+                    </td>
+                    <td>${p.rubro}</td>
+                    <td><strong>$ ${precioFmt}</strong></td>
+                    <td><strong>${p.unidades_ofertadas}</strong> u.</td>
+                    <td><span class="badge-status ${badgeClass}">${p.estado}</span></td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <button class="btn-action btn-suspend" onclick="abrirModalBajaOfertaAdmin('${p.id}', '${p.titulo}', '${nombreComercio}', '${p.estado}')">Dar de Baja (CdU32)</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ── Modal de Baja Forzosa de Oferta (CdU32) ──
+        function abrirModalBajaOfertaAdmin(id, titulo, comercio, estado) {
+            document.getElementById("modalBajaOfertaAlert").style.display = "none";
+            document.getElementById("formBajaOfertaAdmin").reset();
+            document.getElementById("bajaOfertaId").value = id;
+            document.getElementById("bajaOfertaSubtitle").innerHTML = `
+                Aplicar baja forzosa por moderación a: <strong>"${titulo}"</strong> (${comercio}).<br>
+                Estado actual: <strong>${estado}</strong>. Si estaba activa, las unidades se devolverán al comerciante (CdU30) y se le enviará un correo explicativo formal.
+            `;
+            document.getElementById("modalBajaOfertaAdmin").style.display = "flex";
+            document.getElementById("bajaOfertaJustificacion").focus();
+        }
+
+        function cerrarModalBajaOfertaAdmin() {
+            document.getElementById("modalBajaOfertaAdmin").style.display = "none";
+        }
+
+        async function ejecutarBajaOfertaAdmin(e) {
+            e.preventDefault();
+            const id = document.getElementById("bajaOfertaId").value;
+            const motivo = document.getElementById("bajaOfertaJustificacion").value.trim();
+            const alertEl = document.getElementById("modalBajaOfertaAlert");
+            const btn = document.getElementById("btnConfirmarBajaOferta");
+
+            alertEl.style.display = "none";
+            btn.disabled = true;
+            btn.innerText = "Procesando baja...";
+
+            try {
+                const res = await fetch(`${API_URL}/publicaciones/${id}/admin`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ motivo_infraccion: motivo })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalBajaOfertaAdmin();
+                    consultarOfertasAdmin();
+                    let msg = data.mensaje;
+                    if (data.unidades_restituidas > 0) {
+                        msg += ` Se restituyeron ${data.unidades_restituidas} unidad(es) al stock del comerciante.`;
+                    }
+                    mostrarAlertaPrincipal(msg, "success");
+                } else {
+                    alertEl.innerText = data.detail || "Error al dar de baja la oferta.";
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "Fallo de comunicación con el backend.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar Baja Forzosa";
+            }
+        }
+
+        // ── Modal Alta Admin (CdU05) ──
         function abrirModalAltaAdmin() {
             document.getElementById("modalAdminAlert").style.display = "none";
             document.getElementById("formAltaAdmin").reset();
@@ -756,7 +915,7 @@
             };
 
             try {
-                const res = await fetch(`${API_URL}/nuevo-administrador`, {
+                const res = await fetch(`${API_URL}/admin/nuevo-administrador`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -784,7 +943,7 @@
             }
         });
 
-        // ── Control Modal Inhabilitar (CdU07) ──
+        // ── Inhabilitar Usuario (CdU07) ──
         function abrirModalInhabilitar(id, tipo, nombre) {
             document.getElementById("modalInhabAlert").style.display = "none";
             document.getElementById("formInhabilitar").reset();
@@ -813,7 +972,7 @@
             btn.innerText = "Procesando...";
 
             try {
-                const res = await fetch(`${API_URL}/usuarios/${userId}/inhabilitar`, {
+                const res = await fetch(`${API_URL}/admin/usuarios/${userId}/inhabilitar`, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
@@ -826,7 +985,7 @@
 
                 if (res.ok) {
                     cerrarModalInhabilitar();
-                    consultarPadron();
+                    consultarPadronUsuarios();
                     mostrarAlertaPrincipal(`La cuenta ha sido inhabilitada exitosamente.`, "success");
                 } else {
                     alertEl.innerText = data.detail || "Error al aplicar inhabilitación.";
@@ -841,12 +1000,11 @@
             }
         });
 
-        // ── Reactivar Usuario Directo ──
         async function reactivarUsuarioDirecto(userId, userTipo) {
             if (!confirm("¿Desea reactivar la cuenta de este usuario y restaurar sus permisos operativos?")) return;
 
             try {
-                const res = await fetch(`${API_URL}/usuarios/${userId}/reactivar`, {
+                const res = await fetch(`${API_URL}/admin/usuarios/${userId}/reactivar`, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
@@ -856,7 +1014,7 @@
                 });
 
                 if (res.ok) {
-                    consultarPadron();
+                    consultarPadronUsuarios();
                     mostrarAlertaPrincipal("Cuenta reactivada exitosamente.", "success");
                 } else {
                     const data = await res.json();
@@ -872,7 +1030,7 @@
             el.className = `alert-box alert-${tipo}`;
             el.innerText = msg;
             el.style.display = "block";
-            setTimeout(() => { el.style.display = "none"; }, 4000);
+            setTimeout(() => { el.style.display = "none"; }, 4500);
         }
 
         function cerrarSesionAdmin() {

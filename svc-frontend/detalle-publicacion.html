@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Ficha Comercial de Publicación (CdU33)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-primary-hover: #004085;
+            --svc-bg-page: #f8f9fa;
+            --svc-bg-surface: #ffffff;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-danger: #dc3545;
+            --svc-success: #28a745;
+            --svc-border-radius: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important; /* REGLA INNEGOCIABLE SVC: Esquinas a 90° */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sidebar-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1200;
+            transition: left 0.25s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-drawer.open { left: 0; }
+
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1100;
+            display: none;
+        }
+
+        .drawer-backdrop.open { display: block; }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-box {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--svc-text-muted);
+            padding: 4px 8px;
+        }
+
+        .btn-close-drawer:hover { color: var(--svc-text); }
+
+        .nav-list {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-left: 4px solid var(--svc-primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 65px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-hamburger {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .btn-hamburger .bar {
+            width: 18px;
+            height: 2px;
+            background-color: #1e293b;
+        }
+
+        .topbar-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--svc-danger);
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-logout:hover {
+            background-color: #f8d7da;
+            border-color: var(--svc-danger);
+        }
+
+        .content-body {
+            padding: 30px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .breadcrumbs {
+            font-size: 12px;
+            color: var(--svc-text-muted);
+            margin-bottom: 20px;
+        }
+
+        .breadcrumbs a {
+            color: var(--svc-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .breadcrumbs a:hover { text-decoration: underline; }
+
+        /* Layout Dividido: Información de la Oferta + Panel del Vendedor */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .card-main {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            padding: 35px 30px;
+        }
+
+        .card-sidebar {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid #0f172a;
+            padding: 30px 25px;
+        }
+
+        .offer-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 10px 0;
+            line-height: 1.2;
+        }
+
+        .offer-badge-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .badge-tag {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 8px;
+            text-transform: uppercase;
+        }
+
+        .badge-status-pill {
+            background-color: #d4edda;
+            color: var(--svc-success);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 8px;
+            text-transform: uppercase;
+        }
+
+        .price-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .price-lbl {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .price-val {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--svc-primary);
+            margin: 4px 0 0 0;
+        }
+
+        .specs-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 25px 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .specs-desc {
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: #334155;
+            white-space: pre-line;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .spec-item {
+            padding: 8px 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .spec-item span {
+            display: block;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .spec-item strong {
+            font-size: 13px;
+            color: #0f172a;
+        }
+
+        /* Panel Vendedor */
+        .seller-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .seller-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .seller-cuit {
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--svc-text-muted);
+            margin-bottom: 15px;
+        }
+
+        .seller-info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 25px 0;
+            font-size: 12.5px;
+            line-height: 1.8;
+            color: #475569;
+        }
+
+        .seller-info-list strong { color: #1e293b; }
+
+        .btn-action-negotiate {
+            width: 100%;
+            height: 44px;
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border: none;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-action-negotiate:hover { background-color: var(--svc-primary-hover); }
+
+        .btn-author-note {
+            background-color: #f1f5f9;
+            color: #64748b;
+            border: 1px dashed #cbd5e1;
+            padding: 12px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .alert-box {
+            padding: 14px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+
+        @media (max-width: 900px) {
+            .detail-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
+
+    <!-- Sidebar Drawer -->
+    <div id="sidebarDrawer" class="sidebar-drawer">
+        <div>
+            <div class="sidebar-brand">
+                <div class="brand-info">
+                    <div class="brand-box">SVC</div>
+                    <div class="brand-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+                </div>
+                <button class="btn-close-drawer" onclick="toggleDrawer()">&times;</button>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
+                <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
+                <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 3 (WPT-03)'); return false;">Muro de Ventas</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 4 (WPT-05)'); return false;">Comunidades B2B</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 5 (WPT-04)'); return false;">Negociaciones & Chat</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            &copy; 2026 SVC — v0.3.0 (Sprint 3)
+        </div>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="main-wrapper">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="btn-hamburger" onclick="toggleDrawer()">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </button>
+                <div class="topbar-title">Ficha Comercial de Publicación (CdU33)</div>
+            </div>
+            <div class="user-badge">
+                <span id="userNameTop">Comercio Conectado</span>
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="content-body">
+            
+            <div class="breadcrumbs">
+                <a href="mis-publicaciones.html">&larr; Volver al listado</a> / <span id="breadTitle">Cargando publicación...</span>
+            </div>
+
+            <div id="mainAlert" class="alert-box alert-danger"></div>
+
+            <div class="detail-grid" id="detailGrid" style="display: none;">
+                
+                <!-- Columna Principal: Parámetros de la Oferta -->
+                <div class="card-main">
+                    <h1 class="offer-title" id="offerTitle">—</h1>
+
+                    <div class="offer-badge-row">
+                        <span class="badge-tag" id="badgeRubro">—</span>
+                        <span class="badge-tag" id="badgeSubrubro" style="display: none;">—</span>
+                        <span class="badge-status-pill" id="badgeEstado">ACTIVA</span>
+                    </div>
+
+                    <div class="price-box">
+                        <div class="price-lbl">Precio Unitario Referencial</div>
+                        <div class="price-val" id="offerPrice">$ 0,00</div>
+                    </div>
+
+                    <div class="specs-title">Descripción Comercial y Especificaciones</div>
+                    <div class="specs-desc" id="offerDesc">Sin descripción especificada.</div>
+
+                    <div class="specs-title">Condiciones de Entrega y Existencias</div>
+                    <div class="specs-grid">
+                        <div class="spec-item">
+                            <span>Unidades Disponibles</span>
+                            <strong id="offerUnits">0 unidades</strong>
+                        </div>
+                        <div class="spec-item">
+                            <span>Origen de la Mercadería</span>
+                            <strong id="offerOrigin">Nacional</strong>
+                        </div>
+                        <div class="spec-item">
+                            <span>Fecha de Emisión</span>
+                            <strong id="offerDate">—</strong>
+                        </div>
+                        <div class="spec-item">
+                            <span>Modalidad Comercial</span>
+                            <strong>Venta Mayorista / B2B</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Lateral: Información del Vendedor y Acción de Negociación -->
+                <div class="card-sidebar">
+                    <div class="seller-title">Datos del Comerciante Emisor</div>
+                    <div class="seller-name" id="sellerName">—</div>
+                    <div class="seller-cuit" id="sellerCuit">CUIT: —</div>
+
+                    <ul class="seller-info-list">
+                        <li><strong>Ubicación:</strong> <span id="sellerLocation">—</span></li>
+                        <li><strong>Alcance Logístico:</strong> <span id="sellerReach">Regional</span></li>
+                        <li><strong>Teléfono de Contacto:</strong> <span id="sellerPhone">—</span></li>
+                        <li><strong>Correo Electrónico:</strong> <span id="sellerEmail">—</span></li>
+                    </ul>
+
+                    <div id="actionContainer">
+                        <!-- Botón de extensión hacia CdU34 (Chat) renderizado condicionalmente -->
+                        <button type="button" class="btn-action-negotiate" id="btnNegotiate" onclick="iniciarNegociacionChat()">
+                            <span>Iniciar Chat / Negociar &rarr;</span>
+                        </button>
+                        <div id="authorNotice" class="btn-author-note" style="display: none;">
+                            Usted es el autor de esta publicación.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8080";
+        const token = localStorage.getItem("svc_token");
+        const usuarioSesion = JSON.parse(localStorage.getItem("svc_usuario") || "{}");
+        let publicacionActual = null;
+
+        if (!token) {
+            window.location.href = "login.html";
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (usuarioSesion.nombre_razon_social) {
+                document.getElementById("userNameTop").innerText = usuarioSesion.nombre_razon_social;
+            }
+            cargarDetallePublicacion();
+        });
+
+        function toggleDrawer() {
+            document.getElementById("sidebarDrawer").classList.toggle("open");
+            document.getElementById("drawerBackdrop").classList.toggle("open");
+        }
+
+        async function cargarDetallePublicacion() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pubId = urlParams.get('id');
+
+            if (!pubId) {
+                mostrarAlerta("No se especificó el identificador de la publicación a consultar.");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/publicaciones/${pubId}/detalle`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    publicacionActual = data;
+                    renderizarFichaComercial(data);
+                } else {
+                    mostrarAlerta(data.detail || "La publicación solicitada no se encuentra disponible.");
+                }
+            } catch (err) {
+                mostrarAlerta("Fallo de comunicación con el servidor backend FastAPI.");
+            }
+        }
+
+        function renderizarFichaComercial(p) {
+            document.getElementById("breadTitle").innerText = p.titulo;
+            document.getElementById("offerTitle").innerText = p.titulo;
+            document.getElementById("offerDesc").innerText = p.descripcion || "Sin especificaciones adicionales.";
+            document.getElementById("offerPrice").innerText = `$ ${Number(p.precio).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
+            document.getElementById("offerUnits").innerText = `${p.unidades_ofertadas} unidad(es)`;
+            document.getElementById("offerOrigin").innerText = p.origen;
+            document.getElementById("badgeRubro").innerText = p.rubro;
+            
+            if (p.subrubro) {
+                const subBadge = document.getElementById("badgeSubrubro");
+                subBadge.innerText = p.subrubro;
+                subBadge.style.display = "inline-block";
+            }
+
+            const fechaFmt = p.creado_el ? new Date(p.creado_el).toLocaleDateString("es-AR") : "—";
+            document.getElementById("offerDate").innerText = fechaFmt;
+
+            // Datos del comerciante vendedor
+            const v = p.vendedor;
+            document.getElementById("sellerName").innerText = v.nombre_razon_social;
+            document.getElementById("sellerCuit").innerText = `CUIT/CUIL: ${v.cuit_cuil}`;
+            document.getElementById("sellerLocation").innerText = `${v.direccion}, ${v.ciudad_localidad} (${v.provincia})`;
+            document.getElementById("sellerReach").innerText = v.zona_alcance_logistico;
+            document.getElementById("sellerPhone").innerText = v.telefono;
+            document.getElementById("sellerEmail").innerText = v.email;
+
+            // Regla Especial ERS CdU33: Validación de autoría
+            if (p.es_autor) {
+                document.getElementById("btnNegotiate").style.display = "none";
+                document.getElementById("authorNotice").style.display = "block";
+            } else {
+                document.getElementById("btnNegotiate").style.display = "flex";
+                document.getElementById("authorNotice").style.display = "none";
+            }
+
+            document.getElementById("detailGrid").style.display = "grid";
+        }
+
+        function iniciarNegociacionChat() {
+            // Punto de Extensión hacia CdU34 (Sprint 5)
+            alert(`Punto de extensión CdU34: Se inicializará la sala de chat privada con "${publicacionActual.vendedor.nombre_razon_social}" vinculada a la oferta "${publicacionActual.titulo}".`);
+        }
+
+        function mostrarAlerta(msg) {
+            const el = document.getElementById("mainAlert");
+            el.innerText = msg;
+            el.style.display = "block";
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("svc_token");
+            localStorage.removeItem("svc_usuario");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

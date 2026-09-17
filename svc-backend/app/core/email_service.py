@@ -308,10 +308,30 @@ def enviar_correo_alerta_bajo_stock(destinatario: str, razon_social: str, nombre
     """
     _enviar_email_smtp(destinatario, f"SVC — Alerta de Stock Bajo: {nombre_producto}", html)
 
-# ── ALIAS DE COMPATIBILIDAD ───────────────────────────────────────────
-enviar_email_recuperacion = enviar_correo_recuperacion
-enviar_email_confirmacion_baja = enviar_correo_confirmacion_baja
-enviar_email_bienvenida_admin = enviar_correo_bienvenida_admin
-enviar_email_inhabilitacion = enviar_correo_inhabilitacion_comerciante
-enviar_email_reactivacion = enviar_correo_reactivacion_comerciante
-enviar_email_notificacion_baja = enviar_correo_notificacion_baja
+# ── CdU32: Notificación Oficial de Baja de Publicación por Moderación (RF04) ──
+def enviar_correo_eliminacion_publicacion_admin(destinatario: str, razon_social: str, titulo_publicacion: str, motivo: str) -> None:
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head><meta charset="UTF-8"><style>
+        body {{ font-family: 'Inter', Arial, sans-serif; background-color: #f8f9fa; color: #212529; margin: 0; padding: 20px; }}
+        .box {{ max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #ced4da; border-top: 4px solid #dc3545; padding: 30px; border-radius: 0px !important; }}
+        .badge {{ background-color: #dc3545; color: #ffffff; font-weight: bold; font-size: 14px; padding: 6px 10px; display: inline-block; border-radius: 0px !important; }}
+        .title {{ font-size: 20px; font-weight: bold; color: #991b1b; margin: 20px 0 10px 0; }}
+        .text {{ font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 15px; }}
+        .motivo {{ background-color: #fff5f5; border: 1px solid #fecaca; border-left: 4px solid #dc3545; padding: 15px; margin: 20px 0; font-size: 13px; color: #7f1d1d; }}
+        .warn {{ font-size: 11px; color: #6c757d; margin-top: 25px; border-top: 1px solid #e9ecef; padding-top: 15px; }}
+    </style></head>
+    <body>
+        <div class="box">
+            <div class="badge">SVC — MODERACIÓN COMERCIAL</div>
+            <div class="title">Publicación de Venta Retirada</div>
+            <p class="text">Estimado/a representante de <strong>{razon_social}</strong>:<br><br>Le informamos que la Administración Global de SVC ha procedido a dar de baja de forma forzosa su oferta comercial titulada <strong>"{titulo_publicacion}"</strong> por infracción a las normativas de la plataforma.</p>
+            <div class="motivo"><strong>Justificación de la Medida Disciplinaria:</strong><br>{motivo}</div>
+            <p class="text" style="font-size: 12px;">Si la oferta se encontraba activa y vinculada a su catálogo privado, las unidades retenidas han sido devueltas automáticamente a su inventario (CdU30). La publicación ya no es visible en búsquedas ni comunidades.</p>
+            <div class="warn">• Esta sanción se encuentra registrada con marca de tiempo en la bitácora de auditoría del sistema.</div>
+        </div>
+    </body>
+    </html>
+    """
+    _enviar_email_smtp(destinatario, f"SVC — Notificación de Moderación: Baja de Oferta Comercial", html)

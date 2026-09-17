@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Crear Publicación de Venta (CdU25)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-primary-hover: #004085;
+            --svc-bg-page: #f8f9fa;
+            --svc-bg-surface: #ffffff;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-danger: #dc3545;
+            --svc-success: #28a745;
+            --svc-border-radius: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important; /* REGLA INNEGOCIABLE SVC: Esquinas a 90° */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sidebar-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1200;
+            transition: left 0.25s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-drawer.open { left: 0; }
+
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1100;
+            display: none;
+        }
+
+        .drawer-backdrop.open { display: block; }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-box {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--svc-text-muted);
+            padding: 4px 8px;
+        }
+
+        .btn-close-drawer:hover { color: var(--svc-text); }
+
+        .nav-list {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-left: 4px solid var(--svc-primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 65px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-hamburger {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .btn-hamburger .bar {
+            width: 18px;
+            height: 2px;
+            background-color: #1e293b;
+        }
+
+        .topbar-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--svc-danger);
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-logout:hover {
+            background-color: #f8d7da;
+            border-color: var(--svc-danger);
+        }
+
+        .content-body {
+            padding: 35px 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .form-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            padding: 35px 40px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .form-header-wrap {
+            margin-bottom: 25px;
+        }
+
+        .form-header-wrap h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 4px 0;
+        }
+
+        .form-header-wrap p {
+            font-size: 13px;
+            color: var(--svc-text-muted);
+            margin: 0;
+        }
+
+        .section-header {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 24px 0 14px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .section-header:first-of-type { margin-top: 0; }
+
+        .form-group { margin-bottom: 16px; }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .form-row { display: flex; gap: 14px; }
+        .form-row .form-group { flex: 1; }
+
+        .input-svc {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--svc-border);
+            background-color: #ffffff;
+            font-size: 13px;
+            color: var(--svc-text);
+            outline: none;
+            font-family: inherit;
+        }
+
+        .input-svc:focus { border-color: var(--svc-primary); }
+
+        .currency-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .input-currency {
+            padding-left: 28px !important;
+            font-weight: 600;
+        }
+
+        .box-highlight {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 16px 18px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #0f172a;
+            cursor: pointer;
+        }
+
+        .checkbox-row input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: var(--svc-primary);
+        }
+
+        .stock-info-preview {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--svc-text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-actions-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn-svc-outline {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            color: #475569;
+            padding: 12px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-svc-primary {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-svc-primary:hover { background-color: var(--svc-primary-hover); }
+        .btn-svc-primary:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
+        .alert-box {
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+        .alert-success { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            padding: 20px;
+        }
+
+        .modal-card-success {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-success);
+            width: 100%;
+            max-width: 520px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .modal-success-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .badge-check {
+            width: 36px;
+            height: 36px;
+            background-color: var(--svc-success);
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-success-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .modal-success-desc {
+            font-size: 13px;
+            color: var(--svc-text-muted);
+            margin: 0 0 20px 0;
+            line-height: 1.5;
+        }
+
+        .summary-receipt {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 16px;
+            margin-bottom: 24px;
+            font-size: 12.5px;
+        }
+
+        .summary-receipt-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-receipt-row:last-child {
+            border-bottom: none;
+        }
+
+        .modal-actions-grid {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
+
+    <!-- Sidebar Drawer (Sin enlace redundante) -->
+    <div id="sidebarDrawer" class="sidebar-drawer">
+        <div>
+            <div class="sidebar-brand">
+                <div class="brand-info">
+                    <div class="brand-box">SVC</div>
+                    <div class="brand-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+                </div>
+                <button class="btn-close-drawer" onclick="toggleDrawer()">&times;</button>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
+                <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
+                <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 3 (WPT-03)'); return false;">Muro de Ventas</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 4 (WPT-05)'); return false;">Comunidades B2B</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 5 (WPT-04)'); return false;">Negociaciones & Chat</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            &copy; 2026 SVC — v0.3.0 (Sprint 3)
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="btn-hamburger" onclick="toggleDrawer()">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </button>
+                <div class="topbar-title">Crear Publicación de Venta (CdU25)</div>
+            </div>
+            <div class="user-badge">
+                <span id="userNameTop">Comercio Conectado</span>
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="content-body">
+            <div class="form-card">
+                <div class="form-header-wrap">
+                    <h1>Crear Oferta Comercial de Venta</h1>
+                    <p>Defina los parámetros de su oferta pública y vincule unidades de su inventario físico (CdU25 / CdU26).</p>
+                </div>
+
+                <div id="msgAlert" class="alert-box"></div>
+
+                <form id="formPublicacion" onsubmit="guardarPublicacion(event)">
+                    <div class="section-header">Detalles de la Oferta</div>
+
+                    <div class="form-group">
+                        <label>Título de la Publicación *</label>
+                        <input type="text" id="pubTitulo" class="input-svc" placeholder="Ej: Memoria RAM DDR4 16GB 3200MHz (Lote por bulto)" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descripción y Especificaciones Técnicas</label>
+                        <textarea id="pubDescripcion" class="input-svc" rows="3" placeholder="Detalle volumen mínimo, condiciones comerciales, lote o presentación..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Precio Unitario (ARS) *</label>
+                            <div class="currency-wrap">
+                                <span class="currency-symbol">$</span>
+                                <input type="number" id="pubPrecio" class="input-svc input-currency" step="0.01" min="0" placeholder="0.00" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Origen de la Mercadería *</label>
+                            <input type="text" id="pubOrigen" class="input-svc" value="Nacional" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rubro Comercial *</label>
+                            <input type="text" id="pubRubro" class="input-svc" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Subrubro Comercial</label>
+                            <input type="text" id="pubSubrubro" class="input-svc">
+                        </div>
+                    </div>
+
+                    <!-- Vinculación de Inventario (CdU26) -->
+                    <div class="section-header">Inventario Físico y Descuento Automático</div>
+                    <div class="box-highlight">
+                        <label class="checkbox-row">
+                            <input type="checkbox" id="chkVincularStock" onchange="toggleSelectorStock()">
+                            <span>Vincular con mi Stock Real en Inventario (CdU26)</span>
+                        </label>
+                        <div id="stockSelectContainer" style="display: none; margin-top: 15px;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Seleccionar Producto de mi Catálogo</label>
+                                    <select id="selectItemInventario" class="input-svc" onchange="actualizarInfoStock()">
+                                        <option value="">Seleccione un ítem...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="max-width: 200px;">
+                                    <label>Unidades a Ofertar *</label>
+                                    <input type="number" id="pubUnidades" class="input-svc" min="1" value="1" required>
+                                </div>
+                            </div>
+                            <div class="stock-info-preview">
+                                <span id="lblStockDisponible">Existencias en depósito: —</span>
+                                <span style="color: var(--svc-primary);">El sistema descontará automáticamente estas unidades al confirmar.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-actions-row">
+                        <button type="button" class="btn-svc-outline" onclick="window.history.back()">Cancelar</button>
+                        <button type="submit" id="btnSubmitPub" class="btn-svc-primary">Publicar Oferta &rarr;</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE ÉXITO DE PUBLICACIÓN -->
+    <div id="modalPublicacionExito" class="modal-overlay">
+        <div class="modal-card-success">
+            <div class="modal-success-header">
+                <div class="badge-check">✓</div>
+                <h2 class="modal-success-title">¡Publicación Creada con Éxito!</h2>
+            </div>
+            <p class="modal-success-desc">
+                Su oferta comercial ha sido registrada y publicada en la red B2B. A continuación se detalla el balance transaccional aplicado:
+            </p>
+
+            <div class="summary-receipt">
+                <div class="summary-receipt-row">
+                    <span>Título de la Oferta:</span>
+                    <strong id="reciboTitulo">—</strong>
+                </div>
+                <div class="summary-receipt-row">
+                    <span>Precio Unitario:</span>
+                    <strong id="reciboPrecio">—</strong>
+                </div>
+                <div class="summary-receipt-row">
+                    <span>Unidades Publicadas:</span>
+                    <strong id="reciboUnidades">—</strong>
+                </div>
+                <div class="summary-receipt-row">
+                    <span>Stock Descontado de Inventario:</span>
+                    <strong id="reciboStockDescontado" style="color: var(--svc-primary);">—</strong>
+                </div>
+            </div>
+
+            <div class="modal-actions-grid">
+                <button type="button" class="btn-svc-outline" onclick="cerrarModalYContinuar()">Crear Otra Publicación</button>
+                <button type="button" class="btn-svc-primary" onclick="irAMisPublicaciones()">Ver Mis Publicaciones &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8080";
+        const token = localStorage.getItem("svc_token");
+        const usuarioSesion = JSON.parse(localStorage.getItem("svc_usuario") || "{}");
+        let itemsInventario = [];
+
+        if (!token) {
+            window.location.href = "login.html";
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (usuarioSesion.nombre_razon_social) {
+                document.getElementById("userNameTop").innerText = usuarioSesion.nombre_razon_social;
+            }
+            restaurarValoresBasePerfil();
+            cargarInventarioUsuario();
+        });
+
+        function restaurarValoresBasePerfil() {
+            document.getElementById("pubRubro").value = usuarioSesion.rubro_comercial || "General";
+            document.getElementById("pubSubrubro").value = usuarioSesion.subrubro_comercial || "";
+        }
+
+        function toggleDrawer() {
+            document.getElementById("sidebarDrawer").classList.toggle("open");
+            document.getElementById("drawerBackdrop").classList.toggle("open");
+        }
+
+        function toggleSelectorStock() {
+            const activo = document.getElementById("chkVincularStock").checked;
+            document.getElementById("stockSelectContainer").style.display = activo ? "block" : "none";
+            if (!activo) {
+                document.getElementById("selectItemInventario").value = "";
+                document.getElementById("lblStockDisponible").innerText = "Existencias en depósito: —";
+                document.getElementById("pubTitulo").value = "";
+                document.getElementById("pubDescripcion").value = "";
+                document.getElementById("pubPrecio").value = "";
+                restaurarValoresBasePerfil();
+            }
+        }
+
+        async function cargarInventarioUsuario() {
+            try {
+                const res = await fetch(`${API_URL}/inventario/items`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    itemsInventario = await res.json();
+                    const sel = document.getElementById("selectItemInventario");
+                    sel.innerHTML = '<option value="">Seleccione un ítem...</option>';
+                    itemsInventario.forEach(it => {
+                        const opt = document.createElement("option");
+                        opt.value = it.id;
+                        opt.textContent = `${it.nombre} (${it.stock_actual} unidades disp.)`;
+                        sel.appendChild(opt);
+                    });
+                }
+            } catch (err) {}
+        }
+
+        function actualizarInfoStock() {
+            const itemId = document.getElementById("selectItemInventario").value;
+            const item = itemsInventario.find(i => i.id === itemId);
+
+            if (item) {
+                document.getElementById("lblStockDisponible").innerText = `Existencias en depósito: ${item.stock_actual} unidades`;
+                document.getElementById("pubTitulo").value = item.nombre;
+                document.getElementById("pubDescripcion").value = item.descripcion || "";
+                document.getElementById("pubPrecio").value = item.precio_unitario;
+                document.getElementById("pubRubro").value = item.rubro || usuarioSesion.rubro_comercial || "General";
+                document.getElementById("pubSubrubro").value = item.subrubro || usuarioSesion.subrubro_comercial || "";
+            } else {
+                document.getElementById("lblStockDisponible").innerText = "Existencias en depósito: —";
+                document.getElementById("pubTitulo").value = "";
+                document.getElementById("pubDescripcion").value = "";
+                document.getElementById("pubPrecio").value = "";
+                restaurarValoresBasePerfil();
+            }
+        }
+
+        async function guardarPublicacion(e) {
+            e.preventDefault();
+            const alertEl = document.getElementById("msgAlert");
+            const btn = document.getElementById("btnSubmitPub");
+            alertEl.style.display = "none";
+
+            const vincularStock = document.getElementById("chkVincularStock").checked;
+            const itemId = vincularStock ? document.getElementById("selectItemInventario").value : null;
+            const unidades = parseInt(document.getElementById("pubUnidades").value) || 1;
+
+            if (vincularStock && !itemId) {
+                mostrarAlerta("Debe seleccionar un producto de su catálogo o desmarcar la casilla de stock.", "danger");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Publicando oferta...";
+
+            const payload = {
+                titulo: document.getElementById("pubTitulo").value.trim(),
+                descripcion: document.getElementById("pubDescripcion").value.trim() || null,
+                precio: parseFloat(document.getElementById("pubPrecio").value),
+                origen: document.getElementById("pubOrigen").value.trim(),
+                rubro: document.getElementById("pubRubro").value.trim(),
+                subrubro: document.getElementById("pubSubrubro").value.trim() || null,
+                unidades_ofertadas: unidades,
+                inventario_item_id: itemId
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/publicaciones/nueva`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    abrirModalExito(data, vincularStock ? unidades : 0);
+                    document.getElementById("formPublicacion").reset();
+                    document.getElementById("chkVincularStock").checked = false;
+                    toggleSelectorStock();
+                    cargarInventarioUsuario();
+                } else {
+                    mostrarAlerta(data.detail || "Error al registrar la publicación de venta.", "danger");
+                }
+            } catch (err) {
+                mostrarAlerta("No se pudo conectar con el servidor backend FastAPI.", "danger");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Publicar Oferta →";
+            }
+        }
+
+        function abrirModalExito(data, stockDescontado) {
+            document.getElementById("reciboTitulo").innerText = data.titulo;
+            document.getElementById("reciboPrecio").innerText = `$ ${Number(data.precio).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
+            document.getElementById("reciboUnidades").innerText = `${data.unidades_ofertadas} unidad(es)`;
+            document.getElementById("reciboStockDescontado").innerText = stockDescontado > 0 
+                ? `${stockDescontado} unidad(es) descontada(s)` 
+                : "Sin vinculación a inventario";
+
+            document.getElementById("modalPublicacionExito").style.display = "flex";
+        }
+
+        function cerrarModalYContinuar() {
+            document.getElementById("modalPublicacionExito").style.display = "none";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function irAMisPublicaciones() {
+            window.location.href = "mis-publicaciones.html";
+        }
+
+        function mostrarAlerta(msg, tipo) {
+            const el = document.getElementById("msgAlert");
+            el.className = `alert-box alert-${tipo}`;
+            el.innerText = msg;
+            el.style.display = "block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("svc_token");
+            localStorage.removeItem("svc_usuario");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

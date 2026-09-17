@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Mis Publicaciones de Venta (CdU27 al CdU33)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-primary-hover: #004085;
+            --svc-bg-page: #f8f9fa;
+            --svc-bg-surface: #ffffff;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-danger: #dc3545;
+            --svc-warning: #ffc107;
+            --svc-success: #28a745;
+            --svc-border-radius: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important; /* REGLA INNEGOCIABLE SVC: Esquinas a 90° */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sidebar-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1200;
+            transition: left 0.25s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-drawer.open { left: 0; }
+
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1100;
+            display: none;
+        }
+
+        .drawer-backdrop.open { display: block; }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-box {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--svc-text-muted);
+            padding: 4px 8px;
+        }
+
+        .btn-close-drawer:hover { color: var(--svc-text); }
+
+        .nav-list {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-left: 4px solid var(--svc-primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 65px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-hamburger {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .btn-hamburger .bar {
+            width: 18px;
+            height: 2px;
+            background-color: #1e293b;
+        }
+
+        .topbar-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--svc-danger);
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-logout:hover {
+            background-color: #f8d7da;
+            border-color: var(--svc-danger);
+        }
+
+        .content-body {
+            padding: 30px 40px;
+            max-width: 1300px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .header-actions-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header-actions-row h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 4px 0;
+        }
+
+        .header-actions-row p {
+            font-size: 13px;
+            color: var(--svc-text-muted);
+            margin: 0;
+        }
+
+        .btn-svc-primary {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border: none;
+            padding: 11px 22px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-svc-primary:hover { background-color: var(--svc-primary-hover); }
+
+        .table-container {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+        }
+
+        .table-svc {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .table-svc th {
+            background-color: #f8fafc;
+            padding: 12px 18px;
+            font-weight: 700;
+            font-size: 11px;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table-svc td {
+            padding: 14px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .table-svc tr:hover { background-color: #f8fafc; }
+
+        .badge-status {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-activa { background-color: #d4edda; color: var(--svc-success); }
+        .badge-pausada { background-color: #fff3cd; color: #856404; }
+
+        .btn-action-cell {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--svc-primary);
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-left: 4px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.15s ease;
+        }
+
+        .btn-action-cell:hover {
+            background-color: #e7f0fb;
+            border-color: var(--svc-primary);
+        }
+
+        .btn-action-pause {
+            color: #856404;
+            border-color: #ffeeba;
+        }
+
+        .btn-action-pause:hover {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .btn-action-reactivate {
+            color: var(--svc-success);
+            border-color: #c3e6cb;
+        }
+
+        .btn-action-reactivate:hover {
+            background-color: #d4edda;
+            border-color: var(--svc-success);
+        }
+
+        .btn-action-delete {
+            color: var(--svc-danger);
+            border-color: #fecaca;
+        }
+
+        .btn-action-delete:hover {
+            background-color: #fee2e2;
+            border-color: var(--svc-danger);
+        }
+
+        .alert-box {
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+        .alert-success { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
+
+        /* Modales SVC */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            width: 100%;
+            max-width: 620px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .modal-card-pause {
+            border-top-color: var(--svc-warning);
+            max-width: 480px;
+        }
+
+        .modal-card-reactivate {
+            border-top-color: var(--svc-success);
+            max-width: 480px;
+        }
+
+        .modal-card-danger {
+            border-top-color: var(--svc-danger);
+            max-width: 480px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 6px 0;
+        }
+
+        .modal-subtitle {
+            font-size: 12px;
+            color: var(--svc-text-muted);
+            margin: 0 0 20px 0;
+            line-height: 1.4;
+        }
+
+        .form-group { margin-bottom: 15px; }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .form-row { display: flex; gap: 12px; }
+        .form-row .form-group { flex: 1; }
+
+        .input-modal {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--svc-border);
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .input-modal:focus { border-color: var(--svc-primary); }
+
+        .field-help {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            margin-top: 4px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-modal-cancel {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 10px 18px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .btn-modal-warning {
+            background-color: #d97706;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-modal-warning:hover { background-color: #b45309; }
+
+        .btn-modal-success {
+            background-color: var(--svc-success);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-modal-success:hover { background-color: #218838; }
+
+        .btn-modal-danger {
+            background-color: var(--svc-danger);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-modal-danger:hover { background-color: var(--svc-danger-hover); }
+    </style>
+</head>
+<body>
+
+    <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
+
+    <!-- Sidebar Drawer -->
+    <div id="sidebarDrawer" class="sidebar-drawer">
+        <div>
+            <div class="sidebar-brand">
+                <div class="brand-info">
+                    <div class="brand-box">SVC</div>
+                    <div class="brand-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+                </div>
+                <button class="btn-close-drawer" onclick="toggleDrawer()">&times;</button>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
+                <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
+                <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item active"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 3 (WPT-03)'); return false;">Muro de Ventas</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 4 (WPT-05)'); return false;">Comunidades B2B</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 5 (WPT-04)'); return false;">Negociaciones & Chat</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            &copy; 2026 SVC — v0.3.0 (Sprint 3)
+        </div>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="main-wrapper">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="btn-hamburger" onclick="toggleDrawer()">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </button>
+                <div class="topbar-title">Gestión de Publicaciones Comerciales (CdU27 al CdU33)</div>
+            </div>
+            <div class="user-badge">
+                <span id="userNameTop">Comercio Conectado</span>
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="content-body">
+            <div id="mainAlert" class="alert-box"></div>
+
+            <div class="header-actions-row">
+                <div>
+                    <h1>Mis Publicaciones de Venta</h1>
+                    <p>Administre, pause, reactive o elimine definitivamente sus ofertas comerciales vigentes.</p>
+                </div>
+                <a href="crear-publicacion.html" class="btn-svc-primary">+ Crear Oferta de Venta</a>
+            </div>
+
+            <div class="table-container">
+                <table class="table-svc">
+                    <thead>
+                        <tr>
+                            <th>Título de la Oferta</th>
+                            <th>Rubro / Subrubro</th>
+                            <th>Precio Unitario</th>
+                            <th>Unidades</th>
+                            <th>Origen</th>
+                            <th>Estado</th>
+                            <th style="text-align: right;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="publicacionesTbody">
+                        <tr><td colspan="7" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">Cargando sus publicaciones...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 1: EDITAR INFORMACIÓN Y UNIDADES DE PUBLICACIÓN (CdU27) -->
+    <div id="modalEditarPublicacion" class="modal-overlay">
+        <div class="modal-card">
+            <h2 class="modal-title">Editar Publicación de Venta</h2>
+            <p class="modal-subtitle">Actualice los atributos descriptivos, precio y cantidad de unidades ofertadas (CdU27). El sistema conciliará automáticamente la diferencia con su inventario.</p>
+
+            <div id="modalAlertEdit" class="alert-box alert-danger"></div>
+
+            <form id="formEditarPublicacion" onsubmit="guardarEdicionPublicacion(event)">
+                <input type="hidden" id="editPubId">
+
+                <div class="form-group">
+                    <label>Título de la Publicación *</label>
+                    <input type="text" id="editPubTitulo" class="input-modal" required minlength="4">
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción y Especificaciones</label>
+                    <textarea id="editPubDescripcion" class="input-modal" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Precio Unitario (ARS) *</label>
+                        <input type="number" id="editPubPrecio" class="input-modal" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Unidades a Ofertar *</label>
+                        <input type="number" id="editPubUnidades" class="input-modal" min="1" required>
+                        <div class="field-help" id="helpEditStock">Modificar este valor ajustará el stock reservado en su depósito.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Origen de Mercadería *</label>
+                        <input type="text" id="editPubOrigen" class="input-modal" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Rubro Comercial *</label>
+                        <input type="text" id="editPubRubro" class="input-modal" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Subrubro Comercial</label>
+                    <input type="text" id="editPubSubrubro" class="input-modal">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-modal-cancel" onclick="cerrarModalEdicion()">Cancelar</button>
+                    <button type="submit" id="btnSubmitEdit" class="btn-svc-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: PAUSAR PUBLICACIÓN Y RESTITUIR STOCK (CdU28 / CdU30) -->
+    <div id="modalPausarPublicacion" class="modal-overlay">
+        <div class="modal-card modal-card-pause">
+            <h2 class="modal-title" style="color: #b45309;">Pausar Publicación de Venta</h2>
+            <p class="modal-subtitle" id="pausePubSubtitle">
+                La oferta se retirará inmediatamente de la vista pública. Si tiene stock vinculado, las unidades reservadas se restituirán automáticamente a su inventario (CdU30).
+            </p>
+
+            <div id="modalAlertPause" class="alert-box alert-danger"></div>
+
+            <input type="hidden" id="pausePubId">
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="cerrarModalPausa()">Cancelar</button>
+                <button type="button" id="btnConfirmarPausa" class="btn-modal-warning" onclick="ejecutarPausaPublicacion()">Confirmar Pausa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: REACTIVAR PUBLICACIÓN Y RESERVAR STOCK (CdU29 / CdU26) -->
+    <div id="modalReactivarPublicacion" class="modal-overlay">
+        <div class="modal-card modal-card-reactivate">
+            <h2 class="modal-title" style="color: var(--svc-success);">Reactivar Publicación de Venta</h2>
+            <p class="modal-subtitle" id="reactivatePubSubtitle">
+                La oferta volverá a ser visible públicamente en la plataforma. Si tiene stock vinculado, se validará que disponga de unidades suficientes en su inventario para volver a reservarlas (CdU26).
+            </p>
+
+            <div id="modalAlertReactivate" class="alert-box alert-danger"></div>
+
+            <input type="hidden" id="reactivatePubId">
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="cerrarModalReactivacion()">Cancelar</button>
+                <button type="button" id="btnConfirmarReactivacion" class="btn-modal-success" onclick="ejecutarReactivacionPublicacion()">Confirmar Reactivación</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: ELIMINAR PUBLICACIÓN POR AUTOR (CdU31 / CdU30) -->
+    <div id="modalEliminarPublicacion" class="modal-overlay">
+        <div class="modal-card modal-card-danger">
+            <h2 class="modal-title" style="color: var(--svc-danger);">Eliminar Publicación de Venta</h2>
+            <p class="modal-subtitle" id="deletePubSubtitle">
+                Esta acción es irreversible y retirará definitivamente la oferta de la plataforma comercial.
+            </p>
+
+            <div id="modalAlertDelete" class="alert-box alert-danger"></div>
+
+            <input type="hidden" id="deletePubId">
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="cerrarModalEliminar()">Cancelar</button>
+                <button type="button" id="btnConfirmarDelete" class="btn-modal-danger" onclick="ejecutarEliminacionPublicacion()">Confirmar Eliminación</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8080";
+        const token = localStorage.getItem("svc_token");
+        const usuarioSesion = JSON.parse(localStorage.getItem("svc_usuario") || "{}");
+        let publicacionesCache = [];
+
+        if (!token) {
+            window.location.href = "login.html";
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (usuarioSesion.nombre_razon_social) {
+                document.getElementById("userNameTop").innerText = usuarioSesion.nombre_razon_social;
+            }
+            cargarMisPublicaciones();
+        });
+
+        function toggleDrawer() {
+            document.getElementById("sidebarDrawer").classList.toggle("open");
+            document.getElementById("drawerBackdrop").classList.toggle("open");
+        }
+
+        async function cargarMisPublicaciones() {
+            const tbody = document.getElementById("publicacionesTbody");
+            try {
+                const res = await fetch(`${API_URL}/publicaciones/mis-publicaciones`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    publicacionesCache = await res.json();
+                    renderizarTabla(publicacionesCache);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-danger); padding: 30px;">Error al cargar las publicaciones.</td></tr>`;
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-danger); padding: 30px;">Fallo de conexión con el backend FastAPI.</td></tr>`;
+            }
+        }
+
+        function renderizarTabla(items) {
+            const tbody = document.getElementById("publicacionesTbody");
+            tbody.innerHTML = "";
+
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--svc-text-muted); padding: 35px;">Aún no posee publicaciones de venta creadas. Utilice el botón "+ Crear Oferta de Venta" para comenzar.</td></tr>`;
+                return;
+            }
+
+            items.forEach(p => {
+                const tr = document.createElement("tr");
+                const badgeClass = p.estado === "Activa" ? "badge-activa" : "badge-pausada";
+                const precioFmt = Number(p.precio).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                const rubroStr = [p.rubro, p.subrubro].filter(Boolean).join(" / ");
+
+                // CdU33: Botón Ver Detalle
+                let botonesAccion = `<a href="detalle-publicacion.html?id=${p.id}" class="btn-action-cell">Ver Detalle</a>`;
+                
+                botonesAccion += `<button class="btn-action-cell" onclick="abrirModalEdicion('${p.id}')">Editar</button>`;
+                
+                if (p.estado === "Activa") {
+                    botonesAccion += `<button class="btn-action-cell btn-action-pause" onclick="abrirModalPausa('${p.id}', '${p.titulo}', ${p.unidades_ofertadas}, '${p.inventario_item_id || ''}')">Pausar</button>`;
+                }
+                
+                if (p.estado === "Pausada") {
+                    botonesAccion += `<button class="btn-action-cell btn-action-reactivate" onclick="abrirModalReactivacion('${p.id}', '${p.titulo}', ${p.unidades_ofertadas}, '${p.inventario_item_id || ''}')">Reactivar</button>`;
+                }
+
+                botonesAccion += `<button class="btn-action-cell btn-action-delete" onclick="abrirModalEliminar('${p.id}', '${p.titulo}', '${p.estado}', ${p.unidades_ofertadas}, '${p.inventario_item_id || ''}')">Eliminar</button>`;
+
+                tr.innerHTML = `
+                    <td>
+                        <a href="detalle-publicacion.html?id=${p.id}" style="color: #0f172a; text-decoration: none; font-weight: 700;">${p.titulo}</a>
+                        <div style="font-size: 11px; color: var(--svc-text-muted);">${p.descripcion || 'Sin descripción'}</div>
+                    </td>
+                    <td><span style="font-weight: 600; color: #475569;">${rubroStr}</span></td>
+                    <td><strong>$ ${precioFmt}</strong></td>
+                    <td><strong>${p.unidades_ofertadas}</strong> u.</td>
+                    <td>${p.origen}</td>
+                    <td><span class="badge-status ${badgeClass}">${p.estado}</span></td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        ${botonesAccion}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ── Edición (CdU27) ──
+        function abrirModalEdicion(id) {
+            const pub = publicacionesCache.find(p => p.id === id);
+            if (!pub) return;
+
+            document.getElementById("modalAlertEdit").style.display = "none";
+            document.getElementById("editPubId").value = pub.id;
+            document.getElementById("editPubTitulo").value = pub.titulo;
+            document.getElementById("editPubDescripcion").value = pub.descripcion || "";
+            document.getElementById("editPubPrecio").value = pub.precio;
+            document.getElementById("editPubUnidades").value = pub.unidades_ofertadas;
+            document.getElementById("editPubOrigen").value = pub.origen;
+            document.getElementById("editPubRubro").value = pub.rubro;
+            document.getElementById("editPubSubrubro").value = pub.subrubro || "";
+
+            const helpStock = document.getElementById("helpEditStock");
+            if (pub.inventario_item_id) {
+                helpStock.innerText = `Publicación vinculada a inventario. Modificar unidades descontará o devolverá stock automáticamente.`;
+                helpStock.style.color = "var(--svc-primary)";
+            } else {
+                helpStock.innerText = `Oferta sin inventario físico vinculado. Las unidades son puramente referenciales.`;
+                helpStock.style.color = "var(--svc-text-muted)";
+            }
+
+            document.getElementById("modalEditarPublicacion").style.display = "flex";
+            document.getElementById("editPubTitulo").focus();
+        }
+
+        function cerrarModalEdicion() {
+            document.getElementById("modalEditarPublicacion").style.display = "none";
+        }
+
+        async function guardarEdicionPublicacion(e) {
+            e.preventDefault();
+            const id = document.getElementById("editPubId").value;
+            const alertEl = document.getElementById("modalAlertEdit");
+            const btn = document.getElementById("btnSubmitEdit");
+            alertEl.style.display = "none";
+
+            btn.disabled = true;
+            btn.innerText = "Guardando cambios...";
+
+            const payload = {
+                titulo: document.getElementById("editPubTitulo").value.trim(),
+                descripcion: document.getElementById("editPubDescripcion").value.trim() || null,
+                precio: parseFloat(document.getElementById("editPubPrecio").value),
+                origen: document.getElementById("editPubOrigen").value.trim(),
+                rubro: document.getElementById("editPubRubro").value.trim(),
+                subrubro: document.getElementById("editPubSubrubro").value.trim() || null,
+                unidades_ofertadas: parseInt(document.getElementById("editPubUnidades").value)
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/publicaciones/${id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalEdicion();
+                    cargarMisPublicaciones();
+                    mostrarAlertaPrincipal(`Publicación "${data.titulo}" modificada exitosamente.`, "success");
+                } else {
+                    alertEl.innerText = data.detail || "Error al actualizar la publicación.";
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "No se pudo conectar con el servidor backend FastAPI.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Guardar Cambios";
+            }
+        }
+
+        // ── Pausa y Restitución de Stock (CdU28 / CdU30) ──
+        function abrirModalPausa(id, titulo, unidades, itemId) {
+            document.getElementById("modalAlertPause").style.display = "none";
+            document.getElementById("pausePubId").value = id;
+            
+            let detalleStock = itemId 
+                ? `Al pausar "${titulo}", se liberarán <strong>${unidades} unidad(es)</strong> y volverán a estar disponibles en su inventario privado (CdU30).`
+                : `Al pausar "${titulo}", la oferta dejará de ser visible públicamente en la plataforma.`;
+
+            document.getElementById("pausePubSubtitle").innerHTML = detalleStock;
+            document.getElementById("modalPausarPublicacion").style.display = "flex";
+        }
+
+        function cerrarModalPausa() {
+            document.getElementById("modalPausarPublicacion").style.display = "none";
+        }
+
+        async function ejecutarPausaPublicacion() {
+            const id = document.getElementById("pausePubId").value;
+            const alertEl = document.getElementById("modalAlertPause");
+            const btn = document.getElementById("btnConfirmarPausa");
+            alertEl.style.display = "none";
+
+            btn.disabled = true;
+            btn.innerText = "Pausando...";
+
+            try {
+                const res = await fetch(`${API_URL}/publicaciones/${id}/pausar`, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalPausa();
+                    cargarMisPublicaciones();
+                    let msgExito = data.mensaje;
+                    if (data.unidades_restituidas > 0) {
+                        msgExito += ` Se devolvieron ${data.unidades_restituidas} unidad(es) al inventario.`;
+                    }
+                    mostrarAlertaPrincipal(msgExito, "success");
+                } else {
+                    alertEl.innerText = data.detail || "Error al pausar la publicación.";
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "Fallo de conexión con el backend.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar Pausa";
+            }
+        }
+
+        // ── Reactivación y Reserva de Stock (CdU29 / CdU26) ──
+        function abrirModalReactivacion(id, titulo, unidades, itemId) {
+            document.getElementById("modalAlertReactivate").style.display = "none";
+            document.getElementById("reactivatePubId").value = id;
+            
+            let detalleStock = itemId 
+                ? `Al reactivar "${titulo}", se comprobará que disponga de <strong>${unidades} unidad(es)</strong> en su inventario y se volverán a descontar automáticamente (CdU26).`
+                : `Al reactivar "${titulo}", la oferta volverá a ser visible para todos los compradores de la red B2B.`;
+
+            document.getElementById("reactivatePubSubtitle").innerHTML = detalleStock;
+            document.getElementById("modalReactivarPublicacion").style.display = "flex";
+        }
+
+        function cerrarModalReactivacion() {
+            document.getElementById("modalReactivarPublicacion").style.display = "none";
+        }
+
+        async function ejecutarReactivacionPublicacion() {
+            const id = document.getElementById("reactivatePubId").value;
+            const alertEl = document.getElementById("modalAlertReactivate");
+            const btn = document.getElementById("btnConfirmarReactivacion");
+            alertEl.style.display = "none";
+
+            btn.disabled = true;
+            btn.innerText = "Reactivando...";
+
+            try {
+                const res = await fetch(`${API_URL}/publicaciones/${id}/reactivar`, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalReactivacion();
+                    cargarMisPublicaciones();
+                    let msgExito = data.mensaje;
+                    if (data.unidades_reservadas > 0) {
+                        msgExito += ` Se reservaron ${data.unidades_reservadas} unidad(es) de su inventario.`;
+                    }
+                    mostrarAlertaPrincipal(msgExito, "success");
+                } else {
+                    alertEl.innerText = data.detail || "Error al reactivar la publicación.";
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "Fallo de comunicación con el servidor backend.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar Reactivación";
+            }
+        }
+
+        // ── Eliminación por Autor (CdU31 / CdU30) ──
+        function abrirModalEliminar(id, titulo, estado, unidades, itemId) {
+            document.getElementById("modalAlertDelete").style.display = "none";
+            document.getElementById("deletePubId").value = id;
+
+            let detalleStock = "";
+            if (estado === "Activa" && itemId) {
+                detalleStock = `<br><br>Dado que la oferta se encuentra <strong>Activa</strong>, sus <strong>${unidades} unidad(es)</strong> reservadas serán reintegradas inmediatamente a su inventario (CdU30).`;
+            } else if (estado === "Pausada" && itemId) {
+                detalleStock = `<br><br>Dado que la oferta ya se encontraba <strong>Pausada</strong>, el stock físico ya fue liberado previamente y no sufrirá alteraciones adicionales.`;
+            }
+
+            document.getElementById("deletePubSubtitle").innerHTML = `¿Está seguro de que desea eliminar permanentemente la oferta comercial <strong>"${titulo}"</strong>? Esta acción no se puede deshacer.${detalleStock}`;
+            document.getElementById("modalEliminarPublicacion").style.display = "flex";
+        }
+
+        function cerrarModalEliminar() {
+            document.getElementById("modalEliminarPublicacion").style.display = "none";
+        }
+
+        async function ejecutarEliminacionPublicacion() {
+            const id = document.getElementById("deletePubId").value;
+            const alertEl = document.getElementById("modalAlertDelete");
+            const btn = document.getElementById("btnConfirmarDelete");
+            alertEl.style.display = "none";
+
+            btn.disabled = true;
+            btn.innerText = "Eliminando oferta...";
+
+            try {
+                const res = await fetch(`${API_URL}/publicaciones/${id}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalEliminar();
+                    cargarMisPublicaciones();
+                    let msgExito = data.mensaje;
+                    if (data.unidades_restituidas > 0) {
+                        msgExito += ` Se reintegraron ${data.unidades_restituidas} unidad(es) al catálogo privado.`;
+                    }
+                    mostrarAlertaPrincipal(msgExito, "success");
+                } else {
+                    alertEl.innerText = data.detail || "Error al eliminar la publicación.";
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "Fallo de comunicación con el servidor backend FastAPI.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar Eliminación";
+            }
+        }
+
+        function mostrarAlertaPrincipal(msg, tipo) {
+            const el = document.getElementById("mainAlert");
+            el.className = `alert-box alert-${tipo}`;
+            el.innerText = msg;
+            el.style.display = "block";
+            setTimeout(() => { el.style.display = "none"; }, 4500);
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("svc_token");
+            localStorage.removeItem("svc_usuario");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

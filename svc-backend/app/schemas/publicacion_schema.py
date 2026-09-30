@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import List, Optional
 from datetime import datetime
 
 # ==============================================================================
@@ -15,6 +15,7 @@ class PublicacionVentaCreate(BaseModel):
     subrubro: Optional[str] = Field(None, max_length=100, description="Subrubro comercial")
     unidades_ofertadas: int = Field(1, gt=0, description="Cantidad de unidades ofertadas")
     inventario_item_id: Optional[str] = Field(None, description="ID del ítem de inventario si aplica deducción")
+    comunidades_ids: Optional[List[str]] = Field(default=[], description="Lista de IDs de comunidades donde replicar la oferta")
 
 class PublicacionVentaUpdate(BaseModel):
     titulo: str = Field(..., min_length=4, max_length=255, description="Nuevo título de la oferta")
@@ -24,6 +25,7 @@ class PublicacionVentaUpdate(BaseModel):
     rubro: str = Field(..., min_length=2, max_length=100, description="Rubro comercial")
     subrubro: Optional[str] = Field(None, max_length=100, description="Subrubro comercial")
     unidades_ofertadas: int = Field(..., gt=0, description="Cantidad de unidades ofertadas actualizada")
+    comunidades_ids: Optional[List[str]] = Field(default=[], description="Lista de IDs de comunidades seleccionadas para replicación")
 
 class EliminarPublicacionAdminInput(BaseModel):
     motivo_infraccion: str = Field(..., min_length=5, max_length=1000, description="Justificación obligatoria de la medida de moderación")

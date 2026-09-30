@@ -288,6 +288,12 @@
 
         .input-svc:focus { border-color: var(--svc-primary); }
 
+        .input-svc:disabled {
+            background-color: #f8fafc;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
         .currency-wrap {
             position: relative;
             display: flex;
@@ -300,11 +306,18 @@
             font-weight: 700;
             font-size: 13px;
             color: #334155;
+            pointer-events: none;
         }
 
         .input-currency {
             padding-left: 28px !important;
             font-weight: 600;
+        }
+
+        .field-help {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            margin-top: 4px;
         }
 
         .box-highlight {
@@ -337,6 +350,58 @@
             color: var(--svc-text-muted);
             display: flex;
             justify-content: space-between;
+        }
+
+        /* Contenedor de Comunidades Disponibles para Difusión (CdU25) */
+        .communities-select-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            background-color: #ffffff;
+            padding: 12px;
+        }
+
+        .community-checkbox-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+        }
+
+        .community-checkbox-item:last-child {
+            border-bottom: none;
+        }
+
+        .community-checkbox-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .community-checkbox-item label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #0f172a;
+            text-transform: none;
+            margin: 0;
+            letter-spacing: 0;
+        }
+
+        .badge-sector-item {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 6px;
+            text-transform: uppercase;
         }
 
         .btn-actions-row {
@@ -469,7 +534,7 @@
 
     <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
 
-    <!-- Sidebar Drawer (Sin enlace redundante) -->
+    <!-- Sidebar Drawer -->
     <div id="sidebarDrawer" class="sidebar-drawer">
         <div>
             <div class="sidebar-brand">
@@ -484,13 +549,12 @@
                 <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
                 <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
                 <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
-                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 3 (WPT-03)'); return false;">Muro de Ventas</a></li>
-                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 4 (WPT-05)'); return false;">Comunidades B2B</a></li>
+                <li class="nav-item"><a href="comunidades.html">Comunidades B2B</a></li>
                 <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 5 (WPT-04)'); return false;">Negociaciones & Chat</a></li>
             </ul>
         </div>
         <div class="sidebar-footer">
-            &copy; 2026 SVC — v0.3.0 (Sprint 3)
+            &copy; 2026 SVC — v0.4.0 (Sprint 4)
         </div>
     </div>
 
@@ -514,7 +578,7 @@
             <div class="form-card">
                 <div class="form-header-wrap">
                     <h1>Crear Oferta Comercial de Venta</h1>
-                    <p>Defina los parámetros de su oferta pública y vincule unidades de su inventario físico (CdU25 / CdU26).</p>
+                    <p>Defina los parámetros de su oferta pública, vincule existencias físicas y elija comunidades para difusión simultánea (CdU25).</p>
                 </div>
 
                 <div id="msgAlert" class="alert-box"></div>
@@ -537,23 +601,33 @@
                             <label>Precio Unitario (ARS) *</label>
                             <div class="currency-wrap">
                                 <span class="currency-symbol">$</span>
-                                <input type="number" id="pubPrecio" class="input-svc input-currency" step="0.01" min="0" placeholder="0.00" required>
+                                <input type="text" id="pubPrecioVisual" class="input-svc input-currency" placeholder="0,00" required oninput="formatearMonedaInput(this, 'pubPrecioReal')">
                             </div>
+                            <input type="hidden" id="pubPrecioReal" value="0.0">
                         </div>
+
                         <div class="form-group">
                             <label>Origen de la Mercadería *</label>
-                            <input type="text" id="pubOrigen" class="input-svc" value="Nacional" required>
+                            <select id="pubOrigen" class="input-svc" required>
+                                <option value="Nacional" selected>Nacional</option>
+                                <option value="Internacional">Internacional</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Rubro Comercial *</label>
-                            <input type="text" id="pubRubro" class="input-svc" required>
+                            <label>Rubro Comercial (Inmutable) *</label>
+                            <input type="text" id="pubRubro" class="input-svc" disabled>
+                            <div class="field-help">Heredado de la identidad fiscal de su perfil comercial.</div>
                         </div>
+
                         <div class="form-group">
-                            <label>Subrubro Comercial</label>
-                            <input type="text" id="pubSubrubro" class="input-svc">
+                            <label>Subrubro Comercial *</label>
+                            <select id="pubSubrubro" class="input-svc" required>
+                                <option value="">Cargando subrubros...</option>
+                            </select>
+                            <div class="field-help">Seleccione la categoría específica correspondiente a esta oferta.</div>
                         </div>
                     </div>
 
@@ -580,6 +654,19 @@
                             <div class="stock-info-preview">
                                 <span id="lblStockDisponible">Existencias en depósito: —</span>
                                 <span style="color: var(--svc-primary);">El sistema descontará automáticamente estas unidades al confirmar.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN: DIFUSIÓN EN COMUNIDADES (RF04 / FIGMA PÁG. 4 Y 7) -->
+                    <div class="section-header">Compartir en Comunidades (Difusión Simultánea Opcional)</div>
+                    <div class="box-highlight">
+                        <p style="font-size: 12.5px; color: var(--svc-text-muted); margin: 0 0 10px 0;">
+                            Seleccione en qué comunidades de las que forma parte desea replicar esta publicación. Si no selecciona ninguna, la oferta solo será visible en su perfil y en el muro general.
+                        </p>
+                        <div class="communities-select-list" id="communitiesSelectListContainer">
+                            <div style="font-size: 12px; color: var(--svc-text-muted); text-align: center; padding: 15px;">
+                                Consultando sus comunidades...
                             </div>
                         </div>
                     </div>
@@ -614,12 +701,20 @@
                     <strong id="reciboPrecio">—</strong>
                 </div>
                 <div class="summary-receipt-row">
+                    <span>Origen de la Mercadería:</span>
+                    <strong id="reciboOrigen">—</strong>
+                </div>
+                <div class="summary-receipt-row">
                     <span>Unidades Publicadas:</span>
                     <strong id="reciboUnidades">—</strong>
                 </div>
                 <div class="summary-receipt-row">
                     <span>Stock Descontado de Inventario:</span>
                     <strong id="reciboStockDescontado" style="color: var(--svc-primary);">—</strong>
+                </div>
+                <div class="summary-receipt-row">
+                    <span>Comunidades Difundidas:</span>
+                    <strong id="reciboComunidadesDifundidas" style="color: var(--svc-primary);">0 comunidades</strong>
                 </div>
             </div>
 
@@ -635,6 +730,24 @@
         const token = localStorage.getItem("svc_token");
         const usuarioSesion = JSON.parse(localStorage.getItem("svc_usuario") || "{}");
         let itemsInventario = [];
+        let misComunidades = [];
+
+        // ── TAXONOMÍA OFICIAL DE SVC ──
+        const TAXONOMIA_SVC = {
+            "Alimentos & Bebidas": ["Almacenes", "Supermercados", "Minimercados", "Distribuidoras de alimentos", "Mayoristas de alimentos", "Bebidas", "Carnicerías", "Panaderías", "Lácteos", "Fiambres & Embutidos", "Dietéticas", "Café & Té"],
+            "Gastronomía": ["Restaurantes", "Bares", "Cafeterías", "Cervecerías", "Pizzerías", "Rotiserías", "Catering", "Equipamiento gastronómico"],
+            "Textil & Indumentaria": ["Ropa femenina", "Ropa masculina", "Ropa infantil", "Ropa de trabajo", "Uniformes", "Telas", "Hilados", "Confección textil"],
+            "Calzado & Marroquinería": ["Calzado", "Zapatillas", "Calzado de seguridad", "Carteras", "Bolsos", "Artículos de cuero"],
+            "Tecnología & Electrónica": ["Electrónica", "Computación", "Hardware", "Componentes de PC", "Notebooks", "Telefonía celular", "Audio", "Domótica"],
+            "Informática & Software": ["Desarrollo de software", "Desarrollo web", "Sistemas empresariales", "Software de gestión", "Servicios IT", "Ciberseguridad"],
+            "Telecomunicaciones": ["Internet", "Telefonía", "Fibra óptica", "Redes", "Infraestructura"],
+            "Electrodomésticos": ["Línea blanca", "Pequeños electrodomésticos", "Climatización", "Heladeras", "Lavarropas"],
+            "Construcción & Materiales": ["Materiales de construcción", "Corralones", "Cemento", "Hormigón", "Ladrillos", "Pisos", "Pinturas"],
+            "Ferretería & Herramientas": ["Ferreterías", "Herramientas manuales", "Herramientas eléctricas", "Bulonería", "Soldadura", "Compresores"],
+            "Limpieza & Mantenimiento": ["Productos de limpieza", "Insumos de higiene", "Limpieza empresarial", "Limpieza industrial", "Servicios generales"],
+            "Servicios Profesionales": ["Consultoría", "Administración", "Recursos humanos", "Auditoría", "Traducción", "Servicios administrativos"],
+            "Otros": ["Otros comercios", "Otros servicios", "Otros fabricantes"]
+        };
 
         if (!token) {
             window.location.href = "login.html";
@@ -644,13 +757,66 @@
             if (usuarioSesion.nombre_razon_social) {
                 document.getElementById("userNameTop").innerText = usuarioSesion.nombre_razon_social;
             }
-            restaurarValoresBasePerfil();
+            inicializarRubroYSubrubro();
             cargarInventarioUsuario();
+            cargarComunidadesParaDifusion();
         });
 
-        function restaurarValoresBasePerfil() {
-            document.getElementById("pubRubro").value = usuarioSesion.rubro_comercial || "General";
-            document.getElementById("pubSubrubro").value = usuarioSesion.subrubro_comercial || "";
+        function formatearMonedaInput(input, hiddenId) {
+            let valorLimpio = input.value.replace(/\D/g, "");
+            if (!valorLimpio) {
+                input.value = "";
+                document.getElementById(hiddenId).value = "0.0";
+                return;
+            }
+
+            let numero = (parseFloat(valorLimpio) / 100).toFixed(2);
+            document.getElementById(hiddenId).value = numero;
+
+            let partes = numero.split(".");
+            let enteros = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            let decimales = partes[1];
+
+            input.value = `${enteros},${decimales}`;
+        }
+
+        function setValorMonedaEnInput(num, inputId, hiddenId) {
+            let val = Number(num || 0).toFixed(2);
+            document.getElementById(hiddenId).value = val;
+            let partes = val.split(".");
+            let enteros = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            let decimales = partes[1];
+            document.getElementById(inputId).value = `${enteros},${decimales}`;
+        }
+
+        function inicializarRubroYSubrubro() {
+            const rubroOficial = usuarioSesion.rubro_comercial || "Tecnología & Electrónica";
+            const subrubroPerfil = usuarioSesion.subrubro_comercial || "";
+
+            document.getElementById("pubRubro").value = rubroOficial;
+
+            const selectSub = document.getElementById("pubSubrubro");
+            selectSub.innerHTML = "";
+
+            const listaOpciones = TAXONOMIA_SVC[rubroOficial] || [subrubroPerfil, "General"].filter(Boolean);
+
+            listaOpciones.forEach(sub => {
+                const opt = document.createElement("option");
+                opt.value = sub;
+                opt.textContent = sub;
+                if (sub.toLowerCase() === subrubroPerfil.toLowerCase()) {
+                    opt.selected = true;
+                }
+                selectSub.appendChild(opt);
+            });
+
+            if (subrubroPerfil && !listaOpciones.map(s => s.toLowerCase()).includes(subrubroPerfil.toLowerCase())) {
+                const customOpt = document.createElement("option");
+                customOpt.value = subrubroPerfil;
+                customOpt.textContent = subrubroPerfil;
+                customOpt.selected = true;
+                selectSub.prepend(customOpt);
+            }
         }
 
         function toggleDrawer() {
@@ -666,8 +832,9 @@
                 document.getElementById("lblStockDisponible").innerText = "Existencias en depósito: —";
                 document.getElementById("pubTitulo").value = "";
                 document.getElementById("pubDescripcion").value = "";
-                document.getElementById("pubPrecio").value = "";
-                restaurarValoresBasePerfil();
+                document.getElementById("pubPrecioVisual").value = "";
+                document.getElementById("pubPrecioReal").value = "0.0";
+                inicializarRubroYSubrubro();
             }
         }
 
@@ -698,15 +865,67 @@
                 document.getElementById("lblStockDisponible").innerText = `Existencias en depósito: ${item.stock_actual} unidades`;
                 document.getElementById("pubTitulo").value = item.nombre;
                 document.getElementById("pubDescripcion").value = item.descripcion || "";
-                document.getElementById("pubPrecio").value = item.precio_unitario;
-                document.getElementById("pubRubro").value = item.rubro || usuarioSesion.rubro_comercial || "General";
-                document.getElementById("pubSubrubro").value = item.subrubro || usuarioSesion.subrubro_comercial || "";
+                setValorMonedaEnInput(item.precio_unitario, "pubPrecioVisual", "pubPrecioReal");
+
+                if (item.subrubro) {
+                    const selSub = document.getElementById("pubSubrubro");
+                    for (let opt of selSub.options) {
+                        if (opt.value.toLowerCase() === item.subrubro.toLowerCase()) {
+                            opt.selected = true;
+                            break;
+                        }
+                    }
+                }
             } else {
                 document.getElementById("lblStockDisponible").innerText = "Existencias en depósito: —";
                 document.getElementById("pubTitulo").value = "";
                 document.getElementById("pubDescripcion").value = "";
-                document.getElementById("pubPrecio").value = "";
-                restaurarValoresBasePerfil();
+                document.getElementById("pubPrecioVisual").value = "";
+                document.getElementById("pubPrecioReal").value = "0.0";
+                inicializarRubroYSubrubro();
+            }
+        }
+
+        // ── RECUPERAR Y RENDERIZAR COMUNIDADES DONDE ES MIEMBRO (CdU25) ──
+        async function cargarComunidadesParaDifusion() {
+            const container = document.getElementById("communitiesSelectListContainer");
+
+            try {
+                const res = await fetch(`${API_URL}/publicaciones/mis-comunidades-disponibles`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    misComunidades = await res.json();
+
+                    if (!misComunidades || misComunidades.length === 0) {
+                        container.innerHTML = `
+                            <div style="font-size: 12px; color: var(--svc-text-muted); text-align: center; padding: 10px;">
+                                Aún no eres miembro de ninguna comunidad activa. La publicación se creará solo en tu perfil comercial.
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = "";
+                    misComunidades.forEach(c => {
+                        const itemDiv = document.createElement("div");
+                        itemDiv.className = "community-checkbox-item";
+
+                        itemDiv.innerHTML = `
+                            <label>
+                                <input type="checkbox" class="chk-comunidad-difusion" value="${c.id}">
+                                <span>${c.nombre}</span>
+                            </label>
+                            <span class="badge-sector-item">${c.rubro} (${c.mi_rol})</span>
+                        `;
+                        container.appendChild(itemDiv);
+                    });
+                } else {
+                    container.innerHTML = `<div style="font-size: 11px; color: var(--svc-danger); text-align: center;">Error al cargar sus comunidades.</div>`;
+                }
+            } catch (err) {
+                container.innerHTML = `<div style="font-size: 11px; color: var(--svc-danger); text-align: center;">Fallo de conexión.</div>`;
             }
         }
 
@@ -719,11 +938,21 @@
             const vincularStock = document.getElementById("chkVincularStock").checked;
             const itemId = vincularStock ? document.getElementById("selectItemInventario").value : null;
             const unidades = parseInt(document.getElementById("pubUnidades").value) || 1;
+            const precioFinal = parseFloat(document.getElementById("pubPrecioReal").value);
+
+            if (isNaN(precioFinal) || precioFinal <= 0) {
+                mostrarAlerta("Debe ingresar un precio unitario válido y mayor a cero.", "danger");
+                return;
+            }
 
             if (vincularStock && !itemId) {
                 mostrarAlerta("Debe seleccionar un producto de su catálogo o desmarcar la casilla de stock.", "danger");
                 return;
             }
+
+            // Capturar comunidades seleccionadas para difusión
+            const selectedCommunityCheckboxes = document.querySelectorAll(".chk-comunidad-difusion:checked");
+            const comunidadesIds = Array.from(selectedCommunityCheckboxes).map(cb => cb.value);
 
             btn.disabled = true;
             btn.innerText = "Publicando oferta...";
@@ -731,12 +960,13 @@
             const payload = {
                 titulo: document.getElementById("pubTitulo").value.trim(),
                 descripcion: document.getElementById("pubDescripcion").value.trim() || null,
-                precio: parseFloat(document.getElementById("pubPrecio").value),
-                origen: document.getElementById("pubOrigen").value.trim(),
+                precio: precioFinal,
+                origen: document.getElementById("pubOrigen").value,
                 rubro: document.getElementById("pubRubro").value.trim(),
                 subrubro: document.getElementById("pubSubrubro").value.trim() || null,
                 unidades_ofertadas: unidades,
-                inventario_item_id: itemId
+                inventario_item_id: itemId,
+                comunidades_ids: comunidadesIds
             };
 
             try {
@@ -752,11 +982,14 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    abrirModalExito(data, vincularStock ? unidades : 0);
+                    abrirModalExito(data, vincularStock ? unidades : 0, comunidadesIds.length);
                     document.getElementById("formPublicacion").reset();
                     document.getElementById("chkVincularStock").checked = false;
+                    document.getElementById("pubPrecioReal").value = "0.0";
                     toggleSelectorStock();
+                    inicializarRubroYSubrubro();
                     cargarInventarioUsuario();
+                    cargarComunidadesParaDifusion();
                 } else {
                     mostrarAlerta(data.detail || "Error al registrar la publicación de venta.", "danger");
                 }
@@ -768,13 +1001,17 @@
             }
         }
 
-        function abrirModalExito(data, stockDescontado) {
+        function abrirModalExito(data, stockDescontado, cantComunidades) {
             document.getElementById("reciboTitulo").innerText = data.titulo;
-            document.getElementById("reciboPrecio").innerText = `$ ${Number(data.precio).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
+            document.getElementById("reciboPrecio").innerText = `$ ${Number(data.precio).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById("reciboOrigen").innerText = data.origen;
             document.getElementById("reciboUnidades").innerText = `${data.unidades_ofertadas} unidad(es)`;
             document.getElementById("reciboStockDescontado").innerText = stockDescontado > 0 
                 ? `${stockDescontado} unidad(es) descontada(s)` 
                 : "Sin vinculación a inventario";
+            document.getElementById("reciboComunidadesDifundidas").innerText = cantComunidades > 0
+                ? `${cantComunidades} comunidad(es) vinculada(s)`
+                : "Ninguna (Solo visible en perfil)";
 
             document.getElementById("modalPublicacionExito").style.display = "flex";
         }

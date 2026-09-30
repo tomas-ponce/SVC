@@ -335,3 +335,320 @@ def enviar_correo_eliminacion_publicacion_admin(destinatario: str, razon_social:
     </html>
     """
     _enviar_email_smtp(destinatario, f"SVC — Notificación de Moderación: Baja de Oferta Comercial", html)
+
+# ── CdU16: Notificación de Cambio de Nombre de Comunidad ──────────────
+def enviar_correo_cambio_nombre_comunidad(
+    destinatario: str, 
+    nombre_anterior: str, 
+    nombre_nuevo: str, 
+    rubro: str
+) -> None:
+    comunidades_url = f"{FRONTEND_BASE_URL}/comunidades.html"
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head><meta charset="UTF-8"><style>
+        body {{ font-family: 'Inter', Arial, sans-serif; background-color: #f8f9fa; color: #212529; margin: 0; padding: 20px; }}
+        .box {{ max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #ced4da; border-top: 4px solid #0056b3; padding: 30px; border-radius: 0px !important; }}
+        .badge {{ background-color: #0056b3; color: #ffffff; font-weight: bold; font-size: 13px; padding: 6px 10px; display: inline-block; border-radius: 0px !important; }}
+        .title {{ font-size: 20px; font-weight: bold; color: #0f172a; margin: 20px 0 10px 0; }}
+        .text {{ font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 15px; }}
+        .info-box {{ background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0056b3; padding: 15px; margin: 20px 0; font-size: 13px; color: #0f172a; }}
+        .btn {{ display: inline-block; background-color: #0056b3; color: #ffffff !important; padding: 12px 25px; text-decoration: none; font-weight: bold; font-size: 13px; text-transform: uppercase; border-radius: 0px !important; }}
+        .warn {{ font-size: 11px; color: #6c757d; margin-top: 25px; border-top: 1px solid #e9ecef; padding-top: 15px; }}
+    </style></head>
+    <body>
+        <div class="box">
+            <div class="badge">SVC — COMUNIDADES B2B</div>
+            <div class="title">Actualización en su Comunidad</div>
+            <p class="text">Le informamos que un moderador del espacio comercial del cual forma parte ha actualizado la denominación de la comunidad.</p>
+            <div class="info-box">
+                <strong>Nombre Anterior:</strong> {nombre_anterior}<br>
+                <strong>Nuevo Nombre Oficial:</strong> {nombre_nuevo}<br>
+                <strong>Sector / Rubro:</strong> {rubro}
+            </div>
+            <p class="text" style="font-size: 12px;">Por normativas de la plataforma, el nombre de un espacio no podrá volver a modificarse durante los próximos 15 días.</p>
+            <p style="text-align: center; margin: 25px 0;"><a href="{comunidades_url}" target="_blank" rel="noopener noreferrer" class="btn">Acceder a Comunidades &rarr;</a></p>
+            <div class="warn">• Esta es una notificación automática del Sistema de Vinculación para el Comercio (SVC).</div>
+        </div>
+    </body>
+    </html>
+    """
+    _enviar_email_smtp(destinatario, f"SVC — Cambio de nombre en comunidad: {nombre_nuevo}", html)
+
+    # ── CdU17: Alerta de Nueva Solicitud de Ingreso a Comunidad ──────────
+def enviar_correo_nueva_solicitud_comunidad(
+    destinatario: str,
+    nombre_comunidad: str,
+    nombre_solicitante: str,
+    rubro_solicitante: str
+) -> None:
+    comunidades_url = f"{FRONTEND_BASE_URL}/comunidades.html"
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head><meta charset="UTF-8"><style>
+        body {{ font-family: 'Inter', Arial, sans-serif; background-color: #f8f9fa; color: #212529; margin: 0; padding: 20px; }}
+        .box {{ max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #ced4da; border-top: 4px solid #0056b3; padding: 30px; border-radius: 0px !important; }}
+        .badge {{ background-color: #0056b3; color: #ffffff; font-weight: bold; font-size: 13px; padding: 6px 10px; display: inline-block; border-radius: 0px !important; }}
+        .title {{ font-size: 20px; font-weight: bold; color: #0f172a; margin: 20px 0 10px 0; }}
+        .text {{ font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 15px; }}
+        .info-box {{ background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0056b3; padding: 15px; margin: 20px 0; font-size: 13px; color: #0f172a; }}
+        .btn {{ display: inline-block; background-color: #0056b3; color: #ffffff !important; padding: 12px 25px; text-decoration: none; font-weight: bold; font-size: 13px; text-transform: uppercase; border-radius: 0px !important; }}
+        .warn {{ font-size: 11px; color: #6c757d; margin-top: 25px; border-top: 1px solid #e9ecef; padding-top: 15px; }}
+    </style></head>
+    <body>
+        <div class="box">
+            <div class="badge">SVC — GESTIÓN DE COMUNIDADES</div>
+            <div class="title">Nueva Solicitud de Membresía</div>
+            <p class="text">El comerciante <strong>{nombre_solicitante}</strong> ha solicitado incorporarse a la comunidad <strong>"{nombre_comunidad}"</strong>.</p>
+            <div class="info-box">
+                <strong>Empresa Postulante:</strong> {nombre_solicitante}<br>
+                <strong>Rubro Fiscal Declarado:</strong> {rubro_solicitante}<br>
+                <strong>Comunidad Destino:</strong> {nombre_comunidad}
+            </div>
+            <p class="text" style="font-size: 12px;">Como administrador o moderador del espacio, puede ingresar al panel para evaluar y aprobar o rechazar esta incorporación (CdU18).</p>
+            <p style="text-align: center; margin: 25px 0;"><a href="{comunidades_url}" target="_blank" rel="noopener noreferrer" class="btn">Gestionar Solicitudes &rarr;</a></p>
+            <div class="warn">• Esta es una notificación oficial del Sistema de Vinculación para el Comercio (SVC).</div>
+        </div>
+    </body>
+    </html>
+    """
+    _enviar_email_smtp(destinatario, f"SVC — Nueva Solicitud de Ingreso: {nombre_comunidad}", html)
+
+    # ── CdU18: Notificación de Resolución de Solicitud de Ingreso ─────────
+def enviar_correo_resolucion_solicitud_comunidad(
+    destinatario: str,
+    nombre_comercio: str,
+    nombre_comunidad: str,
+    aprobada: bool
+) -> None:
+    comunidades_url = f"{FRONTEND_BASE_URL}/comunidades.html"
+    color_borde = "#28a745" if aprobada else "#dc3545"
+    titulo_estado = "Solicitud de Ingreso Aprobada" if aprobada else "Solicitud de Ingreso Denegada"
+    mensaje_cuerpo = (
+        f"Nos complace informarle que los moderadores de la comunidad <strong>\"{nombre_comunidad}\"</strong> han "
+        f"<strong>aprobado</strong> su incorporación al espacio. Ya puede participar activamente y difundir sus publicaciones."
+        if aprobada else
+        f"Le informamos que el equipo de moderación de <strong>\"{nombre_comunidad}\"</strong> ha decidido "
+        f"<strong>no aprobar</strong> su solicitud de ingreso en este momento."
+    )
+    
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head><meta charset="UTF-8"><style>
+        body {{ font-family: 'Inter', Arial, sans-serif; background-color: #f8f9fa; color: #212529; margin: 0; padding: 20px; }}
+        .box {{ max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #ced4da; border-top: 4px solid {color_borde}; padding: 30px; border-radius: 0px !important; }}
+        .badge {{ background-color: {color_borde}; color: #ffffff; font-weight: bold; font-size: 13px; padding: 6px 10px; display: inline-block; border-radius: 0px !important; }}
+        .title {{ font-size: 20px; font-weight: bold; color: #0f172a; margin: 20px 0 10px 0; }}
+        .text {{ font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 20px; }}
+        .btn {{ display: inline-block; background-color: #0056b3; color: #ffffff !important; padding: 12px 25px; text-decoration: none; font-weight: bold; font-size: 13px; text-transform: uppercase; border-radius: 0px !important; }}
+        .warn {{ font-size: 11px; color: #6c757d; margin-top: 25px; border-top: 1px solid #e9ecef; padding-top: 15px; }}
+    </style></head>
+    <body>
+        <div class="box">
+            <div class="badge">SVC — COMUNIDADES B2B</div>
+            <div class="title">{titulo_estado}</div>
+            <p class="text">Estimado/a representante de <strong>{nombre_comercio}</strong>:<br><br>{mensaje_cuerpo}</p>
+            <p style="text-align: center; margin: 25px 0;"><a href="{comunidades_url}" target="_blank" rel="noopener noreferrer" class="btn">Explorar Comunidades &rarr;</a></p>
+            <div class="warn">• Notificación generada automáticamente por la plataforma comercial SVC.</div>
+        </div>
+    </body>
+    </html>
+    """
+    asunto = f"SVC — Solicitud Aprobada: {nombre_comunidad}" if aprobada else f"SVC — Solicitud Denegada: {nombre_comunidad}"
+    _enviar_email_smtp(destinatario, asunto, html)
+
+    # ── CdU20: Notificación Oficial de Expulsión de Comunidad ─────────────
+def enviar_correo_expulsion_comunidad(
+    destinatario: str,
+    nombre_comercio: str,
+    nombre_comunidad: str,
+    motivo: str
+) -> None:
+    comunidades_url = f"{FRONTEND_BASE_URL}/comunidades.html"
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head><meta charset="UTF-8"><style>
+        body {{ font-family: 'Inter', Arial, sans-serif; background-color: #f8f9fa; color: #212529; margin: 0; padding: 20px; }}
+        .box {{ max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #ced4da; border-top: 4px solid #dc3545; padding: 30px; border-radius: 0px !important; }}
+        .badge {{ background-color: #dc3545; color: #ffffff; font-weight: bold; font-size: 13px; padding: 6px 10px; display: inline-block; border-radius: 0px !important; }}
+        .title {{ font-size: 20px; font-weight: bold; color: #991b1b; margin: 20px 0 10px 0; }}
+        .text {{ font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 15px; }}
+        .motivo-box {{ background-color: #fff5f5; border: 1px solid #fecaca; border-left: 4px solid #dc3545; padding: 15px; margin: 20px 0; font-size: 13px; color: #7f1d1d; }}
+        .btn {{ display: inline-block; background-color: #0056b3; color: #ffffff !important; padding: 12px 25px; text-decoration: none; font-weight: bold; font-size: 13px; text-transform: uppercase; border-radius: 0px !important; }}
+        .warn {{ font-size: 11px; color: #6c757d; margin-top: 25px; border-top: 1px solid #e9ecef; padding-top: 15px; }}
+    </style></head>
+    <body>
+        <div class="box">
+            <div class="badge">SVC — MODERACIÓN DE COMUNIDADES</div>
+            <div class="title">Expulsión de Comunidad</div>
+            <p class="text">Estimado/a representante de <strong>{nombre_comercio}</strong>:<br><br>Le informamos que el equipo de moderación ha dispuesto su <strong>expulsión</strong> de la comunidad <strong>"{nombre_comunidad}"</strong>.</p>
+            <div class="motivo-box">
+                <strong>Justificación de la Sanción:</strong><br>{motivo}
+            </div>
+            <p class="text" style="font-size: 12px;">A partir de este momento, ha perdido el acceso directo al espacio y sus publicaciones han dejado de replicarse en dicho muro.</p>
+            <p style="text-align: center; margin: 25px 0;"><a href="{comunidades_url}" target="_blank" rel="noopener noreferrer" class="btn">Explorar Otras Comunidades &rarr;</a></p>
+            <div class="warn">• Esta sanción ha sido registrada de forma inmutable en la bitácora de auditoría del sistema.</div>
+        </div>
+    </body>
+    </html>
+    """
+    _enviar_email_smtp(destinatario, f"SVC — Notificación de Expulsión: {nombre_comunidad}", html)
+
+    # ── CdU21: Notificación Oficial de Asignación de Rol de Moderador ─────
+def enviar_correo_asignacion_moderador_comunidad(
+    destinatario: str,
+    nombre_comercio: str,
+    nombre_comunidad: str
+) -> None:
+    comunidades_url = f"{FRONTEND_BASE_URL}/comunidades.html"
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head><meta charset="UTF-8"><style>
+        body {{ font-family: 'Inter', Arial, sans-serif; background-color: #f8f9fa; color: #212529; margin: 0; padding: 20px; }}
+        .box {{ max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #ced4da; border-top: 4px solid #0056b3; padding: 30px; border-radius: 0px !important; }}
+        .badge {{ background-color: #0056b3; color: #ffffff; font-weight: bold; font-size: 13px; padding: 6px 10px; display: inline-block; border-radius: 0px !important; }}
+        .title {{ font-size: 20px; font-weight: bold; color: #0f172a; margin: 20px 0 10px 0; }}
+        .text {{ font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 15px; }}
+        .info-box {{ background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0056b3; padding: 15px; margin: 20px 0; font-size: 13px; color: #0f172a; }}
+        .btn {{ display: inline-block; background-color: #0056b3; color: #ffffff !important; padding: 12px 25px; text-decoration: none; font-weight: bold; font-size: 13px; text-transform: uppercase; border-radius: 0px !important; }}
+        .warn {{ font-size: 11px; color: #6c757d; margin-top: 25px; border-top: 1px solid #e9ecef; padding-top: 15px; }}
+    </style></head>
+    <body>
+        <div class="box">
+            <div class="badge">SVC — COMUNIDADES B2B</div>
+            <div class="title">Designación de Moderador</div>
+            <p class="text">Estimado/a representante de <strong>{nombre_comercio}</strong>:<br><br>Nos complace informarle que ha sido promovido al rol de <strong>Moderador</strong> en la comunidad <strong>"{nombre_comunidad}"</strong>.</p>
+            <div class="info-box">
+                <strong>Comunidad:</strong> {nombre_comunidad}<br>
+                <strong>Nuevo Rango:</strong> Moderador<br>
+                <strong>Nuevos Privilegios:</strong> Ahora puede evaluar solicitudes de ingreso (CdU18), expulsar miembros infractores (CdU20) y colaborar en la configuración general del espacio (CdU16).
+            </div>
+            <p style="text-align: center; margin: 25px 0;"><a href="{comunidades_url}" target="_blank" rel="noopener noreferrer" class="btn">Ingresar al Panel de Moderación &rarr;</a></p>
+            <div class="warn">• Esta es una notificación oficial del Sistema de Vinculación para el Comercio (SVC).</div>
+        </div>
+    </body>
+    </html>
+    """
+    _enviar_email_smtp(destinatario, f"SVC — Has sido nombrado Moderador en: {nombre_comunidad}", html)
+
+    # ── CdU22: Notificación de Revocación de Moderador ───────────────────
+def enviar_correo_revocacion_moderador_comunidad(destinatario: str, nombre_comercio: str, nombre_comunidad: str) -> None:
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head><meta charset="UTF-8"><style>
+        body {{ font-family: 'Inter', Arial, sans-serif; background-color: #f8f9fa; color: #212529; margin: 0; padding: 20px; }}
+        .box {{ max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #ced4da; border-top: 4px solid #64748b; padding: 30px; border-radius: 0px !important; }}
+        .badge {{ background-color: #64748b; color: #ffffff; font-weight: bold; font-size: 13px; padding: 6px 10px; display: inline-block; border-radius: 0px !important; }}
+        .title {{ font-size: 20px; font-weight: bold; color: #0f172a; margin: 20px 0 10px 0; }}
+        .text {{ font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 15px; }}
+        .info-box {{ background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #64748b; padding: 15px; margin: 20px 0; font-size: 13px; color: #0f172a; }}
+        .btn {{ display: inline-block; background-color: #0056b3; color: #ffffff !important; padding: 12px 25px; text-decoration: none; font-weight: bold; font-size: 13px; text-transform: uppercase; border-radius: 0px !important; }}
+        .warn {{ font-size: 11px; color: #6c757d; margin-top: 25px; border-top: 1px solid #e9ecef; padding-top: 15px; }}
+    </style></head>
+    <body>
+        <div class="box">
+            <div class="badge">SVC — COMUNIDADES B2B</div>
+            <div class="title">Actualización de Rango en Comunidad</div>
+            <p class="text">Estimado/a representante de <strong>{nombre_comercio}</strong>:<br><br>Le informamos que sus privilegios de gestión en la comunidad <strong>"{nombre_comunidad}"</strong> han cesado, retornando su cuenta al rango de <strong>Integrante</strong> estándar.</p>
+            <div class="info-box">
+                <strong>Comunidad:</strong> {nombre_comunidad}<br>
+                <strong>Rango Actual:</strong> Integrante<br>
+                <strong>Estado:</strong> Conserva su acceso regular al espacio comercial y a la difusión de publicaciones.
+            </div>
+            <p style="text-align: center; margin: 25px 0;"><a href="{FRONTEND_BASE_URL}/comunidades.html" target="_blank" rel="noopener noreferrer" class="btn">Acceder a Comunidades &rarr;</a></p>
+            <div class="warn">• Notificación oficial de SVC.</div>
+        </div>
+    </body>
+    </html>
+    """
+    _enviar_email_smtp(destinatario, f"SVC — Actualización de rol en comunidad: {nombre_comunidad}", html)
+
+    # ── CdU23: Notificación a Administradores de Solicitud de Eliminación ─
+def enviar_correo_solicitud_eliminacion_comunidad(
+    destinatario: str,
+    nombre_creador: str,
+    nombre_comunidad: str,
+    motivo: str
+) -> None:
+    admin_panel_url = f"{FRONTEND_BASE_URL}/admin-dashboard.html"
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head><meta charset="UTF-8"><style>
+        body {{ font-family: 'Inter', Arial, sans-serif; background-color: #f8f9fa; color: #212529; margin: 0; padding: 20px; }}
+        .box {{ max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #ced4da; border-top: 4px solid #dc3545; padding: 30px; border-radius: 0px !important; }}
+        .badge {{ background-color: #dc3545; color: #ffffff; font-weight: bold; font-size: 13px; padding: 6px 10px; display: inline-block; border-radius: 0px !important; }}
+        .title {{ font-size: 20px; font-weight: bold; color: #991b1b; margin: 20px 0 10px 0; }}
+        .text {{ font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 15px; }}
+        .info-box {{ background-color: #fff5f5; border: 1px solid #fecaca; border-left: 4px solid #dc3545; padding: 15px; margin: 20px 0; font-size: 13px; color: #7f1d1d; }}
+        .btn {{ display: inline-block; background-color: #0056b3; color: #ffffff !important; padding: 12px 25px; text-decoration: none; font-weight: bold; font-size: 13px; text-transform: uppercase; border-radius: 0px !important; }}
+        .warn {{ font-size: 11px; color: #6c757d; margin-top: 25px; border-top: 1px solid #e9ecef; padding-top: 15px; }}
+    </style></head>
+    <body>
+        <div class="box">
+            <div class="badge">SVC — MODERACIÓN GLOBAL</div>
+            <div class="title">Solicitud de Eliminación de Comunidad</div>
+            <p class="text">El Creador fundador <strong>{nombre_creador}</strong> ha solicitado la baja definitiva de la comunidad <strong>"{nombre_comunidad}"</strong>.</p>
+            <div class="info-box">
+                <strong>Comunidad:</strong> {nombre_comunidad}<br>
+                <strong>Estado:</strong> Congelada (Pendiente de eliminación)<br>
+                <strong>Motivo ingresado por el Creador:</strong><br>{motivo}
+            </div>
+            <p class="text" style="font-size: 12px;">Como Administrador, debe evaluar esta solicitud desde el panel de control global para aprobar la baja definitiva o rechazarla y restaurar el espacio (CdU24).</p>
+            <p style="text-align: center; margin: 25px 0;"><a href="{admin_panel_url}" target="_blank" rel="noopener noreferrer" class="btn">Evaluar en Panel Admin &rarr;</a></p>
+            <div class="warn">• Notificación oficial del Sistema de Vinculación para el Comercio (SVC).</div>
+        </div>
+    </body>
+    </html>
+    """
+    _enviar_email_smtp(destinatario, f"SVC — Solicitud de Eliminación: {nombre_comunidad}", html)
+
+    # ── CdU24: Notificación de Resolución de Eliminación de Comunidad ────
+def enviar_correo_resolucion_eliminacion_comunidad(
+    destinatario: str,
+    nombre_destinatario: str,
+    nombre_comunidad: str,
+    aprobada: bool
+) -> None:
+    comunidades_url = f"{FRONTEND_BASE_URL}/comunidades.html"
+    color_borde = "#dc3545" if aprobada else "#28a745"
+    titulo = "Comunidad Eliminada Definitivamente" if aprobada else "Solicitud de Eliminación Rechazada"
+    mensaje = (
+        f"Le informamos que la Administración Global ha <strong>aprobado</strong> la solicitud de baja "
+        f"para la comunidad <strong>\"{nombre_comunidad}\"</strong>. El espacio y sus enlaces comerciales han sido removidos."
+        if aprobada else
+        f"Le informamos que la Administración Global ha <strong>rechazado</strong> la solicitud de eliminación "
+        f"para la comunidad <strong>\"{nombre_comunidad}\"</strong>. La comunidad ha sido <strong>descongelada y reactivada</strong> para operar normalmente."
+    )
+    
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head><meta charset="UTF-8"><style>
+        body {{ font-family: 'Inter', Arial, sans-serif; background-color: #f8f9fa; color: #212529; margin: 0; padding: 20px; }}
+        .box {{ max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #ced4da; border-top: 4px solid {color_borde}; padding: 30px; border-radius: 0px !important; }}
+        .badge {{ background-color: {color_borde}; color: #ffffff; font-weight: bold; font-size: 13px; padding: 6px 10px; display: inline-block; border-radius: 0px !important; }}
+        .title {{ font-size: 20px; font-weight: bold; color: #0f172a; margin: 20px 0 10px 0; }}
+        .text {{ font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 20px; }}
+        .btn {{ display: inline-block; background-color: #0056b3; color: #ffffff !important; padding: 12px 25px; text-decoration: none; font-weight: bold; font-size: 13px; text-transform: uppercase; border-radius: 0px !important; }}
+        .warn {{ font-size: 11px; color: #6c757d; margin-top: 25px; border-top: 1px solid #e9ecef; padding-top: 15px; }}
+    </style></head>
+    <body>
+        <div class="box">
+            <div class="badge">SVC — ADMINISTRACIÓN GLOBAL</div>
+            <div class="title">{titulo}</div>
+            <p class="text">Estimado/a <strong>{nombre_destinatario}</strong>:<br><br>{mensaje}</p>
+            <p style="text-align: center; margin: 25px 0;"><a href="{comunidades_url}" target="_blank" rel="noopener noreferrer" class="btn">Ir a Comunidades &rarr;</a></p>
+            <div class="warn">• Notificación oficial de resolución de gobernanza emitida por SVC.</div>
+        </div>
+    </body>
+    </html>
+    """
+    asunto = f"SVC — Resolución de Eliminación: {nombre_comunidad}"
+    _enviar_email_smtp(destinatario, asunto, html)

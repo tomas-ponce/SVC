@@ -24,10 +24,10 @@ def buscar_y_filtrar_comerciantes(
     user_id: str = Depends(get_current_user_id)
 ):
     """
-    CdU10: Búsqueda de Comerciantes.
+    CdU10: Búsqueda de Comerciantes (con validación estricta de longitud mínima de 3 caracteres).
     CdU11: Filtrar comerciantes por rubro.
-    CdU12: Filtrar comerciantes por locación y zonas de alcance.
-    Permite combinar búsqueda libre con filtros taxonómicos y geográficos sobre perfiles comerciales activos.
+    CdU12: Filtrar comerciantes por locación y zonas de alcance (Regional, Nacional, Internacional).
+    Permite combinar búsqueda libre con filtros taxonómicos y geográficos sobre perfiles activos.
     Excluye estrictamente cuentas en estado 'inhabilitado' o 'baja'.
     """
     # 1. Validar que el usuario que consulta esté autenticado y en estado 'activo'
@@ -50,6 +50,13 @@ def buscar_y_filtrar_comerciantes(
     provincia_limpia = provincia.strip() if provincia and provincia != "todos" else None
     ciudad_limpia = ciudad.strip() if ciudad else None
     alcance_limpio = alcance.strip() if alcance and alcance != "todos" else None
+
+    # Regla de Negocio CdU10: Si se ingresa búsqueda por texto, exigir al menos 3 caracteres
+    if termino_limpio and len(termino_limpio) < 3:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El término de búsqueda debe contener al menos 3 caracteres (letras o números) para evitar resultados imprecisos."
+        )
 
     # Flujo alterno CdU12: Validar formato de alcance logístico si fue provisto
     if alcance_limpio and alcance_limpio not in ["Regional", "Nacional", "Internacional"]:
@@ -126,6 +133,8 @@ def buscar_y_filtrar_comerciantes(
             "resultados": datos_coincidentes
         }
 
+    except HTTPException as he:
+        raise he
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

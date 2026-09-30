@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Ficha de Comunidad B2B (CdU19 a CdU23)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-primary-hover: #004085;
+            --svc-bg-page: #f8f9fa;
+            --svc-bg-surface: #ffffff;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-danger: #dc3545;
+            --svc-danger-hover: #bd2130;
+            --svc-warning: #ffc107;
+            --svc-success: #28a745;
+            --svc-success-hover: #218838;
+            --svc-admin-dark: #0f172a;
+            --svc-border-radius: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important; /* REGLA INNEGOCIABLE SVC: Esquinas a 90° */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── SIDEBAR DRAWER ── */
+        .sidebar-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1200;
+            transition: left 0.25s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-drawer.open { left: 0; }
+
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1100;
+            display: none;
+        }
+
+        .drawer-backdrop.open { display: block; }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-box {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--svc-text-muted);
+            padding: 4px 8px;
+        }
+
+        .btn-close-drawer:hover { color: var(--svc-text); }
+
+        .nav-list {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-left: 4px solid var(--svc-primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        /* ── MAIN WRAPPER ── */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 65px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-hamburger {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .btn-hamburger .bar {
+            width: 18px;
+            height: 2px;
+            background-color: #1e293b;
+        }
+
+        .topbar-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--svc-danger);
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-logout:hover {
+            background-color: #f8d7da;
+            border-color: var(--svc-danger);
+        }
+
+        .content-body {
+            padding: 30px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ── HERO BANNER DE LA COMUNIDAD ── */
+        .community-hero {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            padding: 24px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .community-header-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .community-avatar-box {
+            width: 54px;
+            height: 54px;
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .community-header-meta h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 6px 0;
+        }
+
+        .community-badges-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .badge-pill {
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 4px 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .badge-active { background-color: #d4edda; color: var(--svc-success); }
+        .badge-warning { background-color: #fff3cd; color: #856404; }
+        .badge-sector { background-color: #e7f0fb; color: var(--svc-primary); }
+        .badge-role { background-color: #f1f5f9; color: #334155; }
+
+        .btn-svc-primary {
+            background-color: var(--svc-primary);
+            color: #ffffff !important;
+            border: none;
+            padding: 10px 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-svc-primary:hover { background-color: var(--svc-primary-hover); }
+
+        .btn-svc-outline {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            color: #334155;
+            padding: 8px 14px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-svc-outline:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+        }
+
+        /* ── LAYOUT DIVIDIDO ── */
+        .community-layout {
+            display: grid;
+            grid-template-columns: 2.2fr 1fr;
+            gap: 25px;
+            align-items: start;
+        }
+
+        /* Muro Central de Publicaciones */
+        .feed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .feed-header h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        .posts-stream {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .post-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: all 0.15s ease;
+        }
+
+        .post-card:hover {
+            border-left: 4px solid var(--svc-primary);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+        }
+
+        .post-info-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .post-info-desc {
+            font-size: 12.5px;
+            color: var(--svc-text-muted);
+            margin-bottom: 8px;
+            max-width: 580px;
+        }
+
+        .post-meta-sub {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .post-price-col {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        .post-price-val {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--svc-primary);
+        }
+
+        /* ── SECCIONES DESPLEGABLES (ACORDEÓN) ── */
+        .side-panels-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .side-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 3px solid #0f172a;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .side-card.mod-card {
+            border-top-color: var(--svc-primary);
+        }
+
+        .collapsible-header {
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            background-color: #ffffff;
+            transition: background-color 0.15s ease;
+        }
+
+        .collapsible-header:hover {
+            background-color: #f8fafc;
+        }
+
+        .collapsible-title {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        .collapsible-icon {
+            font-size: 10px;
+            color: #64748b;
+            transition: transform 0.2s ease;
+        }
+
+        .collapsible-body {
+            padding: 0 18px 18px 18px;
+            border-top: 1px solid #f1f5f9;
+            display: block;
+        }
+
+        .collapsible-body.collapsed {
+            display: none;
+        }
+
+        .info-detail-row {
+            font-size: 12px;
+            color: #475569;
+            margin-top: 12px;
+            line-height: 1.5;
+        }
+
+        .info-detail-row strong { color: #0f172a; }
+
+        .member-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 12px;
+            gap: 8px;
+        }
+
+        .member-item-row:last-child { border-bottom: none; }
+
+        .member-name {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .member-sub {
+            font-size: 10.5px;
+            color: var(--svc-text-muted);
+        }
+
+        .btn-member-action {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 4px 7px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-promote-mod {
+            color: var(--svc-primary);
+            border-color: #bfdbfe;
+        }
+        .btn-promote-mod:hover {
+            background-color: #e7f0fb;
+            border-color: var(--svc-primary);
+        }
+
+        .btn-revoke-mod {
+            color: #475569;
+            border-color: #cbd5e1;
+        }
+        .btn-revoke-mod:hover {
+            background-color: #f1f5f9;
+            border-color: #64748b;
+        }
+
+        .btn-kick-member {
+            color: var(--svc-danger);
+            border-color: #fecaca;
+        }
+        .btn-kick-member:hover {
+            background-color: #fee2e2;
+            border-color: var(--svc-danger);
+        }
+
+        /* ── MODALES SVC ── */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            width: 100%;
+            max-width: 580px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .modal-card-danger {
+            border-top-color: var(--svc-danger);
+            max-width: 500px;
+        }
+
+        .modal-card-warning {
+            border-top-color: #64748b;
+            max-width: 500px;
+        }
+
+        .modal-card-confirm {
+            max-width: 500px;
+        }
+
+        .modal-card-requests {
+            max-width: 720px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 6px 0;
+        }
+
+        .modal-subtitle {
+            font-size: 12.5px;
+            color: var(--svc-text-muted);
+            margin: 0 0 20px 0;
+            line-height: 1.4;
+        }
+
+        .modal-info-panel {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid var(--svc-primary);
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .input-svc {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--svc-border);
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+            background-color: #ffffff;
+        }
+
+        .input-svc:focus { border-color: var(--svc-primary); }
+
+        .input-svc:disabled {
+            background-color: #f1f5f9;
+            color: #475569;
+            cursor: not-allowed;
+            font-weight: 600;
+        }
+
+        .field-help {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            margin-top: 4px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .requests-table-wrap {
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 15px;
+            flex: 1;
+        }
+
+        .requests-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .requests-table th {
+            background-color: #f8fafc;
+            padding: 10px 14px;
+            font-weight: 700;
+            font-size: 11px;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .requests-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .requests-table tr:hover { background-color: #f8fafc; }
+
+        .btn-action-approve {
+            background-color: var(--svc-success);
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+        .btn-action-approve:hover { background-color: var(--svc-success-hover); }
+
+        .btn-action-reject {
+            background-color: #ffffff;
+            border: 1px solid var(--svc-danger);
+            color: var(--svc-danger);
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .btn-action-reject:hover { background-color: #fee2e2; }
+
+        .btn-modal-danger {
+            background-color: var(--svc-danger) !important;
+            color: #ffffff !important;
+            border: 1px solid var(--svc-danger) !important;
+            padding: 10px 18px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-modal-danger:hover {
+            background-color: var(--svc-danger-hover) !important;
+            border-color: var(--svc-danger-hover) !important;
+        }
+
+        .btn-modal-neutral {
+            background-color: #475569 !important;
+            color: #ffffff !important;
+            border: 1px solid #475569 !important;
+            padding: 10px 18px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-modal-neutral:hover {
+            background-color: #334155 !important;
+            border-color: #334155 !important;
+        }
+
+        .alert-box {
+            padding: 12px 14px;
+            margin-bottom: 18px;
+            display: none;
+            font-size: 12.5px;
+            line-height: 1.4;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+        .alert-success { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
+
+        @media (max-width: 1024px) {
+            .community-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
+
+    <!-- Sidebar Drawer -->
+    <div id="sidebarDrawer" class="sidebar-drawer">
+        <div>
+            <div class="sidebar-brand">
+                <div class="brand-info">
+                    <div class="brand-box">SVC</div>
+                    <div class="brand-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+                </div>
+                <button class="btn-close-drawer" onclick="toggleDrawer()">&times;</button>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
+                <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
+                <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
+                <li class="nav-item active"><a href="comunidades.html">Comunidades B2B</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 5 (WPT-04)'); return false;">Negociaciones & Chat</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            &copy; 2026 SVC — v0.4.0 (Sprint 4)
+        </div>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="main-wrapper">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="btn-hamburger" onclick="toggleDrawer()">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </button>
+                <div class="topbar-title">Ficha Oficial de Comunidad B2B</div>
+            </div>
+            <div class="user-badge">
+                <span id="userNameTop">Comercio Conectado</span>
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="content-body">
+            <div style="font-size: 12px; margin-bottom: 16px;">
+                <a href="comunidades.html" style="color: var(--svc-primary); text-decoration: none; font-weight: 700;">&larr; Volver al Explorador de Comunidades</a>
+            </div>
+
+            <div id="mainAlert" class="alert-box"></div>
+
+            <!-- HERO HEADER DE LA COMUNIDAD -->
+            <div class="community-hero">
+                <div class="community-header-left">
+                    <div class="community-avatar-box" id="avatarBoxLetter">C</div>
+                    <div class="community-header-meta">
+                        <h1 id="heroComNombre">Cargando comunidad...</h1>
+                        <div class="community-badges-row">
+                            <span class="badge-pill badge-active" id="badgeEstadoCom">ACTIVA</span>
+                            <span class="badge-pill badge-sector" id="badgeRubroCom">—</span>
+                            <span class="badge-pill badge-role" id="badgeMiRol">Mi Rol: —</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="heroActionsRight">
+                    <a href="crear-publicacion.html" class="btn-svc-primary" id="btnNuevaPubRubro">
+                        + Nueva Publicación en este Rubro
+                    </a>
+                </div>
+            </div>
+
+            <!-- LAYOUT DIVIDIDO PRINCIPAL -->
+            <div class="community-layout">
+                
+                <!-- COLUMNA IZQUIERDA: MURO DE PUBLICACIONES DEL RUBRO (RF04) -->
+                <div>
+                    <div class="feed-header">
+                        <h2 id="lblTituloMuro">Publicaciones del Rubro</h2>
+                        <span id="lblConteoMuro" style="font-size: 12px; color: var(--svc-text-muted);">0 ofertas activas</span>
+                    </div>
+
+                    <div class="posts-stream" id="postsStreamContainer">
+                        <div style="text-align: center; padding: 40px; color: var(--svc-text-muted); background: #ffffff; border: 1px solid #e2e8f0;">
+                            Cargando ofertas del muro comercial...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMNA DERECHA: PANELES DESPLEGABLES (ACORDEONES) -->
+                <div class="side-panels-column">
+                    
+                    <!-- Panel 1: Sobre esta comunidad (Desplegable) -->
+                    <div class="side-card">
+                        <div class="collapsible-header" onclick="toggleSeccionDesplegable('bodySobreComunidad', 'iconSobreComunidad')">
+                            <span class="collapsible-title">Sobre esta Comunidad</span>
+                            <span class="collapsible-icon" id="iconSobreComunidad">▲</span>
+                        </div>
+                        <div class="collapsible-body" id="bodySobreComunidad">
+                            <div class="info-detail-row">
+                                <strong>Fecha de Fundación:</strong><br>
+                                <span id="lblFechaFundacion">—</span>
+                            </div>
+                            <div class="info-detail-row">
+                                <strong>Sector Inmutable:</strong><br>
+                                <span id="lblSectorDetalle">—</span>
+                            </div>
+                            <div class="info-detail-row">
+                                <strong>Normativas y Acuerdos:</strong><br>
+                                <span id="lblNormativasDetalle">Sin descripción cargada.</span>
+                            </div>
+                            <div style="margin-top: 15px; border-top: 1px solid #f1f5f9; padding-top: 12px;" id="boxBtnAbandonar">
+                                <!-- Botón CdU19 renderizado por JS si corresponde -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel 2: Integrantes Activos (Desplegable con controles CdU20, CdU21 y CdU22) -->
+                    <div class="side-card">
+                        <div class="collapsible-header" onclick="toggleSeccionDesplegable('bodyMiembrosComunidad', 'iconMiembrosComunidad')">
+                            <span class="collapsible-title" id="lblTitleMiembros">Integrantes (0)</span>
+                            <span class="collapsible-icon" id="iconMiembrosComunidad">▲</span>
+                        </div>
+                        <div class="collapsible-body" id="bodyMiembrosComunidad">
+                            <div id="membersListContainer" style="margin-top: 10px;">
+                                <div style="font-size: 12px; color: var(--svc-text-muted);">Consultando nómina de miembros...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel 3: Panel de Moderación (Desplegable - Solo Creador/Moderador) -->
+                    <div class="side-card mod-card" id="panelModeracionExclusivo" style="display: none;">
+                        <div class="collapsible-header" onclick="toggleSeccionDesplegable('bodyPanelModeracion', 'iconPanelModeracion')">
+                            <span class="collapsible-title" style="color: var(--svc-primary);">Panel de Moderación</span>
+                            <span class="collapsible-icon" id="iconPanelModeracion">▲</span>
+                        </div>
+                        <div class="collapsible-body" id="bodyPanelModeracion">
+                            <p style="font-size: 11.5px; color: var(--svc-text-muted); margin: 10px 0 12px 0;">
+                                Opciones institucionales habilitadas para su rango en este espacio.
+                            </p>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <button type="button" class="btn-svc-outline" style="text-align: center;" id="btnConfigurarSide" onclick="abrirModalConfiguracionDesdeFicha()">
+                                    ⚙ Configurar Nombre / Reglas
+                                </button>
+                                <button type="button" class="btn-svc-outline" style="text-align: center;" id="btnSolicitudesSide" onclick="abrirModalSolicitudesDesdeFicha()">
+                                    📩 Revisar Solicitudes de Ingreso
+                                </button>
+                                <button type="button" class="btn-svc-outline" style="text-align: center; color: var(--svc-danger); border-color: #fecaca; display: none;" id="btnSolicitarEliminacionSide" onclick="abrirModalSolicitarEliminacion()">
+                                    ⚠ Solicitar Eliminación de Comunidad
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 1: CONFIGURAR COMUNIDAD (CdU16) -->
+    <div id="modalConfigurarComunidadFicha" class="modal-overlay">
+        <div class="modal-card">
+            <h2 class="modal-title">Configuración de Comunidad</h2>
+            <p class="modal-subtitle">
+                Actualice el nombre y las normativas del espacio. El rubro comercial permanece estrictamente inmutable.
+            </p>
+
+            <div id="modalConfigAlertFicha" class="alert-box alert-danger"></div>
+
+            <form id="formConfigurarComunidadFicha" onsubmit="ejecutarConfiguracionDesdeFicha(event)">
+                <div class="form-group">
+                    <label>Nombre de la Comunidad *</label>
+                    <input type="text" id="editComNombreFicha" class="input-svc" required minlength="3" maxlength="150">
+                    <div class="field-help">Una vez modificado por primera vez, el nombre solo podrá volver a cambiarse tras 15 días corridos. Al guardarse, se notificará a todos los integrantes vía correo electrónico.</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción y Reglas de la Comunidad</label>
+                    <textarea id="editComDescripcionFicha" class="input-svc" rows="3" maxlength="1500"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Rubro Comercial Asignado (Estrictamente Inmutable)</label>
+                    <input type="text" id="editComRubroFicha" class="input-svc" disabled>
+                    <div class="field-help">Regla ERS CdU16: El rubro comercial permanece fijo y no puede modificarse.</div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-svc-outline" onclick="cerrarModalConfiguracionFicha()">Cancelar</button>
+                    <button type="submit" id="btnSubmitConfigFicha" class="btn-svc-primary">Guardar Cambios &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: BANDEJA DE SOLICITUDES DE INGRESO (CdU18) -->
+    <div id="modalGestionarSolicitudesFicha" class="modal-overlay">
+        <div class="modal-card modal-card-requests">
+            <h2 class="modal-title">Bandeja de Solicitudes de Ingreso</h2>
+            <p class="modal-subtitle" id="solicitudesModalSubtitleFicha">
+                Evalúe las postulaciones comerciales para incorporarse a esta comunidad.
+            </p>
+
+            <div id="modalSolicitudesAlertFicha" class="alert-box alert-danger"></div>
+
+            <div class="requests-table-wrap">
+                <table class="requests-table">
+                    <thead>
+                        <tr>
+                            <th>Comercio Solicitante</th>
+                            <th>CUIT / CUIL</th>
+                            <th>Rubro Declarado</th>
+                            <th>Ubicación</th>
+                            <th style="text-align: right;">Resolución</th>
+                        </tr>
+                    </thead>
+                    <tbody id="solicitudesTbodyFicha">
+                        <tr><td colspan="5" style="text-align: center; color: var(--svc-text-muted); padding: 25px;">Consultando postulaciones pendientes...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-svc-outline" onclick="cerrarModalSolicitudesFicha()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: CONFIRMAR SALIDA VOLUNTARIA DE LA COMUNIDAD (CdU19) -->
+    <div id="modalConfirmarSalidaComunidad" class="modal-overlay">
+        <div class="modal-card modal-card-danger">
+            <h2 class="modal-title" style="color: var(--svc-danger);">Abandonar Comunidad</h2>
+            <p class="modal-subtitle">
+                ¿Está seguro de que desea abandonar este espacio comercial? Perderá el acceso al muro de ofertas y a la difusión en esta comunidad (CdU19).
+            </p>
+
+            <div id="modalSalidaAlert" class="alert-box alert-danger"></div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-svc-outline" onclick="cerrarModalSalidaComunidad()">Cancelar</button>
+                <button type="button" id="btnConfirmarSalidaBtn" class="btn-modal-danger" onclick="ejecutarSalidaComunidad()">
+                    Confirmar Salida
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: EXPULSAR INTEGRANTE DE LA COMUNIDAD (CdU20) -->
+    <div id="modalExpulsarMiembro" class="modal-overlay">
+        <div class="modal-card modal-card-danger">
+            <h2 class="modal-title" style="color: var(--svc-danger);">Expulsar Integrante</h2>
+            <p class="modal-subtitle" id="expulsarModalSubtitle">
+                Remover el acceso de este comerciante a la comunidad. La medida exige justificación formal obligatoria (CdU20).
+            </p>
+
+            <div id="modalExpulsarAlert" class="alert-box alert-danger"></div>
+
+            <form id="formExpulsarMiembro" onsubmit="ejecutarExpulsionMiembro(event)">
+                <input type="hidden" id="expulsarIntegranteId">
+
+                <div class="form-group">
+                    <label>Motivo Institucional de la Expulsión *</label>
+                    <textarea id="expulsarJustificacion" class="input-svc" rows="3" placeholder="Detalle la infracción o el motivo de la expulsión (mínimo 5 caracteres)..." required minlength="5" maxlength="1000"></textarea>
+                    <div class="field-help">Quedará registrado de forma inmutable en la bitácora de auditoría y se notificará al comerciante.</div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-svc-outline" onclick="cerrarModalExpulsarMiembro()">Cancelar</button>
+                    <button type="submit" id="btnConfirmarExpulsionBtn" class="btn-modal-danger">
+                        Confirmar Expulsión
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 5: ASIGNAR ROL DE MODERADOR (CdU21) -->
+    <div id="modalAsignarModerador" class="modal-overlay">
+        <div class="modal-card modal-card-confirm">
+            <h2 class="modal-title">Asignar Rol de Moderador</h2>
+            <p class="modal-subtitle">
+                Promover a este miembro para que colabore en la gestión y administración del espacio (CdU21).
+            </p>
+
+            <div class="modal-info-panel">
+                <strong>Comercio a Promover:</strong> <span id="nombrePromoverMod">—</span><br>
+                <strong>Comunidad:</strong> <span id="comunidadPromoverMod">—</span><br>
+                <div style="font-size: 11.5px; color: var(--svc-text-muted); margin-top: 6px;">
+                    Al confirmar, el usuario obtendrá acceso inmediato al panel de moderación, capacidad para evaluar solicitudes (CdU18), expulsar miembros (CdU20) y configurar el grupo (CdU16).
+                </div>
+            </div>
+
+            <input type="hidden" id="promoverIntegranteId">
+            <div id="modalPromoverAlert" class="alert-box alert-danger"></div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-svc-outline" onclick="cerrarModalAsignarModerador()">Cancelar</button>
+                <button type="button" id="btnConfirmarPromoverMod" class="btn-svc-primary" onclick="ejecutarAsignacionModerador()">
+                    Confirmar Ascenso &rarr;
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 6: REVOCAR ROL DE MODERADOR (CdU22) -->
+    <div id="modalRevocarModerador" class="modal-overlay">
+        <div class="modal-card modal-card-warning">
+            <h2 class="modal-title" style="color: #334155;">Revocar Rol de Moderador</h2>
+            <p class="modal-subtitle">
+                Degradar a este usuario al rango de Integrante estándar retirándole sus privilegios de gestión (CdU22).
+            </p>
+
+            <div class="modal-info-panel" style="border-left-color: #64748b;">
+                <strong>Comercio Afectado:</strong> <span id="nombreRevocarMod">—</span><br>
+                <strong>Comunidad:</strong> <span id="comunidadRevocarMod">—</span><br>
+                <div style="font-size: 11.5px; color: var(--svc-text-muted); margin-top: 6px;">
+                    El usuario conservará su permanencia en la comunidad y su capacidad para difundir ofertas, pero perderá el acceso al panel de moderación y a las facultades administrativas.
+                </div>
+            </div>
+
+            <input type="hidden" id="revocarIntegranteId">
+            <div id="modalRevocarAlert" class="alert-box alert-danger"></div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-svc-outline" onclick="cerrarModalRevocarModerador()">Cancelar</button>
+                <button type="button" id="btnConfirmarRevocarMod" class="btn-modal-neutral" onclick="ejecutarRevocacionModerador()">
+                    Confirmar Revocación &rarr;
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 7: SOLICITAR ELIMINACIÓN DE COMUNIDAD (CdU23) -->
+    <div id="modalSolicitarEliminacionComunidad" class="modal-overlay">
+        <div class="modal-card modal-card-danger">
+            <h2 class="modal-title" style="color: var(--svc-danger);">Solicitar Eliminación de Comunidad</h2>
+            <p class="modal-subtitle">
+                Esta solicitud será remitida a la Administración Global de SVC para su evaluación (CdU23 / CdU24).
+            </p>
+
+            <div class="modal-info-panel" style="border-left-color: var(--svc-danger); background-color: #fff5f5; color: #7f1d1d;">
+                <strong>Advertencia Institucional:</strong> Al confirmar, la comunidad quedará <strong>congelada</strong> (no admitirá nuevas publicaciones, miembros ni ediciones) hasta que un Administrador resuelva la petición.
+            </div>
+
+            <div id="modalEliminarComAlert" class="alert-box alert-danger"></div>
+
+            <form id="formSolicitarEliminacionCom" onsubmit="ejecutarSolicitudEliminacionComunidad(event)">
+                <div class="form-group">
+                    <label>Motivo Formal de la Solicitud de Eliminación *</label>
+                    <textarea id="motivoEliminacionCom" class="input-svc" rows="3" placeholder="Detalle las razones por las cuales solicita la destrucción de este espacio (mínimo 5 caracteres)..." required minlength="5" maxlength="1000"></textarea>
+                    <div class="field-help">Esta justificación será evaluada por el equipo administrativo antes de confirmar la baja.</div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-svc-outline" onclick="cerrarModalSolicitarEliminacion()">Cancelar</button>
+                    <button type="submit" id="btnConfirmarEliminacionComBtn" class="btn-modal-danger">
+                        Confirmar y Congelar Espacio
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8080";
+        const token = localStorage.getItem("svc_token");
+        const usuarioSesion = JSON.parse(localStorage.getItem("svc_usuario") || "{}");
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const comunidadId = urlParams.get("id");
+
+        let comunidadInfo = null;
+
+        if (!token) {
+            window.location.href = "login.html";
+        }
+
+        if (!comunidadId) {
+            alert("No se especificó la comunidad a consultar.");
+            window.location.href = "comunidades.html";
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (usuarioSesion.nombre_razon_social) {
+                document.getElementById("userNameTop").innerText = usuarioSesion.nombre_razon_social;
+            }
+            cargarDatosComunidad();
+        });
+
+        function toggleDrawer() {
+            document.getElementById("sidebarDrawer").classList.toggle("open");
+            document.getElementById("drawerBackdrop").classList.toggle("open");
+        }
+
+        function toggleSeccionDesplegable(bodyId, iconId) {
+            const body = document.getElementById(bodyId);
+            const icon = document.getElementById(iconId);
+            const isCollapsed = body.classList.toggle("collapsed");
+            icon.innerText = isCollapsed ? "▼" : "▲";
+        }
+
+        function formatearMensajeError(rawError) {
+            if (!rawError) return "Ocurrió un error inesperado al procesar la solicitud.";
+            if (typeof rawError === "object") {
+                if (rawError.message) return rawError.message;
+                if (rawError.detail) return formatearMensajeError(rawError.detail);
+                return JSON.stringify(rawError);
+            }
+            let texto = String(rawError);
+            const matchMsg = texto.match(/['"](?:message|detail)['"]\s*:\s*['"]([^'"]+)['"]/);
+            if (matchMsg) return matchMsg[1];
+            texto = texto.replace(/\{.*\}/g, "").replace(/^.*RAISE EXCEPTION\s+/i, "");
+            return texto.trim() || "Error en la operación.";
+        }
+
+        async function cargarDatosComunidad() {
+            try {
+                const res = await fetch(`${API_URL}/comunidades/${comunidadId}/detalle`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    comunidadInfo = await res.json();
+                    renderizarCabeceraEInfo(comunidadInfo);
+                    cargarMuroPublicaciones();
+                    cargarMiembrosComunidad();
+                } else {
+                    mostrarAlerta("La comunidad solicitada no existe o no se encuentra activa.", "danger");
+                }
+            } catch (err) {
+                mostrarAlerta("Error al conectar con el servidor backend FastAPI.", "danger");
+            }
+        }
+
+        function renderizarCabeceraEInfo(c) {
+            document.getElementById("heroComNombre").innerText = c.nombre;
+            document.getElementById("avatarBoxLetter").innerText = c.nombre.charAt(0).toUpperCase();
+            document.getElementById("badgeRubroCom").innerText = c.rubro;
+            document.getElementById("lblSectorDetalle").innerText = c.rubro;
+            document.getElementById("lblNormativasDetalle").innerText = c.descripcion || "Sin normativas o especificaciones detalladas.";
+            
+            const fechaStr = c.creado_el ? new Date(c.creado_el).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' }) : "—";
+            document.getElementById("lblFechaFundacion").innerText = fechaStr;
+
+            const miRol = c.rol_usuario_actual;
+            document.getElementById("badgeMiRol").innerText = miRol ? `Mi Rol: ${miRol}` : "Visitante / No Miembro";
+
+            const badgeEstado = document.getElementById("badgeEstadoCom");
+            const btnNuevaPub = document.getElementById("btnNuevaPubRubro");
+
+            // Control visual ante comunidad congelada (CdU23)
+            if (c.estado === "Pendiente de eliminación") {
+                badgeEstado.className = "badge-pill badge-warning";
+                badgeEstado.innerText = "CONGELADA (PENDIENTE DE ELIMINACIÓN)";
+                btnNuevaPub.style.display = "none";
+                mostrarAlerta("Esta comunidad se encuentra congelada debido a una solicitud de eliminación en revisión por los Administradores.", "danger");
+            } else {
+                badgeEstado.className = "badge-pill badge-active";
+                badgeEstado.innerText = "ACTIVA";
+                btnNuevaPub.style.display = "inline-flex";
+            }
+
+            // Visibilidad y control del Panel de Moderación
+            if (c.es_moderador_o_creador) {
+                document.getElementById("panelModeracionExclusivo").style.display = "block";
+                
+                const btnEliminar = document.getElementById("btnSolicitarEliminacionSide");
+                const btnConfig = document.getElementById("btnConfigurarSide");
+                const btnSols = document.getElementById("btnSolicitudesSide");
+
+                if (miRol === "Creador") {
+                    btnEliminar.style.display = "block";
+                    if (c.estado === "Pendiente de eliminación") {
+                        btnEliminar.disabled = true;
+                        btnEliminar.innerText = "Solicitud Enviada (Bajo Revisión)";
+                        btnConfig.disabled = true;
+                        btnSols.disabled = true;
+                    } else {
+                        btnEliminar.disabled = false;
+                        btnEliminar.innerText = "⚠ Solicitar Eliminación de Comunidad";
+                        btnConfig.disabled = false;
+                        btnSols.disabled = false;
+                    }
+                } else {
+                    btnEliminar.style.display = "none";
+                }
+            } else {
+                document.getElementById("panelModeracionExclusivo").style.display = "none";
+            }
+
+            // Botón de Abandonar Comunidad (CdU19)
+            if (miRol && c.estado !== "Pendiente de eliminación") {
+                document.getElementById("boxBtnAbandonar").innerHTML = `
+                    <button type="button" class="btn-svc-outline" style="width: 100%; color: var(--svc-danger); border-color: #fecaca;" onclick="abrirModalSalidaComunidad()">
+                        Abandonar Comunidad
+                    </button>
+                `;
+            } else {
+                document.getElementById("boxBtnAbandonar").innerHTML = "";
+            }
+        }
+
+        async function cargarMuroPublicaciones() {
+            const container = document.getElementById("postsStreamContainer");
+
+            try {
+                const res = await fetch(`${API_URL}/comunidades/${comunidadId}/publicaciones`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const pubs = await res.json();
+                    document.getElementById("lblConteoMuro").innerText = `${pubs.length} oferta(s) en este rubro`;
+
+                    if (pubs.length === 0) {
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 40px; color: var(--svc-text-muted); background: #ffffff; border: 1px solid #e2e8f0;">
+                                <strong style="color: #0f172a;">No hay publicaciones en el muro comercial aún</strong>
+                                <p style="font-size: 13px; margin: 8px 0 16px 0;">Sé el primero en difundir mercadería del sector en esta comunidad.</p>
+                                <a href="crear-publicacion.html" class="btn-svc-primary">+ Publicar Oferta</a>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = "";
+                    pubs.forEach(p => {
+                        const card = document.createElement("div");
+                        card.className = "post-card";
+
+                        const precioFmt = Number(p.precio).toLocaleString('es-AR', { minimumFractionDigits: 2 });
+                        const comercio = p.comerciantes ? p.comerciantes.nombre_razon_social : "Comercio Registrado";
+                        const ubicacion = p.comerciantes ? `${p.comerciantes.ciudad_localidad} (${p.comerciantes.provincia})` : "Nacional";
+
+                        card.innerHTML = `
+                            <div>
+                                <div class="post-info-title">${p.titulo}</div>
+                                <div class="post-info-desc">${p.descripcion || 'Sin especificaciones técnicas.'}</div>
+                                <div class="post-meta-sub">
+                                    Por <strong>${comercio}</strong> &bull; Ubicación: ${ubicacion} &bull; Unidades: <strong>${p.unidades_ofertadas}</strong>
+                                </div>
+                            </div>
+                            <div class="post-price-col">
+                                <span class="post-price-val">$ ${precioFmt}</span>
+                                <a href="detalle-publicacion.html?id=${p.id}" class="btn-svc-outline" style="text-decoration: none;">
+                                    Ver Detalle &rarr;
+                                </a>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                }
+            } catch (err) {
+                container.innerHTML = `<div style="color: var(--svc-danger); padding: 20px;">Fallo al cargar publicaciones.</div>`;
+            }
+        }
+
+        async function cargarMiembrosComunidad() {
+            const container = document.getElementById("membersListContainer");
+
+            try {
+                const res = await fetch(`${API_URL}/comunidades/${comunidadId}/miembros`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const miembros = await res.json();
+                    document.getElementById("lblTitleMiembros").innerText = `Integrantes (${miembros.length})`;
+
+                    container.innerHTML = "";
+                    const soyModOCreador = comunidadInfo && comunidadInfo.es_moderador_o_creador;
+                    const soyCreador = comunidadInfo && comunidadInfo.rol_usuario_actual === "Creador";
+                    const comunidadCongelada = comunidadInfo && comunidadInfo.estado === "Pendiente de eliminación";
+
+                    miembros.forEach(m => {
+                        const row = document.createElement("div");
+                        row.className = "member-item-row";
+
+                        let badgeColor = "#e7f0fb";
+                        let textColor = "var(--svc-primary)";
+                        if (m.rol === "Creador") { badgeColor = "#0f172a"; textColor = "#ffffff"; }
+                        if (m.rol === "Moderador") { badgeColor = "#fff3cd"; textColor = "#856404"; }
+
+                        let accionesMiembroHtml = "";
+                        if (soyModOCreador && !m.es_usuario_actual && m.rol !== "Creador" && !comunidadCongelada) {
+                            let btnHacerModHtml = "";
+                            if (m.rol === "Integrante") {
+                                btnHacerModHtml = `
+                                    <button type="button" class="btn-member-action btn-promote-mod" onclick="abrirModalAsignarModerador('${m.comerciante_id}', '${m.nombre_razon_social}')">
+                                        + Moderador
+                                    </button>
+                                `;
+                            }
+
+                            let btnRevocarModHtml = "";
+                            if (soyCreador && m.rol === "Moderador") {
+                                btnRevocarModHtml = `
+                                    <button type="button" class="btn-member-action btn-revoke-mod" onclick="abrirModalRevocarModerador('${m.comerciante_id}', '${m.nombre_razon_social}')">
+                                        - Revocar
+                                    </button>
+                                `;
+                            }
+
+                            let btnExpulsarHtml = "";
+                            if (soyCreador || m.rol === "Integrante") {
+                                btnExpulsarHtml = `
+                                    <button type="button" class="btn-member-action btn-kick-member" onclick="abrirModalExpulsarMiembro('${m.comerciante_id}', '${m.nombre_razon_social}', '${m.rol}')">
+                                        Expulsar
+                                    </button>
+                                `;
+                            }
+
+                            accionesMiembroHtml = `
+                                <div style="display: flex; gap: 4px; align-items: center;">
+                                    ${btnHacerModHtml}
+                                    ${btnRevocarModHtml}
+                                    ${btnExpulsarHtml}
+                                </div>
+                            `;
+                        }
+
+                        row.innerHTML = `
+                            <div>
+                                <div class="member-name">${m.nombre_razon_social} ${m.es_usuario_actual ? '<small style="color: var(--svc-primary);">(Tú)</small>' : ''}</div>
+                                <div class="member-sub">${m.ubicacion}</div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span class="badge-pill" style="background-color: ${badgeColor}; color: ${textColor};">${m.rol}</span>
+                                ${accionesMiembroHtml}
+                            </div>
+                        `;
+                        container.appendChild(row);
+                    });
+                }
+            } catch (err) {
+                container.innerHTML = `<div style="font-size: 11px; color: var(--svc-danger);">Error al cargar miembros.</div>`;
+            }
+        }
+
+        // ── MODAL 1: CONFIGURAR COMUNIDAD (CdU16) ──
+        function abrirModalConfiguracionDesdeFicha() {
+            if (!comunidadInfo) return;
+            document.getElementById("modalConfigAlertFicha").style.display = "none";
+            document.getElementById("editComNombreFicha").value = comunidadInfo.nombre;
+            document.getElementById("editComDescripcionFicha").value = comunidadInfo.descripcion || "";
+            document.getElementById("editComRubroFicha").value = comunidadInfo.rubro;
+            document.getElementById("modalConfigurarComunidadFicha").style.display = "flex";
+            document.getElementById("editComNombreFicha").focus();
+        }
+
+        function cerrarModalConfiguracionFicha() {
+            document.getElementById("modalConfigurarComunidadFicha").style.display = "none";
+        }
+
+        async function ejecutarConfiguracionDesdeFicha(e) {
+            e.preventDefault();
+            const alertEl = document.getElementById("modalConfigAlertFicha");
+            const btn = document.getElementById("btnSubmitConfigFicha");
+            alertEl.style.display = "none";
+
+            const nuevoNombre = document.getElementById("editComNombreFicha").value.trim();
+            const nuevaDescripcion = document.getElementById("editComDescripcionFicha").value.trim();
+
+            if (nuevoNombre.length < 3) {
+                alertEl.innerText = "El nombre de la comunidad debe tener al menos 3 caracteres.";
+                alertEl.style.display = "block";
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Guardando cambios...";
+
+            try {
+                const res = await fetch(`${API_URL}/comunidades/${comunidadId}/configuracion`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ nombre: nuevoNombre, descripcion: nuevaDescripcion || null })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalConfiguracionFicha();
+                    let msg = `¡La configuración de "${data.nombre}" se actualizó exitosamente!`;
+                    if (data.cambio_nombre) {
+                        msg += ` Se notificó por correo a todos los integrantes.`;
+                    }
+                    mostrarAlerta(msg, "success");
+                    cargarDatosComunidad();
+                } else {
+                    alertEl.innerText = formatearMensajeError(data.detail);
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "Fallo de comunicación con el backend FastAPI.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Guardar Cambios →";
+            }
+        }
+
+        // ── MODAL 2: BANDEJA DE SOLICITUDES DE INGRESO (CdU18) ──
+        async function abrirModalSolicitudesDesdeFicha() {
+            if (!comunidadInfo) return;
+            document.getElementById("modalSolicitudesAlertFicha").style.display = "none";
+            document.getElementById("solicitudesModalSubtitleFicha").innerText = `Bandeja de postulaciones para: "${comunidadInfo.nombre}".`;
+            document.getElementById("modalGestionarSolicitudesFicha").style.display = "flex";
+            await cargarSolicitudesPendientesFicha();
+        }
+
+        function cerrarModalSolicitudesFicha() {
+            document.getElementById("modalGestionarSolicitudesFicha").style.display = "none";
+        }
+
+        async function cargarSolicitudesPendientesFicha() {
+            const tbody = document.getElementById("solicitudesTbodyFicha");
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--svc-text-muted); padding: 25px;">Consultando postulaciones pendientes...</td></tr>`;
+
+            try {
+                const res = await fetch(`${API_URL}/comunidades/${comunidadId}/solicitudes`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    renderizarTablaSolicitudesFicha(data);
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--svc-danger); padding: 25px;">${formatearMensajeError(errData.detail)}</td></tr>`;
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--svc-danger); padding: 25px;">Fallo de comunicación con el servidor.</td></tr>`;
+            }
+        }
+
+        function renderizarTablaSolicitudesFicha(lista) {
+            const tbody = document.getElementById("solicitudesTbodyFicha");
+            tbody.innerHTML = "";
+
+            if (!lista || lista.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--svc-text-muted); padding: 30px;">No hay solicitudes de membresía pendientes en esta comunidad.</td></tr>`;
+                return;
+            }
+
+            lista.forEach(s => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>
+                        <strong style="color: #0f172a;">${s.nombre_razon_social}</strong><br>
+                        <span style="font-size: 11px; color: var(--svc-text-muted);">${s.email}</span>
+                    </td>
+                    <td><span style="font-family: monospace; font-weight: 600;">${s.cuit_cuil}</span></td>
+                    <td><span class="badge-pill badge-active" style="background-color: #f1f5f9; color: #334155;">${s.rubro_comercial}</span></td>
+                    <td>${s.ciudad_localidad} (${s.provincia})</td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <button type="button" class="btn-action-approve" onclick="ejecutarResolucionSolicitudFicha('${s.id}', 'aprobar')">✓ Aprobar</button>
+                        <button type="button" class="btn-action-reject" onclick="ejecutarResolucionSolicitudFicha('${s.id}', 'rechazar')">✕ Rechazar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function ejecutarResolucionSolicitudFicha(solicitudId, decision) {
+            const alertEl = document.getElementById("modalSolicitudesAlertFicha");
+            alertEl.style.display = "none";
+
+            try {
+                const res = await fetch(`${API_URL}/comunidades/solicitudes/${solicitudId}/evaluar`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ decision: decision })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    mostrarAlerta(data.mensaje, "success");
+                    await cargarSolicitudesPendientesFicha();
+                    cargarMiembrosComunidad();
+                } else {
+                    alertEl.innerText = formatearMensajeError(data.detail);
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "Fallo de comunicación al evaluar la solicitud.";
+                alertEl.style.display = "block";
+            }
+        }
+
+        // ── MODAL 3: ABANDONAR COMUNIDAD (CdU19) ──
+        function abrirModalSalidaComunidad() {
+            if (!comunidadInfo) return;
+            document.getElementById("modalSalidaAlert").style.display = "none";
+            document.getElementById("modalConfirmarSalidaComunidad").style.display = "flex";
+        }
+
+        function cerrarModalSalidaComunidad() {
+            document.getElementById("modalConfirmarSalidaComunidad").style.display = "none";
+        }
+
+        async function ejecutarSalidaComunidad() {
+            const alertEl = document.getElementById("modalSalidaAlert");
+            const btn = document.getElementById("btnConfirmarSalidaBtn");
+            alertEl.style.display = "none";
+
+            btn.disabled = true;
+            btn.innerText = "Procesando salida...";
+
+            try {
+                const res = await fetch(`${API_URL}/comunidades/${comunidadId}/abandonar`, {
+                    method: "DELETE",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalSalidaComunidad();
+                    alert(data.mensaje || "Ha abandonado la comunidad exitosamente.");
+                    window.location.href = "comunidades.html";
+                } else {
+                    alertEl.innerText = formatearMensajeError(data.detail);
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "Fallo de comunicación con el backend FastAPI.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar Salida";
+            }
+        }
+
+        // ── MODAL 4: EXPULSAR INTEGRANTE DE LA COMUNIDAD (CdU20) ──
+        function abrirModalExpulsarMiembro(integranteId, integranteNombre, integranteRol) {
+            document.getElementById("modalExpulsarAlert").style.display = "none";
+            document.getElementById("formExpulsarMiembro").reset();
+            document.getElementById("expulsarIntegranteId").value = integranteId;
+            document.getElementById("expulsarModalSubtitle").innerHTML = `
+                Sancionar a <strong>${integranteNombre}</strong> (${integranteRol}). Se desvinculará de la comunidad, sus ofertas saldrán del muro y se le notificará por correo.
+            `;
+            document.getElementById("modalExpulsarMiembro").style.display = "flex";
+            document.getElementById("expulsarJustificacion").focus();
+        }
+
+        function cerrarModalExpulsarMiembro() {
+            document.getElementById("modalExpulsarMiembro").style.display = "none";
+        }
+
+        async function ejecutarExpulsionMiembro(e) {
+            e.preventDefault();
+            const integranteId = document.getElementById("expulsarIntegranteId").value;
+            const justificacion = document.getElementById("expulsarJustificacion").value.trim();
+            const alertEl = document.getElementById("modalExpulsarAlert");
+            const btn = document.getElementById("btnConfirmarExpulsionBtn");
+
+            alertEl.style.display = "none";
+
+            if (justificacion.length < 5) {
+                alertEl.innerText = "La justificación debe contener al menos 5 caracteres.";
+                alertEl.style.display = "block";
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Procesando expulsión...";
+
+            try {
+                const res = await fetch(`${API_URL}/comunidades/${comunidadId}/miembros/${integranteId}/expulsar`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ justificacion: justificacion })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalExpulsarMiembro();
+                    mostrarAlerta(data.mensaje || "Integrante expulsado exitosamente.", "success");
+                    cargarMiembrosComunidad();
+                    cargarMuroPublicaciones();
+                } else {
+                    alertEl.innerText = formatearMensajeError(data.detail);
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "Fallo de comunicación con el backend FastAPI.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar Expulsión";
+            }
+        }
+
+        // ── MODAL 5: ASIGNAR ROL DE MODERADOR (CdU21) ──
+        function abrirModalAsignarModerador(integranteId, integranteNombre) {
+            if (!comunidadInfo) return;
+            document.getElementById("modalPromoverAlert").style.display = "none";
+            document.getElementById("promoverIntegranteId").value = integranteId;
+            document.getElementById("nombrePromoverMod").innerText = integranteNombre;
+            document.getElementById("comunidadPromoverMod").innerText = comunidadInfo.nombre;
+            document.getElementById("modalAsignarModerador").style.display = "flex";
+        }
+
+        function cerrarModalAsignarModerador() {
+            document.getElementById("modalAsignarModerador").style.display = "none";
+        }
+
+        async function ejecutarAsignacionModerador() {
+            const integranteId = document.getElementById("promoverIntegranteId").value;
+            const alertEl = document.getElementById("modalPromoverAlert");
+            const btn = document.getElementById("btnConfirmarPromoverMod");
+            alertEl.style.display = "none";
+
+            btn.disabled = true;
+            btn.innerText = "Promoviendo a Moderador...";
+
+            try {
+                const res = await fetch(`${API_URL}/comunidades/${comunidadId}/miembros/${integranteId}/hacer-moderador`, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalAsignarModerador();
+                    mostrarAlerta(data.mensaje || "El integrante ahora es Moderador.", "success");
+                    cargarMiembrosComunidad();
+                } else {
+                    alertEl.innerText = formatearMensajeError(data.detail);
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "Fallo de comunicación con el backend FastAPI.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar Ascenso →";
+            }
+        }
+
+        // ── MODAL 6: REVOCAR ROL DE MODERADOR (CdU22) ──
+        function abrirModalRevocarModerador(integranteId, integranteNombre) {
+            if (!comunidadInfo) return;
+            document.getElementById("modalRevocarAlert").style.display = "none";
+            document.getElementById("revocarIntegranteId").value = integranteId;
+            document.getElementById("nombreRevocarMod").innerText = integranteNombre;
+            document.getElementById("comunidadRevocarMod").innerText = comunidadInfo.nombre;
+            document.getElementById("modalRevocarModerador").style.display = "flex";
+        }
+
+        function cerrarModalRevocarModerador() {
+            document.getElementById("modalRevocarModerador").style.display = "none";
+        }
+
+        async function ejecutarRevocacionModerador() {
+            const integranteId = document.getElementById("revocarIntegranteId").value;
+            const alertEl = document.getElementById("modalRevocarAlert");
+            const btn = document.getElementById("btnConfirmarRevocarMod");
+            alertEl.style.display = "none";
+
+            btn.disabled = true;
+            btn.innerText = "Revocando moderación...";
+
+            try {
+                const res = await fetch(`${API_URL}/comunidades/${comunidadId}/miembros/${integranteId}/revocar-moderador`, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalRevocarModerador();
+                    mostrarAlerta(data.mensaje || "Los privilegios de moderación han sido revocados.", "success");
+                    cargarMiembrosComunidad();
+                } else {
+                    alertEl.innerText = formatearMensajeError(data.detail);
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "Fallo de comunicación con el backend FastAPI.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar Revocación →";
+            }
+        }
+
+        // ── MODAL 7: SOLICITAR ELIMINACIÓN DE COMUNIDAD (CdU23) ──
+        function abrirModalSolicitarEliminacion() {
+            if (!comunidadInfo) return;
+            document.getElementById("modalEliminarComAlert").style.display = "none";
+            document.getElementById("formSolicitarEliminacionCom").reset();
+            document.getElementById("modalSolicitarEliminacionComunidad").style.display = "flex";
+            document.getElementById("motivoEliminacionCom").focus();
+        }
+
+        function cerrarModalSolicitarEliminacion() {
+            document.getElementById("modalSolicitarEliminacionComunidad").style.display = "none";
+        }
+
+        async function ejecutarSolicitudEliminacionComunidad(e) {
+            e.preventDefault();
+            const motivo = document.getElementById("motivoEliminacionCom").value.trim();
+            const alertEl = document.getElementById("modalEliminarComAlert");
+            const btn = document.getElementById("btnConfirmarEliminacionComBtn");
+
+            alertEl.style.display = "none";
+
+            if (motivo.length < 5) {
+                alertEl.innerText = "El motivo debe contener al menos 5 caracteres.";
+                alertEl.style.display = "block";
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Enviando solicitud...";
+
+            try {
+                const res = await fetch(`${API_URL}/comunidades/${comunidadId}/solicitar-eliminacion`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ motivo: motivo })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalSolicitarEliminacion();
+                    mostrarAlerta(data.mensaje || "Solicitud de eliminación registrada correctamente.", "success");
+                    cargarDatosComunidad();
+                } else {
+                    alertEl.innerText = formatearMensajeError(data.detail);
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "Fallo de comunicación con el servidor backend FastAPI.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar y Congelar Espacio";
+            }
+        }
+
+        function mostrarAlerta(msg, tipo) {
+            const el = document.getElementById("mainAlert");
+            el.className = `alert-box alert-${tipo}`;
+            el.innerText = msg;
+            el.style.display = "block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => { el.style.display = "none"; }, 5000);
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("svc_token");
+            localStorage.removeItem("svc_usuario");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

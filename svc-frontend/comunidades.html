@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Red de Comunidades B2B</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-primary-hover: #004085;
+            --svc-bg-page: #f8f9fa;
+            --svc-bg-surface: #ffffff;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-border-focus: #0056b3;
+            --svc-danger: #dc3545;
+            --svc-success: #28a745;
+            --svc-admin-dark: #0f172a;
+            --svc-border-radius: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important; /* REGLA INNEGOCIABLE SVC: Esquinas a 90° */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── SIDEBAR DRAWER ── */
+        .sidebar-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1200;
+            transition: left 0.25s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-drawer.open { left: 0; }
+
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1100;
+            display: none;
+        }
+
+        .drawer-backdrop.open { display: block; }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-box {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--svc-text-muted);
+            padding: 4px 8px;
+        }
+
+        .btn-close-drawer:hover { color: var(--svc-text); }
+
+        .nav-list {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-left: 4px solid var(--svc-primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        /* ── MAIN WRAPPER ── */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 65px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-hamburger {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .btn-hamburger .bar {
+            width: 18px;
+            height: 2px;
+            background-color: #1e293b;
+        }
+
+        .topbar-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--svc-danger);
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-logout:hover {
+            background-color: #f8d7da;
+            border-color: var(--svc-danger);
+        }
+
+        .content-body {
+            padding: 30px 40px;
+            max-width: 1320px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .header-actions-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            padding: 24px 30px;
+        }
+
+        .header-titles h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 4px 0;
+        }
+
+        .header-titles p {
+            font-size: 13px;
+            color: var(--svc-text-muted);
+            margin: 0;
+        }
+
+        .btn-svc-primary {
+            background-color: var(--svc-primary);
+            color: #ffffff !important;
+            border: none;
+            padding: 11px 22px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.15s ease;
+            text-decoration: none;
+        }
+
+        .btn-svc-primary:hover { background-color: var(--svc-primary-hover); }
+
+        .btn-svc-outline {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            color: #334155;
+            padding: 8px 14px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.15s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-svc-outline:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+        }
+
+        .btn-svc-request {
+            background-color: #ffffff;
+            border: 1px solid var(--svc-primary);
+            color: var(--svc-primary);
+            padding: 8px 16px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-svc-request:hover {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+        }
+
+        .btn-svc-request:disabled {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* ── BARRA DE BÚSQUEDA Y FILTRADO POR RUBRO ── */
+        .filter-control-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 18px 24px;
+            margin-bottom: 22px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-end;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-field label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-search-text {
+            height: 40px;
+            padding: 0 14px;
+            border: 1px solid var(--svc-border);
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+            color: var(--svc-text);
+            background-color: #ffffff;
+        }
+
+        .input-search-text:focus { border-color: var(--svc-primary); }
+
+        .select-filter-rubro {
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid var(--svc-border);
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+            color: var(--svc-text);
+            background-color: #ffffff;
+            cursor: pointer;
+        }
+
+        .select-filter-rubro:focus { border-color: var(--svc-primary); }
+
+        .btn-filter-action {
+            height: 40px;
+            padding: 0 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .results-summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 12.5px;
+            color: var(--svc-text-muted);
+        }
+
+        .filter-tag-chip {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            padding: 3px 8px;
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 6px;
+            display: inline-block;
+        }
+
+        /* ── GRILLA DE COMUNIDADES B2B (LIMPIA) ── */
+        .communities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+        }
+
+        .community-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .community-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+
+        .community-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .badge-pill {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .badge-activa { background-color: #d4edda; color: var(--svc-success); }
+        .badge-rol { background-color: #e7f0fb; color: var(--svc-primary); margin-left: 6px; }
+        .badge-pending { background-color: #fff3cd; color: #856404; margin-left: 6px; }
+
+        .community-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 10px 0 8px 0;
+            line-height: 1.3;
+        }
+
+        .community-title a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .community-title a:hover {
+            color: var(--svc-primary);
+        }
+
+        .community-desc {
+            font-size: 13px;
+            color: var(--svc-text-muted);
+            margin: 0 0 16px 0;
+            line-height: 1.5;
+            white-space: pre-line;
+            max-height: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .community-meta {
+            font-size: 11.5px;
+            color: #334155;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .empty-state-box {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 50px 30px;
+            text-align: center;
+            grid-column: 1 / -1;
+        }
+
+        /* ── MODALES SVC ── */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            width: 100%;
+            max-width: 580px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .modal-card-confirm {
+            max-width: 500px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 6px 0;
+        }
+
+        .modal-subtitle {
+            font-size: 12.5px;
+            color: var(--svc-text-muted);
+            margin: 0 0 20px 0;
+            line-height: 1.4;
+        }
+
+        .modal-info-panel {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid var(--svc-primary);
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .input-svc {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--svc-border);
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+            background-color: #ffffff;
+        }
+
+        .input-svc:focus { border-color: var(--svc-primary); }
+
+        .input-svc:disabled {
+            background-color: #f1f5f9;
+            color: #475569;
+            cursor: not-allowed;
+            font-weight: 600;
+        }
+
+        .field-help {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            margin-top: 4px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .alert-box {
+            padding: 12px 14px;
+            margin-bottom: 18px;
+            display: none;
+            font-size: 12.5px;
+            line-height: 1.4;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+        .alert-success { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
+    </style>
+</head>
+<body>
+
+    <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
+
+    <!-- Sidebar Drawer -->
+    <div id="sidebarDrawer" class="sidebar-drawer">
+        <div>
+            <div class="sidebar-brand">
+                <div class="brand-info">
+                    <div class="brand-box">SVC</div>
+                    <div class="brand-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+                </div>
+                <button class="btn-close-drawer" onclick="toggleDrawer()">&times;</button>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
+                <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
+                <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
+                <li class="nav-item active"><a href="comunidades.html">Comunidades B2B</a></li>
+                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 5 (WPT-04)'); return false;">Negociaciones & Chat</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            &copy; 2026 SVC — v0.4.0 (Sprint 4)
+        </div>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="main-wrapper">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="btn-hamburger" onclick="toggleDrawer()">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </button>
+                <div class="topbar-title">Directorio de Comunidades B2B</div>
+            </div>
+            <div class="user-badge">
+                <span id="userNameTop">Comercio Conectado</span>
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="content-body">
+            <div id="mainAlert" class="alert-box"></div>
+
+            <div class="header-actions-row">
+                <div class="header-titles">
+                    <h1>Explorar Comunidades por Rubro</h1>
+                    <p>Espacios comerciales sectorizados para la interacción, difusión de ofertas y vinculación B2B.</p>
+                </div>
+                <button type="button" class="btn-svc-primary" onclick="abrirModalCrearComunidad()">+ Crear Nueva Comunidad</button>
+            </div>
+
+            <!-- BARRA DE BÚSQUEDA Y FILTRADO POR RUBRO -->
+            <div class="filter-control-card">
+                <div class="filter-field" style="flex: 2;">
+                    <label>Buscar por Nombre o Palabra Clave</label>
+                    <input type="text" id="filtroTextoComunidad" class="input-search-text" placeholder="Ej: Electrónica, Mayoristas, Lácteos..." oninput="ejecutarBusquedaAutomatica()">
+                </div>
+                <div class="filter-field" style="flex: 1.2;">
+                    <label>Filtrar por Rubro Comercial</label>
+                    <select id="filtroRubroComunidad" class="select-filter-rubro" onchange="ejecutarBusquedaComunidades()">
+                        <option value="todos">Todos los Rubros</option>
+                        <option value="Alimentos & Bebidas">Alimentos & Bebidas</option>
+                        <option value="Gastronomía">Gastronomía</option>
+                        <option value="Textil & Indumentaria">Textil & Indumentaria</option>
+                        <option value="Calzado & Marroquinería">Calzado & Marroquinería</option>
+                        <option value="Tecnología & Electrónica">Tecnología & Electrónica</option>
+                        <option value="Informática & Software">Informática & Software</option>
+                        <option value="Telecomunicaciones">Telecomunicaciones</option>
+                        <option value="Electrodomésticos">Electrodomésticos</option>
+                        <option value="Construcción & Materiales">Construcción & Materiales</option>
+                        <option value="Ferretería & Herramientas">Ferretería & Herramientas</option>
+                        <option value="Limpieza & Mantenimiento">Limpieza & Mantenimiento</option>
+                        <option value="Servicios Profesionales">Servicios Profesionales</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
+                <button type="button" class="btn-svc-primary btn-filter-action" onclick="ejecutarBusquedaComunidades()">Buscar</button>
+                <button type="button" class="btn-svc-outline btn-filter-action" onclick="limpiarFiltrosComunidades()">Limpiar</button>
+            </div>
+
+            <!-- Barra de estado de resultados -->
+            <div class="results-summary-row" id="resultsSummaryRow" style="display: none;">
+                <span id="lblTotalComunidades">Mostrando 0 comunidades</span>
+                <div id="chipsFiltrosContainer"></div>
+            </div>
+
+            <!-- Grilla Principal de Comunidades (Limpia) -->
+            <div class="communities-grid" id="communitiesGrid">
+                <div class="empty-state-box">Cargando comunidades comerciales...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 1: CREAR NUEVA COMUNIDAD POR RUBRO -->
+    <div id="modalCrearComunidad" class="modal-overlay">
+        <div class="modal-card">
+            <h2 class="modal-title">Crear Nueva Comunidad Comercial</h2>
+            <p class="modal-subtitle">
+                Funde un nuevo espacio de interacción por rubro. Al registrarla, usted asumirá automáticamente el rol de <strong>Creador</strong>.
+            </p>
+
+            <div id="modalCrearAlert" class="alert-box alert-danger"></div>
+
+            <form id="formCrearComunidad" onsubmit="ejecutarCreacionComunidad(event)">
+                <div class="form-group">
+                    <label>Nombre de la Comunidad *</label>
+                    <input type="text" id="comNombre" class="input-svc" placeholder="Ej: Mayoristas Electrónica Centro" required minlength="3" maxlength="150">
+                    <div class="field-help">Debe ser único en toda la plataforma SVC.</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción y Normativas del Espacio</label>
+                    <textarea id="comDescripcion" class="input-svc" rows="3" placeholder="Detalle los objetivos del grupo, acuerdos comerciales y condiciones de convivencia..." maxlength="1500"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Rubro Comercial Asignado (Inmutable) *</label>
+                    <input type="text" id="comRubroVisual" class="input-svc" disabled>
+                    <input type="hidden" id="comRubroReal">
+                    <div class="field-help">Heredado de la identidad fiscal de su empresa. Solo puede fundar comunidades afines a su rubro.</div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-svc-outline" onclick="cerrarModalCrearComunidad()">Cancelar</button>
+                    <button type="submit" id="btnSubmitCrear" class="btn-svc-primary">Crear Comunidad &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: CONFIRMACIÓN PERSONALIZADA DE SOLICITUD DE INGRESO (CdU17) -->
+    <div id="modalConfirmarSolicitud" class="modal-overlay">
+        <div class="modal-card modal-card-confirm">
+            <h2 class="modal-title">Solicitar Ingreso a Comunidad</h2>
+            <p class="modal-subtitle">
+                Confirme su postulación de membresía para este espacio comercial B2B.
+            </p>
+
+            <div class="modal-info-panel">
+                <strong>Comunidad:</strong> <span id="confirmComNombre">—</span><br>
+                <strong>Sector Requerido:</strong> <span id="confirmComRubro">—</span><br>
+                <div style="font-size: 11.5px; color: var(--svc-text-muted); margin-top: 6px;">
+                    Su postulación será evaluada por el equipo de moderadores de este espacio.
+                </div>
+            </div>
+
+            <input type="hidden" id="solicitudTargetId">
+
+            <div class="modal-actions">
+                <button type="button" class="btn-svc-outline" onclick="cerrarModalConfirmarSolicitud()">Cancelar</button>
+                <button type="button" id="btnConfirmarEnvioSolicitud" class="btn-svc-primary" onclick="confirmarYEnviarSolicitud()">
+                    Confirmar Solicitud &rarr;
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8080";
+        const token = localStorage.getItem("svc_token");
+        let usuarioSesion = JSON.parse(localStorage.getItem("svc_usuario") || "{}");
+        let listaComunidadesCache = [];
+        let debounceTimer = null;
+
+        if (!token) {
+            window.location.href = "login.html";
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            sincronizarPerfilUsuario();
+            ejecutarBusquedaComunidades();
+        });
+
+        function formatearMensajeError(rawError) {
+            if (!rawError) return "Ocurrió un error inesperado al procesar la solicitud.";
+            if (typeof rawError === "object") {
+                if (rawError.message) return rawError.message;
+                if (rawError.detail) return formatearMensajeError(rawError.detail);
+                return JSON.stringify(rawError);
+            }
+            let texto = String(rawError);
+            const matchMsg = texto.match(/['"](?:message|detail)['"]\s*:\s*['"]([^'"]+)['"]/);
+            if (matchMsg) return matchMsg[1];
+            texto = texto.replace(/\{.*\}/g, "").replace(/^.*RAISE EXCEPTION\s+/i, "");
+            return texto.trim() || "Error en la operación.";
+        }
+
+        async function sincronizarPerfilUsuario() {
+            try {
+                const res = await fetch(`${API_URL}/auth/me`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    usuarioSesion = await res.json();
+                    localStorage.setItem("svc_usuario", JSON.stringify(usuarioSesion));
+                } else if (res.status === 401) {
+                    cerrarSesion();
+                    return;
+                }
+            } catch (err) {
+                console.warn("Utilizando caché local de usuario.");
+            }
+
+            const nombre = usuarioSesion.nombre_razon_social || usuarioSesion.email || "Comercio Conectado";
+            document.getElementById("userNameTop").innerText = nombre;
+
+            const rubro = usuarioSesion.rubro_comercial || "General";
+            document.getElementById("comRubroVisual").value = rubro;
+            document.getElementById("comRubroReal").value = rubro;
+        }
+
+        function toggleDrawer() {
+            document.getElementById("sidebarDrawer").classList.toggle("open");
+            document.getElementById("drawerBackdrop").classList.toggle("open");
+        }
+
+        function ejecutarBusquedaAutomatica() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                ejecutarBusquedaComunidades();
+            }, 300);
+        }
+
+        async function ejecutarBusquedaComunidades() {
+            const grid = document.getElementById("communitiesGrid");
+            const q = document.getElementById("filtroTextoComunidad").value.trim();
+            const rubro = document.getElementById("filtroRubroComunidad").value;
+
+            try {
+                let params = new URLSearchParams();
+                if (q) params.append("q", q);
+                if (rubro && rubro !== "todos") params.append("rubro", rubro);
+
+                const res = await fetch(`${API_URL}/comunidades/buscar?${params.toString()}`, {
+                    method: "GET",
+                    headers: { 
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    listaComunidadesCache = data.comunidades || [];
+                    actualizarBarraResultados(data);
+                    renderizarGrillaComunidades(listaComunidadesCache);
+                } else if (res.status === 401) {
+                    cerrarSesion();
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    grid.innerHTML = `<div class="empty-state-box" style="color: var(--svc-danger);">${formatearMensajeError(errData.detail)}</div>`;
+                }
+            } catch (err) {
+                grid.innerHTML = `
+                    <div class="empty-state-box" style="color: var(--svc-danger);">
+                        <strong>No se pudo conectar con el servidor backend FastAPI.</strong>
+                    </div>
+                `;
+            }
+        }
+
+        function actualizarBarraResultados(data) {
+            const bar = document.getElementById("resultsSummaryRow");
+            const lbl = document.getElementById("lblTotalComunidades");
+            const chips = document.getElementById("chipsFiltrosContainer");
+
+            chips.innerHTML = "";
+
+            if (!data.termino_busqueda && !data.rubro_filtro) {
+                bar.style.display = "none";
+                return;
+            }
+
+            bar.style.display = "flex";
+            lbl.innerText = `${data.total_coincidencias} comunidad(es) encontrada(s)`;
+
+            if (data.termino_busqueda) {
+                chips.innerHTML += `<span class="filter-tag-chip">Texto: "${data.termino_busqueda}"</span>`;
+            }
+            if (data.rubro_filtro) {
+                chips.innerHTML += `<span class="filter-tag-chip">Rubro: ${data.rubro_filtro}</span>`;
+            }
+        }
+
+        function limpiarFiltrosComunidades() {
+            document.getElementById("filtroTextoComunidad").value = "";
+            document.getElementById("filtroRubroComunidad").value = "todos";
+            ejecutarBusquedaComunidades();
+        }
+
+        function renderizarGrillaComunidades(lista) {
+            const grid = document.getElementById("communitiesGrid");
+            grid.innerHTML = "";
+
+            if (!lista || lista.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state-box">
+                        <strong style="color: #0f172a; font-size: 15px;">No se encontraron comunidades coincidentes</strong>
+                        <p style="color: var(--svc-text-muted); font-size: 13px; margin: 8px 0 20px 0;">Pruebe ajustando los términos de búsqueda o seleccionando otro rubro comercial.</p>
+                        <button type="button" class="btn-svc-outline" onclick="limpiarFiltrosComunidades()">Reestablecer Filtros</button>
+                    </div>
+                `;
+                return;
+            }
+
+            lista.forEach(c => {
+                const card = document.createElement("div");
+                card.className = "community-card";
+
+                // Botón de acción: Ver Comunidad o Solicitar Ingreso (Sin botones sueltos de moderación)
+                let botonAccionMembresiaHtml = "";
+                let badgeRolHtml = "";
+
+                if (c.rol_usuario_actual) {
+                    badgeRolHtml = `<span class="badge-pill badge-rol">Mi Rol: ${c.rol_usuario_actual}</span>`;
+                    botonAccionMembresiaHtml = `
+                        <a href="detalle-comunidad.html?id=${c.id}" class="btn-svc-primary" style="text-decoration: none; padding: 7px 14px; font-size: 11.5px;">
+                            Ver Comunidad &rarr;
+                        </a>
+                    `;
+                } else if (c.estado_solicitud === "Pendiente") {
+                    badgeRolHtml = `<span class="badge-pill badge-pending">Solicitud Pendiente</span>`;
+                    botonAccionMembresiaHtml = `
+                        <button type="button" class="btn-svc-request" disabled>
+                            ⏳ Solicitud Pendiente
+                        </button>
+                    `;
+                } else {
+                    botonAccionMembresiaHtml = `
+                        <button type="button" class="btn-svc-request" onclick="abrirModalConfirmarSolicitud('${c.id}', '${c.nombre}', '${c.rubro}')">
+                            + Solicitar Ingreso
+                        </button>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div>
+                        <div class="community-card-header">
+                            <div>
+                                <span class="badge-pill badge-activa">Estado: ${c.estado}</span>
+                                ${badgeRolHtml}
+                            </div>
+                        </div>
+                        <h2 class="community-title">
+                            <a href="detalle-comunidad.html?id=${c.id}">${c.nombre}</a>
+                        </h2>
+                        <p class="community-desc">${c.descripcion || 'Sin normativas o acuerdos descritos.'}</p>
+                    </div>
+                    <div>
+                        <div style="margin-bottom: 12px; display: flex; justify-content: flex-end; gap: 8px;">
+                            ${botonAccionMembresiaHtml}
+                        </div>
+                        <div class="community-meta">
+                            <div><strong>Rubro:</strong> ${c.rubro}</div>
+                            <div style="font-weight: 600; color: var(--svc-primary);">
+                                ${c.total_miembros} miembro(s)
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function abrirModalConfirmarSolicitud(comunidadId, comunidadNombre, comunidadRubro) {
+            const miRubro = usuarioSesion.rubro_comercial || "";
+            
+            if (miRubro && comunidadRubro && miRubro.toLowerCase() !== comunidadRubro.toLowerCase()) {
+                mostrarAlertaPrincipal(`Incompatibilidad sectorial: Su empresa pertenece a "${miRubro}" y esta comunidad exige pertenecer a "${comunidadRubro}".`, "danger");
+                return;
+            }
+
+            document.getElementById("solicitudTargetId").value = comunidadId;
+            document.getElementById("confirmComNombre").innerText = comunidadNombre;
+            document.getElementById("confirmComRubro").innerText = comunidadRubro;
+            document.getElementById("modalConfirmarSolicitud").style.display = "flex";
+        }
+
+        function cerrarModalConfirmarSolicitud() {
+            document.getElementById("modalConfirmarSolicitud").style.display = "none";
+        }
+
+        async function confirmarYEnviarSolicitud() {
+            const comunidadId = document.getElementById("solicitudTargetId").value;
+            const btn = document.getElementById("btnConfirmarEnvioSolicitud");
+
+            btn.disabled = true;
+            btn.innerText = "Enviando solicitud...";
+
+            try {
+                const res = await fetch(`${API_URL}/comunidades/${comunidadId}/solicitar-ingreso`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalConfirmarSolicitud();
+                    mostrarAlertaPrincipal(`Solicitud enviada exitosamente a los administradores de la comunidad.`, "success");
+                    ejecutarBusquedaComunidades();
+                } else {
+                    mostrarAlertaPrincipal(formatearMensajeError(data.detail), "danger");
+                    cerrarModalConfirmarSolicitud();
+                }
+            } catch (err) {
+                mostrarAlertaPrincipal("Fallo de comunicación con el backend FastAPI.", "danger");
+                cerrarModalConfirmarSolicitud();
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar Solicitud →";
+            }
+        }
+
+        function abrirModalCrearComunidad() {
+            document.getElementById("modalCrearAlert").style.display = "none";
+            document.getElementById("formCrearComunidad").reset();
+
+            const rubro = usuarioSesion.rubro_comercial || document.getElementById("comRubroReal").value;
+            document.getElementById("comRubroVisual").value = rubro;
+            document.getElementById("comRubroReal").value = rubro;
+
+            document.getElementById("modalCrearComunidad").style.display = "flex";
+            document.getElementById("comNombre").focus();
+        }
+
+        function cerrarModalCrearComunidad() {
+            document.getElementById("modalCrearComunidad").style.display = "none";
+        }
+
+        async function ejecutarCreacionComunidad(e) {
+            e.preventDefault();
+            const alertEl = document.getElementById("modalCrearAlert");
+            const btn = document.getElementById("btnSubmitCrear");
+            alertEl.style.display = "none";
+
+            const nombre = document.getElementById("comNombre").value.trim();
+            const descripcion = document.getElementById("comDescripcion").value.trim();
+            const rubro = document.getElementById("comRubroReal").value.trim();
+
+            if (nombre.length < 3) {
+                alertEl.innerText = "El nombre de la comunidad debe tener al menos 3 caracteres.";
+                alertEl.style.display = "block";
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Creando comunidad...";
+
+            const payload = {
+                nombre: nombre,
+                descripcion: descripcion || null,
+                rubro: rubro
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/comunidades/nueva`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalCrearComunidad();
+                    mostrarAlertaPrincipal(`¡Comunidad "${data.nombre}" creada con éxito! Rol asignado: Creador.`, "success");
+                    ejecutarBusquedaComunidades();
+                } else {
+                    alertEl.innerText = formatearMensajeError(data.detail);
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "No se pudo establecer conexión con el servidor backend FastAPI.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Crear Comunidad →";
+            }
+        }
+
+        function mostrarAlertaPrincipal(msg, tipo) {
+            const el = document.getElementById("mainAlert");
+            el.className = `alert-box alert-${tipo}`;
+            el.innerText = msg;
+            el.style.display = "block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => { el.style.display = "none"; }, 5000);
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("svc_token");
+            localStorage.removeItem("svc_usuario");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

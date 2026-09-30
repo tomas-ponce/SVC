@@ -15,8 +15,10 @@
             --svc-text: #212529;
             --svc-text-muted: #6c757d;
             --svc-border: #ced4da;
+            --svc-border-focus: #0056b3;
             --svc-danger: #dc3545;
             --svc-success: #28a745;
+            --svc-admin-dark: #0f172a;
             --svc-border-radius: 0px;
         }
 
@@ -36,6 +38,7 @@
             overflow-x: hidden;
         }
 
+        /* ── SIDEBAR DRAWER ── */
         .sidebar-drawer {
             position: fixed;
             top: 0;
@@ -139,6 +142,7 @@
             color: var(--svc-text-muted);
         }
 
+        /* ── MAIN WRAPPER ── */
         .main-wrapper {
             flex: 1;
             display: flex;
@@ -238,79 +242,219 @@
             margin: 0;
         }
 
-        .directory-layout {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 25px;
-            align-items: start;
-        }
-
-        .filter-sidebar {
-            background: #ffffff;
+        /* ── BARRA DE BÚSQUEDA INTEGRADA CON BOTÓN DESPLEGABLE ── */
+        .search-control-card {
+            background-color: #ffffff;
             border: 1px solid #e2e8f0;
             border-top: 4px solid var(--svc-primary);
-            padding: 22px 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
 
-        .filter-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #0f172a;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #f1f5f9;
+        .search-main-row {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
         }
 
-        .filter-subtitle {
-            font-size: 11px;
+        .input-search-query {
+            flex: 1;
+            height: 44px;
+            padding: 0 14px;
+            border: 1px solid var(--svc-border);
+            font-size: 13.5px;
+            outline: none;
+            font-family: inherit;
+            color: var(--svc-text);
+            background-color: #ffffff;
+        }
+
+        .input-search-query:focus {
+            border-color: var(--svc-primary);
+        }
+
+        .btn-toggle-filters {
+            height: 44px;
+            background-color: #ffffff;
+            border: 1px solid var(--svc-border);
+            color: #334155;
+            padding: 0 16px;
+            font-size: 12px;
             font-weight: 700;
-            color: #64748b;
+            cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin: 16px 0 10px 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+        }
+
+        .btn-toggle-filters:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+            background-color: #f8fafc;
+        }
+
+        .btn-toggle-filters.open {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-color: var(--svc-primary);
+        }
+
+        .badge-filter-count {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-size: 10px;
+            padding: 2px 6px;
+            font-weight: 700;
+            display: none;
+        }
+
+        .btn-search-execute {
+            height: 44px;
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border: none;
+            padding: 0 24px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-search-execute:hover {
+            background-color: var(--svc-primary-hover);
+        }
+
+        /* ── PANEL DESPLEGABLE DE FILTROS COMERCIALES ── */
+        .filters-dropdown-panel {
+            display: none;
+            margin-top: 16px;
+            padding-top: 18px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .filters-dropdown-panel.open {
             display: block;
         }
 
-        .filter-group { margin-bottom: 14px; }
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            align-items: flex-start;
+        }
 
-        .filter-group label {
-            display: block;
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-field label {
             font-size: 11px;
             font-weight: 700;
             color: #334155;
             text-transform: uppercase;
-            margin-bottom: 6px;
             letter-spacing: 0.5px;
         }
 
-        .input-filter {
+        /* Searchable Input Dropdown Component */
+        .searchable-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .searchable-input {
             width: 100%;
             height: 38px;
-            padding: 0 10px;
+            padding: 0 30px 0 12px;
+            border: 1px solid var(--svc-border);
+            font-size: 12.5px;
+            outline: none;
+            font-family: inherit;
+            background-color: #ffffff;
+            color: var(--svc-text);
+        }
+
+        .searchable-input:focus {
+            border-color: var(--svc-primary);
+        }
+
+        .searchable-caret {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            color: var(--svc-text-muted);
+            pointer-events: none;
+        }
+
+        .searchable-options-box {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 220px;
+            overflow-y: auto;
+            background-color: #ffffff;
+            border: 1px solid var(--svc-border);
+            border-top: none;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .searchable-option-item {
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .searchable-option-item:hover, .searchable-option-item.highlighted {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            font-weight: 600;
+        }
+
+        .input-text-filter {
+            height: 38px;
+            padding: 0 12px;
+            border: 1px solid var(--svc-border);
+            font-size: 12.5px;
+            outline: none;
+            font-family: inherit;
+            color: var(--svc-text);
+            background-color: #ffffff;
+        }
+
+        .input-text-filter:focus {
+            border-color: var(--svc-primary);
+        }
+
+        /* Alcance Logístico: Cuadrícula de 4 botones (Todos, Regional, Nacional, Internacional) */
+        .reach-grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+
+        .reach-btn-option {
+            height: 38px;
             border: 1px solid var(--svc-border);
             background-color: #ffffff;
-            font-family: inherit;
-            font-size: 12.5px;
-            color: var(--svc-text);
-            outline: none;
-        }
-
-        .input-filter:focus { border-color: var(--svc-primary); }
-
-        .reach-filter-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            margin-bottom: 15px;
-        }
-
-        .reach-filter-btn {
-            border: 1px solid var(--svc-border);
-            background: #ffffff;
-            padding: 8px 4px;
+            padding: 0 4px;
             font-size: 10.5px;
             font-weight: 700;
             color: #475569;
@@ -318,101 +462,100 @@
             cursor: pointer;
             text-transform: uppercase;
             transition: all 0.15s ease;
+            white-space: nowrap;
         }
 
-        .reach-filter-btn.selected {
+        .reach-btn-option.selected {
             background-color: var(--svc-primary);
             color: #ffffff;
             border-color: var(--svc-primary);
         }
 
-        .btn-filter-action {
-            width: 100%;
-            height: 38px;
-            background-color: var(--svc-primary);
-            color: #ffffff;
-            border: none;
-            font-size: 11.5px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background-color 0.15s ease;
+        .panel-actions-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid #f1f5f9;
         }
 
-        .btn-filter-action:hover { background-color: var(--svc-primary-hover); }
-
-        .btn-filter-reset {
-            width: 100%;
-            height: 34px;
+        .btn-panel-reset {
+            height: 36px;
             background: transparent;
             color: #64748b;
             border: 1px solid var(--svc-border);
+            padding: 0 16px;
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             cursor: pointer;
-            margin-top: 8px;
+            transition: all 0.15s ease;
         }
 
-        .btn-filter-reset:hover {
+        .btn-panel-reset:hover {
             background-color: #f8fafc;
             color: #0f172a;
         }
 
-        .search-bar-wrap {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-top: 4px solid var(--svc-primary);
-            padding: 16px 20px;
-        }
-
-        .input-search {
-            flex: 1;
-            height: 44px;
-            padding: 0 14px;
-            border: 1px solid var(--svc-border);
-            font-size: 14px;
-            outline: none;
-            font-family: inherit;
-        }
-
-        .input-search:focus { border-color: var(--svc-primary); }
-
-        .btn-search-execute {
+        .btn-panel-apply {
+            height: 36px;
             background-color: var(--svc-primary);
             color: #ffffff;
             border: none;
-            padding: 0 28px;
-            font-size: 13px;
+            padding: 0 20px;
+            font-size: 11px;
             font-weight: 700;
-            cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
         }
 
-        .btn-search-execute:hover { background-color: var(--svc-primary-hover); }
+        .btn-panel-apply:hover {
+            background-color: var(--svc-primary-hover);
+        }
 
+        /* ── RESULTADOS Y GRILLA DE COMERCIANTES ── */
         .results-meta {
-            font-size: 13px;
+            font-size: 12.5px;
             color: var(--svc-text-muted);
             margin-bottom: 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .results-count {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .chips-applied-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 3px 8px;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #334155;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .merchants-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 18px;
+            gap: 20px;
         }
 
         .merchant-card {
@@ -428,7 +571,7 @@
         }
 
         .merchant-card:hover {
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             border-top-color: var(--svc-primary);
         }
 
@@ -504,6 +647,30 @@
             border-color: var(--svc-primary);
         }
 
+        /* Estado inicial del Directorio */
+        .empty-directory-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 40px 30px;
+            text-align: center;
+            max-width: 600px;
+            margin: 40px auto;
+        }
+
+        .empty-directory-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .empty-directory-desc {
+            font-size: 13px;
+            color: var(--svc-text-muted);
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
         .alert-box {
             padding: 14px;
             margin-bottom: 20px;
@@ -513,8 +680,14 @@
         .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
         .alert-info { background-color: #e7f0fb; color: var(--svc-primary); border: 1px solid #b8daff; }
 
-        @media (max-width: 960px) {
-            .directory-layout { grid-template-columns: 1fr; }
+        @media (max-width: 1024px) {
+            .filters-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 640px) {
+            .search-main-row { flex-direction: column; }
+            .filters-grid { grid-template-columns: 1fr; }
+            .reach-grid-container { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -522,7 +695,7 @@
 
     <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
 
-    <!-- Sidebar Drawer (Sin enlace redundante) -->
+    <!-- Sidebar Drawer -->
     <div id="sidebarDrawer" class="sidebar-drawer">
         <div>
             <div class="sidebar-brand">
@@ -538,7 +711,7 @@
                 <li class="nav-item active"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
                 <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
                 <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 3 (WPT-03)'); return false;">Muro de Ventas</a></li>
-                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 4 (WPT-05)'); return false;">Comunidades B2B</a></li>
+                <li class="nav-item"><a href="comunidades.html">Comunidades B2B</a></li>
                 <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 5 (WPT-04)'); return false;">Negociaciones & Chat</a></li>
             </ul>
         </div>
@@ -569,70 +742,104 @@
                 <p>Localice empresas activas por Razón Social, CUIT, Rubro o por Locación geográfica y Zonas de alcance logístico.</p>
             </div>
 
-            <form id="searchForm" class="search-bar-wrap" onsubmit="ejecutarConsulta(event)">
-                <input type="text" id="inputQuery" class="input-search" placeholder="Buscar por Razón Social, CUIT (XX-XXXXXXXX-X) o dirección...">
-                <button type="submit" id="btnSubmitSearch" class="btn-search-execute">
-                    Buscar &rarr;
-                </button>
-            </form>
+            <!-- CONTENEDOR UNIFICADO: BÚSQUEDA + BOTÓN DE FILTROS DESPLEGABLE -->
+            <div class="search-control-card">
+                <form id="searchMainForm" onsubmit="ejecutarConsulta(event)">
+                    <div class="search-main-row">
+                        <input type="text" id="inputQuery" class="input-search-query" placeholder="Buscar por Razón Social, CUIT (XX-XXXXXXXX-X) o dirección (mínimo 3 caracteres)...">
+                        
+                        <!-- BOTÓN DESPLEGABLE DE FILTROS AL LADO DE BUSCAR -->
+                        <button type="button" id="btnToggleFilters" class="btn-toggle-filters" onclick="togglePanelFiltros()">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg>
+                            <span>Filtros Comerciales</span>
+                            <span id="badgeFiltrosActivos" class="badge-filter-count">0</span>
+                            <span id="caretFiltros">&#9660;</span>
+                        </button>
+
+                        <button type="submit" id="btnSubmitSearch" class="btn-search-execute">
+                            <span>Buscar</span>
+                            <span>&rarr;</span>
+                        </button>
+                    </div>
+
+                    <!-- PANEL DESPLEGABLE CON SEARCHABLE SELECTS (CDU11) Y LOCACIÓN/ALCANCE (CDU12) -->
+                    <div id="filtersDropdownPanel" class="filters-dropdown-panel">
+                        <div class="filters-grid">
+                            
+                            <!-- RUBRO COMERCIAL (HÍBRIDO: ESCRIBIR O SELECCIONAR) -->
+                            <div class="filter-field">
+                                <label>Rubro Principal (CdU11)</label>
+                                <div class="searchable-wrap">
+                                    <input type="text" id="rubroInput" class="searchable-input" placeholder="Todos los rubros (escriba o elija)..." autocomplete="off">
+                                    <span class="searchable-caret">&#9660;</span>
+                                    <div id="rubroOptionsBox" class="searchable-options-box"></div>
+                                </div>
+                            </div>
+
+                            <!-- SUBRUBRO COMERCIAL (HÍBRIDO DEPENDIENTE: ESCRIBIR O SELECCIONAR) -->
+                            <div class="filter-field">
+                                <label>Subrubro Específico (CdU11)</label>
+                                <div class="searchable-wrap">
+                                    <input type="text" id="subrubroInput" class="searchable-input" placeholder="Todos los subrubros..." autocomplete="off">
+                                    <span class="searchable-caret">&#9660;</span>
+                                    <div id="subrubroOptionsBox" class="searchable-options-box"></div>
+                                </div>
+                            </div>
+
+                            <!-- PROVINCIA (HÍBRIDO: ESCRIBIR O SELECCIONAR - CDU12) -->
+                            <div class="filter-field">
+                                <label>Provincia (CdU12)</label>
+                                <div class="searchable-wrap">
+                                    <input type="text" id="provinciaInput" class="searchable-input" placeholder="Todas las provincias..." autocomplete="off">
+                                    <span class="searchable-caret">&#9660;</span>
+                                    <div id="provinciaOptionsBox" class="searchable-options-box"></div>
+                                </div>
+                            </div>
+
+                            <!-- CIUDAD / LOCALIDAD (CDU12) -->
+                            <div class="filter-field">
+                                <label>Ciudad / Localidad (CdU12)</label>
+                                <input type="text" id="inputCiudad" class="input-text-filter" placeholder="Ej: Rosario, Córdoba, CABA...">
+                            </div>
+
+                        </div>
+
+                        <!-- ZONA DE ALCANCE LOGÍSTICO (TODOS, REGIONAL, NACIONAL, INTERNACIONAL) -->
+                        <div style="margin-top: 16px;">
+                            <div class="filter-field" style="max-width: 600px;">
+                                <label>Zona de Alcance Logístico Declarada (CdU12)</label>
+                                <div class="reach-grid-container">
+                                    <button type="button" id="btnReachTodos" class="reach-btn-option selected" onclick="selectAlcanceFilter('todos')">Todos</button>
+                                    <button type="button" id="btnReachRegional" class="reach-btn-option" onclick="selectAlcanceFilter('Regional')">Regional</button>
+                                    <button type="button" id="btnReachNacional" class="reach-btn-option" onclick="selectAlcanceFilter('Nacional')">Nacional</button>
+                                    <button type="button" id="btnReachInternacional" class="reach-btn-option" onclick="selectAlcanceFilter('Internacional')">Internacional</button>
+                                </div>
+                                <input type="hidden" id="filtroAlcanceLogistico" value="todos">
+                            </div>
+                        </div>
+
+                        <!-- BOTONES DE ACCIÓN DEL PANEL DESPLEGABLE -->
+                        <div class="panel-actions-row">
+                            <button type="button" class="btn-panel-reset" onclick="limpiarFiltros()">Limpiar Filtros</button>
+                            <button type="button" class="btn-panel-apply" onclick="ejecutarConsulta()">Aplicar Filtros &rarr;</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
 
             <div id="msgAlert" class="alert-box"></div>
 
-            <div class="directory-layout">
-                <aside class="filter-sidebar">
-                    <div class="filter-title">Filtros Comerciales</div>
+            <!-- RESULTADOS A ANCHO COMPLETO -->
+            <main>
+                <div class="results-meta" id="resultsMeta" style="display: none;">
+                    <span id="lblTotalResults" class="results-count">Mostrando 0 comerciantes</span>
+                    <div id="chipsContainer" class="chips-applied-row"></div>
+                </div>
 
-                    <span class="filter-subtitle">Taxonomía Comercial (CdU11)</span>
-                    <div class="filter-group">
-                        <label>Rubro Principal</label>
-                        <select id="selectRubro" class="input-filter" onchange="actualizarSubrubros()">
-                            <option value="todos">Todos los rubros</option>
-                        </select>
-                    </div>
-
-                    <div class="filter-group">
-                        <label>Subrubro Específico</label>
-                        <select id="selectSubrubro" class="input-filter">
-                            <option value="todos">Todos los subrubros</option>
-                        </select>
-                    </div>
-
-                    <span class="filter-subtitle" style="border-top: 1px solid #f1f5f9; padding-top: 12px;">Ubicación y Logística (CdU12)</span>
-                    <div class="filter-group">
-                        <label>Provincia</label>
-                        <select id="selectProvincia" class="input-filter">
-                            <option value="todos">Todas las provincias</option>
-                        </select>
-                    </div>
-
-                    <div class="filter-group">
-                        <label>Ciudad / Localidad</label>
-                        <input type="text" id="inputCiudad" class="input-filter" placeholder="Ej: Rosario, Córdoba, CABA...">
-                    </div>
-
-                    <div class="filter-group">
-                        <label>Zona de Alcance Logístico</label>
-                        <div class="reach-filter-grid">
-                            <button type="button" id="btnReachTodos" class="reach-filter-btn selected" onclick="selectAlcanceFilter('todos')">Todos</button>
-                            <button type="button" id="btnReachRegional" class="reach-filter-btn" onclick="selectAlcanceFilter('Regional')">Regional</button>
-                            <button type="button" id="btnReachNacional" class="reach-filter-btn" onclick="selectAlcanceFilter('Nacional')">Nacional</button>
-                        </div>
-                        <input type="hidden" id="filtroAlcanceLogistico" value="todos">
-                    </div>
-
-                    <button type="button" class="btn-filter-action" onclick="ejecutarConsulta()">Aplicar Filtros</button>
-                    <button type="button" class="btn-filter-reset" onclick="limpiarFiltros()">Limpiar Todo</button>
-                </aside>
-
-                <main>
-                    <div class="results-meta" id="resultsMeta" style="display: none;">
-                        <span id="lblTotalResults">Mostrando 0 resultados</span>
-                        <span id="lblFiltersApplied"></span>
-                    </div>
-
-                    <div class="merchants-grid" id="merchantsGrid"></div>
-                </main>
-            </div>
+                <div class="merchants-grid" id="merchantsGrid"></div>
+            </main>
         </div>
     </div>
 
@@ -641,6 +848,7 @@
         const token = localStorage.getItem("svc_token");
         const usuarioSesion = JSON.parse(localStorage.getItem("svc_usuario") || "{}");
 
+        // ── TAXONOMÍA OFICIAL DE SVC (50+ SUBRUBROS) ──
         const TAXONOMIA_SVC = {
             "Alimentos & Bebidas": ["Almacenes", "Supermercados", "Minimercados", "Distribuidoras de alimentos", "Mayoristas de alimentos", "Bebidas", "Carnicerías", "Panaderías", "Lácteos", "Fiambres & Embutidos", "Dietéticas", "Café & Té"],
             "Gastronomía": ["Restaurantes", "Bares", "Cafeterías", "Cervecerías", "Pizzerías", "Rotiserías", "Catering", "Equipamiento gastronómico"],
@@ -664,6 +872,10 @@
             "San Luis", "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán"
         ];
 
+        let rubroSeleccionado = "";
+        let subrubroSeleccionado = "";
+        let provinciaSeleccionada = "";
+
         if (!token) {
             window.location.href = "login.html";
         }
@@ -672,9 +884,8 @@
             if (usuarioSesion.nombre_razon_social) {
                 document.getElementById("userNameTop").innerText = usuarioSesion.nombre_razon_social;
             }
-            cargarSelectRubros();
-            cargarSelectProvincias();
-            ejecutarConsultaInicial();
+            inicializarSearchables();
+            mostrarEstadoInicial();
         });
 
         function toggleDrawer() {
@@ -682,71 +893,216 @@
             document.getElementById("drawerBackdrop").classList.toggle("open");
         }
 
-        function cargarSelectRubros() {
-            const selectRubro = document.getElementById("selectRubro");
-            Object.keys(TAXONOMIA_SVC).forEach(r => {
-                const opt = document.createElement("option");
-                opt.value = r;
-                opt.textContent = r;
-                selectRubro.appendChild(opt);
-            });
+        function togglePanelFiltros() {
+            const panel = document.getElementById("filtersDropdownPanel");
+            const btn = document.getElementById("btnToggleFilters");
+            const caret = document.getElementById("caretFiltros");
+            const isOpen = panel.classList.toggle("open");
+
+            btn.classList.toggle("open", isOpen);
+            caret.innerHTML = isOpen ? "&#9650;" : "&#9660;";
         }
 
-        function cargarSelectProvincias() {
-            const selectProv = document.getElementById("selectProvincia");
-            PROVINCIAS_ARGENTINA.forEach(p => {
-                const opt = document.createElement("option");
-                opt.value = p;
-                opt.textContent = p;
-                selectProv.appendChild(opt);
+        function inicializarSearchables() {
+            // Rubro
+            setupSearchableComponent({
+                inputId: "rubroInput",
+                boxId: "rubroOptionsBox",
+                getData: () => ["Todos los rubros", ...Object.keys(TAXONOMIA_SVC)],
+                onSelect: (val) => {
+                    if (val === "Todos los rubros") {
+                        rubroSeleccionado = "";
+                        document.getElementById("rubroInput").value = "";
+                    } else {
+                        rubroSeleccionado = val;
+                        document.getElementById("rubroInput").value = val;
+                    }
+                    subrubroSeleccionado = "";
+                    document.getElementById("subrubroInput").value = "";
+                    actualizarContadorFiltros();
+                }
             });
+
+            // Subrubro
+            setupSearchableComponent({
+                inputId: "subrubroInput",
+                boxId: "subrubroOptionsBox",
+                getData: () => {
+                    if (!rubroSeleccionado || !TAXONOMIA_SVC[rubroSeleccionado]) {
+                        return ["Todos los subrubros"];
+                    }
+                    return ["Todos los subrubros", ...TAXONOMIA_SVC[rubroSeleccionado]];
+                },
+                onSelect: (val) => {
+                    if (val === "Todos los subrubros") {
+                        subrubroSeleccionado = "";
+                        document.getElementById("subrubroInput").value = "";
+                    } else {
+                        subrubroSeleccionado = val;
+                        document.getElementById("subrubroInput").value = val;
+                    }
+                    actualizarContadorFiltros();
+                }
+            });
+
+            // Provincia
+            setupSearchableComponent({
+                inputId: "provinciaInput",
+                boxId: "provinciaOptionsBox",
+                getData: () => ["Todas las provincias", ...PROVINCIAS_ARGENTINA],
+                onSelect: (val) => {
+                    if (val === "Todas las provincias") {
+                        provinciaSeleccionada = "";
+                        document.getElementById("provinciaInput").value = "";
+                    } else {
+                        provinciaSeleccionada = val;
+                        document.getElementById("provinciaInput").value = val;
+                    }
+                    actualizarContadorFiltros();
+                }
+            });
+
+            document.getElementById("rubroInput").addEventListener("input", (e) => {
+                rubroSeleccionado = e.target.value.trim();
+                actualizarContadorFiltros();
+            });
+            document.getElementById("subrubroInput").addEventListener("input", (e) => {
+                subrubroSeleccionado = e.target.value.trim();
+                actualizarContadorFiltros();
+            });
+            document.getElementById("provinciaInput").addEventListener("input", (e) => {
+                provinciaSeleccionada = e.target.value.trim();
+                actualizarContadorFiltros();
+            });
+            document.getElementById("inputCiudad").addEventListener("input", actualizarContadorFiltros);
         }
 
-        function actualizarSubrubros() {
-            const rubroSel = document.getElementById("selectRubro").value;
-            const selectSub = document.getElementById("selectSubrubro");
-            selectSub.innerHTML = '<option value="todos">Todos los subrubros</option>';
+        function setupSearchableComponent({ inputId, boxId, getData, onSelect }) {
+            const input = document.getElementById(inputId);
+            const box = document.getElementById(boxId);
 
-            if (rubroSel !== "todos" && TAXONOMIA_SVC[rubroSel]) {
-                TAXONOMIA_SVC[rubroSel].forEach(s => {
-                    const opt = document.createElement("option");
-                    opt.value = s;
-                    opt.textContent = s;
-                    selectSub.appendChild(opt);
-                });
+            function renderOptions(filterText = "") {
+                const list = getData();
+                box.innerHTML = "";
+                const cleanFilter = filterText.toLowerCase().trim();
+
+                const filtered = list.filter(item => item.toLowerCase().includes(cleanFilter));
+
+                if (filtered.length === 0) {
+                    const emptyItem = document.createElement("div");
+                    emptyItem.className = "searchable-option-item";
+                    emptyItem.style.color = "var(--svc-text-muted)";
+                    emptyItem.style.cursor = "default";
+                    emptyItem.innerText = "Sin coincidencias directas";
+                    box.appendChild(emptyItem);
+                } else {
+                    filtered.forEach(item => {
+                        const opt = document.createElement("div");
+                        opt.className = "searchable-option-item";
+                        opt.innerText = item;
+                        opt.onmousedown = (e) => {
+                            e.preventDefault();
+                            onSelect(item);
+                            box.style.display = "none";
+                        };
+                        box.appendChild(opt);
+                    });
+                }
             }
+
+            input.addEventListener("focus", () => {
+                renderOptions(input.value);
+                box.style.display = "block";
+            });
+
+            input.addEventListener("input", () => {
+                renderOptions(input.value);
+                box.style.display = "block";
+            });
+
+            input.addEventListener("blur", () => {
+                setTimeout(() => { box.style.display = "none"; }, 180);
+            });
         }
 
         function selectAlcanceFilter(val) {
-            document.querySelectorAll(".reach-filter-btn").forEach(btn => btn.classList.remove("selected"));
+            document.querySelectorAll(".reach-btn-option").forEach(btn => btn.classList.remove("selected"));
             document.getElementById("filtroAlcanceLogistico").value = val;
+
             if (val === "todos") document.getElementById("btnReachTodos").classList.add("selected");
             if (val === "Regional") document.getElementById("btnReachRegional").classList.add("selected");
             if (val === "Nacional") document.getElementById("btnReachNacional").classList.add("selected");
+            if (val === "Internacional") document.getElementById("btnReachInternacional").classList.add("selected");
+
+            actualizarContadorFiltros();
         }
 
-        async function ejecutarConsultaInicial() {
-            document.getElementById("inputQuery").value = "";
-            document.getElementById("selectRubro").value = "todos";
-            document.getElementById("selectProvincia").value = "todos";
-            document.getElementById("inputCiudad").value = "";
-            selectAlcanceFilter("todos");
-            actualizarSubrubros();
-            await consultarBackend("", "todos", "todos", "todos", "", "todos");
+        function actualizarContadorFiltros() {
+            let count = 0;
+            const r = document.getElementById("rubroInput").value.trim();
+            const s = document.getElementById("subrubroInput").value.trim();
+            const p = document.getElementById("provinciaInput").value.trim();
+            const c = document.getElementById("inputCiudad").value.trim();
+            const a = document.getElementById("filtroAlcanceLogistico").value;
+
+            if (r && r !== "Todos los rubros") count++;
+            if (s && s !== "Todos los subrubros") count++;
+            if (p && p !== "Todas las provincias") count++;
+            if (c) count++;
+            if (a && a !== "todos") count++;
+
+            const badge = document.getElementById("badgeFiltrosActivos");
+            if (count > 0) {
+                badge.innerText = count;
+                badge.style.display = "inline-block";
+            } else {
+                badge.style.display = "none";
+            }
+        }
+
+        // Estado inicial sin errores falsos ni peticiones vacías al cargar
+        function mostrarEstadoInicial() {
+            document.getElementById("msgAlert").style.display = "none";
+            document.getElementById("resultsMeta").style.display = "none";
+            const grid = document.getElementById("merchantsGrid");
+
+            grid.innerHTML = `
+                <div class="empty-directory-card" style="grid-column: 1 / -1;">
+                    <div class="empty-directory-title">Directorio Comercial B2B</div>
+                    <div class="empty-directory-desc">
+                        Ingrese un término de búsqueda (Razón Social, CUIT o dirección) o despliegue los <strong>Filtros Comerciales</strong> para segmentar empresas por rubro y alcance logístico.
+                    </div>
+                    <button type="button" class="btn-search-execute" style="margin: 0 auto;" onclick="togglePanelFiltros()">
+                        Ver Filtros Comerciales &rarr;
+                    </button>
+                </div>
+            `;
         }
 
         async function ejecutarConsulta(e) {
             if (e) e.preventDefault();
+
             const q = document.getElementById("inputQuery").value.trim();
-            const rubro = document.getElementById("selectRubro").value;
-            const subrubro = document.getElementById("selectSubrubro").value;
-            const provincia = document.getElementById("selectProvincia").value;
+            const rubroVal = document.getElementById("rubroInput").value.trim();
+            const subrubroVal = document.getElementById("subrubroInput").value.trim();
+            const provVal = document.getElementById("provinciaInput").value.trim();
             const ciudad = document.getElementById("inputCiudad").value.trim();
             const alcance = document.getElementById("filtroAlcanceLogistico").value;
 
+            const rubro = (rubroVal && rubroVal !== "Todos los rubros") ? rubroVal : "todos";
+            const subrubro = (subrubroVal && subrubroVal !== "Todos los subrubros") ? subrubroVal : "todos";
+            const provincia = (provVal && provVal !== "Todas las provincias") ? provVal : "todos";
+
+            // Validación 1: Debe ingresar término o al menos un filtro
             const sinFiltros = !q && rubro === "todos" && provincia === "todos" && !ciudad && alcance === "todos";
             if (sinFiltros) {
-                mostrarAlerta("Debe ingresar un término de búsqueda o aplicar al menos un criterio de filtrado.", "danger");
+                mostrarAlerta("Debe ingresar un término de búsqueda o seleccionar al menos un criterio de filtrado.", "danger");
+                return;
+            }
+
+            // Validación 2 (CdU10): Si ingresa texto, requerir mínimo 3 caracteres
+            if (q && q.length < 3) {
+                mostrarAlerta("El término de búsqueda debe contener al menos 3 caracteres (letras o números) para evitar resultados imprecisos.", "danger");
                 return;
             }
 
@@ -760,11 +1116,10 @@
             const btn = document.getElementById("btnSubmitSearch");
 
             alertEl.style.display = "none";
-            grid.innerHTML = "";
             meta.style.display = "none";
 
             btn.disabled = true;
-            btn.innerText = "Consultando...";
+            btn.innerHTML = `<span>Buscando...</span>`;
 
             try {
                 let params = new URLSearchParams();
@@ -790,7 +1145,7 @@
                 mostrarAlerta("No se pudo conectar con el servidor backend FastAPI.", "danger");
             } finally {
                 btn.disabled = false;
-                btn.innerText = "Buscar →";
+                btn.innerHTML = `<span>Buscar</span><span>&rarr;</span>`;
             }
         }
 
@@ -798,23 +1153,25 @@
             const grid = document.getElementById("merchantsGrid");
             const meta = document.getElementById("resultsMeta");
             const lblTotal = document.getElementById("lblTotalResults");
-            const lblApplied = document.getElementById("lblFiltersApplied");
+            const chipsBox = document.getElementById("chipsContainer");
+
+            grid.innerHTML = "";
 
             if (!data.resultados || data.resultados.length === 0) {
-                mostrarAlerta("No se encontraron comerciantes activos compatibles con los criterios de ubicación, alcance o rubro seleccionados.", "info");
+                mostrarAlerta("No se encontraron comerciantes activos compatibles con los criterios de búsqueda o filtrado ingresados.", "info");
                 return;
             }
 
             meta.style.display = "flex";
-            lblTotal.innerText = `${data.total_coincidencias} comerciantes encontrados`;
+            lblTotal.innerText = `${data.total_coincidencias} comerciante(s) encontrado(s)`;
 
-            let badgesFiltros = [];
-            if (data.termino_busqueda) badgesFiltros.push(`Texto: "${data.termino_busqueda}"`);
-            if (data.rubro_filtro) badgesFiltros.push(`Rubro: ${data.rubro_filtro}`);
-            if (data.provincia_filtro) badgesFiltros.push(`Provincia: ${data.provincia_filtro}`);
-            if (data.ciudad_filtro) badgesFiltros.push(`Ciudad: "${data.ciudad_filtro}"`);
-            if (data.alcance_filtro) badgesFiltros.push(`Alcance: ${data.alcance_filtro}`);
-            lblApplied.innerText = badgesFiltros.join(" | ") || "Todos los comerciantes";
+            chipsBox.innerHTML = "";
+            if (data.termino_busqueda) chipsBox.innerHTML += `<span class="filter-chip">Texto: "${data.termino_busqueda}"</span>`;
+            if (data.rubro_filtro) chipsBox.innerHTML += `<span class="filter-chip">Rubro: ${data.rubro_filtro}</span>`;
+            if (data.subrubro_filtro) chipsBox.innerHTML += `<span class="filter-chip">Subrubro: ${data.subrubro_filtro}</span>`;
+            if (data.provincia_filtro) chipsBox.innerHTML += `<span class="filter-chip">Provincia: ${data.provincia_filtro}</span>`;
+            if (data.ciudad_filtro) chipsBox.innerHTML += `<span class="filter-chip">Ciudad: "${data.ciudad_filtro}"</span>`;
+            if (data.alcance_filtro) chipsBox.innerHTML += `<span class="filter-chip">Alcance: ${data.alcance_filtro}</span>`;
 
             data.resultados.forEach(c => {
                 const card = document.createElement("div");
@@ -846,12 +1203,16 @@
 
         function limpiarFiltros() {
             document.getElementById("inputQuery").value = "";
-            document.getElementById("selectRubro").value = "todos";
-            document.getElementById("selectProvincia").value = "todos";
+            document.getElementById("rubroInput").value = "";
+            document.getElementById("subrubroInput").value = "";
+            document.getElementById("provinciaInput").value = "";
             document.getElementById("inputCiudad").value = "";
             selectAlcanceFilter("todos");
-            actualizarSubrubros();
-            ejecutarConsultaInicial();
+            rubroSeleccionado = "";
+            subrubroSeleccionado = "";
+            provinciaSeleccionada = "";
+            actualizarContadorFiltros();
+            mostrarEstadoInicial();
         }
 
         function mostrarAlerta(msg, tipo) {
@@ -859,6 +1220,7 @@
             el.className = `alert-box alert-${tipo}`;
             el.innerText = msg;
             el.style.display = "block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function cerrarSesion() {

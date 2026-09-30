@@ -14,7 +14,54 @@ from app.core.email_service import (
 )
 from app.db.supabase_client import supabase
 
-router = APIRouter(prefix="/publicaciones", tags=["Gestión de Publicaciones de Venta (Sprint 3)"])
+router = APIRouter(prefix="/publicaciones", tags=["Gestión de Publicaciones de Venta (Sprint 3 y 4)"])
+
+# ==============================================================================
+# 0. RECUPERAR COMUNIDADES DONDE EL USUARIO ES MIEMBRO (CdU25 / CdU27)
+# ==============================================================================
+@router.get(
+    "/mis-comunidades-disponibles",
+    status_code=status.HTTP_200_OK,
+    summary="Listar las comunidades activas donde el usuario participa para difundir ofertas"
+)
+def listar_mis_comunidades_disponibles(user_id: str = Depends(get_current_user_id)):
+    miembros_res = (
+        supabase.table("comunidad_miembros")
+        .select("comunidad_id, rol, comunidades(id, nombre, rubro, estado)")
+        .eq("comerciante_id", user_id)
+        .eq("estado", "activo")
+        .execute()
+    )
+    
+    comunidades_disponibles = []
+    for item in (miembros_res.data or []):
+        c = item.get("comunidades")
+        if c and c.get("estado") == "Activa":
+            comunidades_disponibles.append({
+                "id": c["id"],
+                "nombre": c["nombre"],
+                "rubro": c["rubro"],
+                "mi_rol": item["rol"]
+            })
+            
+    return comunidades_disponibles
+
+@router.get(
+    "/{publicacion_id}/comunidades",
+    status_code=status.HTTP_200_OK,
+    summary="Obtener las IDs de comunidades donde una publicación está actualmente replicada"
+)
+def obtener_comunidades_de_publicacion(
+    publicacion_id: str,
+    user_id: str = Depends(get_current_user_id)
+):
+    res = (
+        supabase.table("publicacion_comunidades")
+        .select("comunidad_id")
+        .eq("publicacion_id", publicacion_id)
+        .execute()
+    )
+    return [row["comunidad_id"] for row in (res.data or [])]
 
 # ==============================================================================
 # 1. CdU25 / CdU26 - CREAR PUBLICACIÓN CON DEDUCCIÓN ATÓMICA DE STOCK
@@ -23,7 +70,7 @@ router = APIRouter(prefix="/publicaciones", tags=["Gestión de Publicaciones de 
     "/nueva",
     response_model=PublicacionVentaResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Crear publicación de venta con deducción atómica de inventario (CdU25 / CdU26)"
+    summary="Crear publicación de venta con deducción de stock y difusión selectiva en comunidades (CdU25 / CdU26)"
 )
 def crear_publicacion_venta(
     datos: PublicacionVentaCreate,
@@ -113,6 +160,28 @@ def crear_publicacion_venta(
         pub_res = supabase.table("publicaciones_venta").insert(nueva_publicacion).execute()
         if not pub_res.data:
             raise Exception("No se obtuvieron registros tras la inserción.")
+        
+        publicacion_creada = pub_res.data[0]
+        pub_id = publicacion_creada["id"]
+
+        if datos.comunidades_ids and len(datos.comunidades_ids) > 0:
+            valid_miembros = (
+                supabase.table("comunidad_miembros")
+                .select("comunidad_id")
+                .eq("comerciante_id", user_id)
+                .eq("estado", "activo")
+                .in_("comunidad_id", datos.comunidades_ids)
+                .execute()
+            )
+            comunidades_validas = [m["comunidad_id"] for m in (valid_miembros.data or [])]
+
+            if comunidades_validas:
+                registros_replicacion = [
+                    {"publicacion_id": pub_id, "comunidad_id": cid}
+                    for cid in comunidades_validas
+                ]
+                supabase.table("publicacion_comunidades").insert(registros_replicacion).execute()
+
     except Exception as e:
         if datos.inventario_item_id and stock_anterior is not None:
             supabase.table("inventario_items").update({
@@ -152,7 +221,7 @@ def crear_publicacion_venta(
             except Exception as mail_err:
                 print(f"[SMTP WARN] No se pudo despachar el correo de alerta: {mail_err}")
 
-    return pub_res.data[0]
+    return publicacion_creada
 
 # ==============================================================================
 # 2. LISTAR PUBLICACIONES DEL COMERCIANTE AUTENTICADO
@@ -209,11 +278,6 @@ def obtener_detalle_publicacion(
     publicacion_id: str,
     user_id: str = Depends(get_current_user_id)
 ):
-    """
-    CdU33: Visualizar detalles completos de una publicación.
-    Devuelve la ficha comercial de la oferta y los datos del vendedor.
-    Determina si el usuario autenticado es el autor para la regla de negociación.
-    """
     pub_res = (
         supabase.table("publicaciones_venta")
         .select("*, comerciantes(*)")
@@ -228,7 +292,6 @@ def obtener_detalle_publicacion(
 
     pub = pub_res.data[0]
 
-    # No permitir ver ofertas eliminadas
     if pub.get("estado") == "Eliminada":
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -266,12 +329,12 @@ def obtener_detalle_publicacion(
     }
 
 # ==============================================================================
-# 5. CdU27 - EDITAR INFORMACIÓN DE PUBLICACIÓN Y CONCILIAR STOCK
+# 5. CdU27 - EDITAR INFORMACIÓN DE PUBLICACIÓN Y SINCRONIZAR COMUNIDADES
 # ==============================================================================
 @router.put(
     "/{publicacion_id}",
     status_code=status.HTTP_200_OK,
-    summary="Modificar atributos y conciliar stock de publicación existente (CdU27)"
+    summary="Modificar atributos, conciliar stock y sincronizar comunidades de difusión (CdU27)"
 )
 def editar_publicacion_venta(
     publicacion_id: str,
@@ -279,6 +342,7 @@ def editar_publicacion_venta(
     user_id: str = Depends(get_current_user_id)
 ):
     try:
+        # 1. Conciliación atómica de atributos y stock físico en base de datos
         rpc_res = supabase.rpc(
             "fn_editar_publicacion_con_stock",
             {
@@ -294,29 +358,41 @@ def editar_publicacion_venta(
             }
         ).execute()
 
+        # 2. Sincronización de las comunidades seleccionadas (RF04)
+        if datos.comunidades_ids is not None:
+            # Eliminar replicaciones previas
+            supabase.table("publicacion_comunidades").delete().eq("publicacion_id", publicacion_id).execute()
+
+            if len(datos.comunidades_ids) > 0:
+                # Validar que el comerciante pertenezca activamente a las comunidades enviadas
+                valid_miembros = (
+                    supabase.table("comunidad_miembros")
+                    .select("comunidad_id")
+                    .eq("comerciante_id", user_id)
+                    .eq("estado", "activo")
+                    .in_("comunidad_id", datos.comunidades_ids)
+                    .execute()
+                )
+                comunidades_validas = [m["comunidad_id"] for m in (valid_miembros.data or [])]
+
+                if comunidades_validas:
+                    nuevas_filas = [
+                        {"publicacion_id": publicacion_id, "comunidad_id": cid}
+                        for cid in comunidades_validas
+                    ]
+                    supabase.table("publicacion_comunidades").insert(nuevas_filas).execute()
+
         return rpc_res.data
 
     except Exception as e:
         err_msg = str(e)
         if "Stock insuficiente en inventario" in err_msg:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=err_msg
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=err_msg)
         if "No es posible editar una publicación que ha sido eliminada" in err_msg:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="No es posible editar una oferta eliminada."
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No es posible editar una oferta eliminada.")
         if "La publicación no existe o no pertenece" in err_msg:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Publicación no encontrada o no posee permisos para modificarla."
-            )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Fallo al actualizar la publicación de venta: {err_msg}"
-        )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Publicación no encontrada o no posee permisos para modificarla.")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Fallo al actualizar la publicación de venta: {err_msg}")
 
 # ==============================================================================
 # 6. CdU28 / CdU30 - PAUSAR PUBLICACIÓN Y RESTITUIR STOCK AL INVENTARIO
@@ -338,24 +414,15 @@ def pausar_publicacion_venta(
         .execute()
     )
     if not pub_res.data:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Publicación no encontrada o no posee permisos para pausarla."
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Publicación no encontrada o no posee permisos para pausarla.")
 
     publicacion = pub_res.data[0]
 
     if publicacion["estado"] == "Pausada":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="La publicación ya se encuentra pausada."
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La publicación ya se encuentra pausada.")
 
     if publicacion["estado"] == "Eliminada":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No es posible pausar una publicación eliminada."
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No es posible pausar una publicación eliminada.")
 
     unidades_restituidas = 0
 
@@ -378,20 +445,14 @@ def pausar_publicacion_venta(
 
     upd_res = (
         supabase.table("publicaciones_venta")
-        .update({
-            "estado": "Pausada",
-            "actualizado_el": "now()"
-        })
+        .update({"estado": "Pausada", "actualizado_el": "now()"})
         .eq("id", publicacion_id)
         .eq("comerciante_id", user_id)
         .execute()
     )
 
     if not upd_res.data:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error al actualizar el estado de la publicación en la base de datos."
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al actualizar el estado de la publicación en la base de datos.")
 
     return {
         "mensaje": f"Publicación '{publicacion['titulo']}' pausada exitosamente.",
@@ -431,28 +492,14 @@ def reactivar_publicacion_venta(
     except Exception as e:
         err_msg = str(e)
         if "Stock insuficiente en inventario para reactivar" in err_msg:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=err_msg
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=err_msg)
         if "ya se encuentra activa" in err_msg:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="La publicación ya se encuentra activa."
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La publicación ya se encuentra activa.")
         if "ya no existe en su catálogo" in err_msg:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="El ítem de inventario vinculado a esta oferta fue eliminado previamente."
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El ítem de inventario vinculado a esta oferta fue eliminado previamente.")
         if "no existe o no pertenece" in err_msg:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Publicación no encontrada o no posee permisos para modificarla."
-            )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al reactivar la publicación: {err_msg}"
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Publicación no encontrada o no posee permisos para modificarla.")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al reactivar la publicación: {err_msg}"
         )
 
 # ==============================================================================
@@ -486,22 +533,13 @@ def eliminar_publicacion_por_autor(
     except Exception as e:
         err_msg = str(e)
         if "ya ha sido eliminada previamente" in err_msg:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="La publicación ya se encuentra eliminada."
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La publicación ya se encuentra eliminada.")
         if "no existe o no pertenece" in err_msg:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Publicación no encontrada o no posee permisos para eliminarla."
-            )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al procesar la eliminación de la oferta: {err_msg}"
-        )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Publicación no encontrada o no posee permisos para eliminarla.")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al procesar la eliminación de la oferta: {err_msg}")
 
 # ==============================================================================
-# 9. CdU32 / CdU30 - ELIMINAR PUBLICACIÓN DE VENTA POR ADMINISTRADOR (MODERACIÓN)
+# 9. CdU32 / CdU30 - ELIMINAR PUBLICACIÓN DE VENTA POR ADMINISTRADOR
 # ==============================================================================
 @router.delete(
     "/{publicacion_id}/admin",
@@ -548,21 +586,9 @@ def eliminar_publicacion_por_administrador(
     except Exception as e:
         err_msg = str(e)
         if "justificación institucional es obligatoria" in err_msg:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Debe ingresar una justificación formal para la baja (mínimo 5 caracteres)."
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Debe ingresar una justificación formal para la baja (mínimo 5 caracteres).")
         if "privilegios de Administrador" in err_msg:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Acceso denegado: Se requieren privilegios de Administrador Global."
-            )
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acceso denegado: Se requieren privilegios de Administrador Global.")
         if "no existe o ya fue destruida" in err_msg:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="La publicación solicitada no existe."
-            )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Fallo al procesar la baja administrativa: {err_msg}"
-        )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="La publicación solicitada no existe.")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Fallo al procesar la baja administrativa: {err_msg}")

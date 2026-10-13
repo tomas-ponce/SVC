@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVC - Ficha Comercial de Publicación (CdU33)</title>
+    <title>SVC - Ficha Comercial de Publicación (CdU33 / CdU34)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -235,7 +235,6 @@
 
         .breadcrumbs a:hover { text-decoration: underline; }
 
-        /* Layout Dividido: Información de la Oferta + Panel del Vendedor */
         .detail-grid {
             display: grid;
             grid-template-columns: 2fr 1.2fr;
@@ -357,7 +356,6 @@
             color: #0f172a;
         }
 
-        /* Panel Vendedor */
         .seller-title {
             font-size: 14px;
             font-weight: 700;
@@ -432,6 +430,103 @@
         }
         .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
 
+        /* ── MODAL DE INICIO DE NEGOCIACIÓN (CdU34) ── */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            width: 100%;
+            max-width: 580px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 6px 0;
+        }
+
+        .modal-subtitle {
+            font-size: 12.5px;
+            color: var(--svc-text-muted);
+            margin: 0 0 20px 0;
+            line-height: 1.4;
+        }
+
+        .modal-context-box {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid var(--svc-primary);
+            padding: 14px;
+            margin-bottom: 20px;
+            font-size: 12.5px;
+            color: #1e293b;
+        }
+
+        .input-svc {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--svc-border);
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+            background-color: #ffffff;
+        }
+
+        .input-svc:focus { border-color: var(--svc-primary); }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .btn-modal-cancel {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            color: #1e293b;
+            padding: 10px 18px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .btn-modal-cancel:hover { background-color: #f8fafc; }
+
+        .btn-modal-send {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border: none;
+            padding: 10px 22px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-modal-send:hover { background-color: var(--svc-primary-hover); }
+        .btn-modal-send:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
         @media (max-width: 900px) {
             .detail-grid { grid-template-columns: 1fr; }
         }
@@ -441,7 +536,6 @@
 
     <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
 
-    <!-- Sidebar Drawer -->
     <div id="sidebarDrawer" class="sidebar-drawer">
         <div>
             <div class="sidebar-brand">
@@ -456,17 +550,16 @@
                 <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
                 <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
                 <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
-                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 3 (WPT-03)'); return false;">Muro de Ventas</a></li>
                 <li class="nav-item"><a href="comunidades.html">Comunidades B2B</a></li>
-                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 5 (WPT-04)'); return false;">Negociaciones & Chat</a></li>
+                <li class="nav-item"><a href="chat.html">Chats</a></li>
+                <li class="nav-item"><a href="notificaciones.html">Notificaciones</a></li>
             </ul>
         </div>
         <div class="sidebar-footer">
-            &copy; 2026 SVC — v0.3.0 (Sprint 3)
+            &copy; 2026 SVC — v0.5.0 (Sprint 5)
         </div>
     </div>
 
-    <!-- Contenedor Principal -->
     <div class="main-wrapper">
         <div class="topbar">
             <div class="topbar-left">
@@ -475,7 +568,7 @@
                     <div class="bar"></div>
                     <div class="bar"></div>
                 </button>
-                <div class="topbar-title">Ficha Comercial de Publicación (CdU33)</div>
+                <div class="topbar-title">Ficha Comercial de Publicación (CdU33 / CdU34)</div>
             </div>
             <div class="user-badge">
                 <span id="userNameTop">Comercio Conectado</span>
@@ -484,7 +577,6 @@
         </div>
 
         <div class="content-body">
-            
             <div class="breadcrumbs">
                 <a href="mis-publicaciones.html">&larr; Volver al listado</a> / <span id="breadTitle">Cargando publicación...</span>
             </div>
@@ -492,8 +584,7 @@
             <div id="mainAlert" class="alert-box alert-danger"></div>
 
             <div class="detail-grid" id="detailGrid" style="display: none;">
-                
-                <!-- Columna Principal: Parámetros de la Oferta -->
+                <!-- Parámetros de la Oferta -->
                 <div class="card-main">
                     <h1 class="offer-title" id="offerTitle">—</h1>
 
@@ -532,7 +623,7 @@
                     </div>
                 </div>
 
-                <!-- Columna Lateral: Información del Vendedor y Acción de Negociación -->
+                <!-- Panel Vendedor y Acción de Negociación -->
                 <div class="card-sidebar">
                     <div class="seller-title">Datos del Comerciante Emisor</div>
                     <div class="seller-name" id="sellerName">—</div>
@@ -546,8 +637,7 @@
                     </ul>
 
                     <div id="actionContainer">
-                        <!-- Botón de extensión hacia CdU34 (Chat) renderizado condicionalmente -->
-                        <button type="button" class="btn-action-negotiate" id="btnNegotiate" onclick="iniciarNegociacionChat()">
+                        <button type="button" class="btn-action-negotiate" id="btnNegotiate" onclick="abrirModalIniciarNegociacion()">
                             <span>Iniciar Chat / Negociar &rarr;</span>
                         </button>
                         <div id="authorNotice" class="btn-author-note" style="display: none;">
@@ -555,9 +645,37 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- MODAL: INICIAR CHAT DE NEGOCIACIÓN (CdU34) -->
+    <div id="modalIniciarChat" class="modal-overlay">
+        <div class="modal-card">
+            <h2 class="modal-title">Iniciar Negociación Comercial</h2>
+            <p class="modal-subtitle">Establezca contacto directo con el emisor. El canal quedará anclado a esta oferta y registrado de forma auditable (CdU34).</p>
+
+            <div id="modalChatAlert" class="alert-box alert-danger"></div>
+
+            <div class="modal-context-box">
+                <strong>Publicación:</strong> <span id="modalPubTitulo">—</span><br>
+                <strong>Vendedor:</strong> <span id="modalPubVendedor">—</span><br>
+                <strong>Precio Referencial:</strong> <span id="modalPubPrecio">—</span>
             </div>
 
+            <form id="formIniciarChat" onsubmit="ejecutarInicioChat(event)">
+                <div style="margin-bottom: 14px;">
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #334155; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;">
+                        Mensaje Inicial de Negociación *
+                    </label>
+                    <textarea id="txtMensajeInicial" class="input-svc" rows="4" placeholder="Indique cantidad requerida, consulta de plazos de entrega o propuesta comercial..." required></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-modal-cancel" onclick="cerrarModalIniciarNegociacion()">Cancelar</button>
+                    <button type="submit" id="btnSubmitChat" class="btn-modal-send">Enviar Propuesta &rarr;</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -628,7 +746,6 @@
             const fechaFmt = p.creado_el ? new Date(p.creado_el).toLocaleDateString("es-AR") : "—";
             document.getElementById("offerDate").innerText = fechaFmt;
 
-            // Datos del comerciante vendedor
             const v = p.vendedor;
             document.getElementById("sellerName").innerText = v.nombre_razon_social;
             document.getElementById("sellerCuit").innerText = `CUIT/CUIL: ${v.cuit_cuil}`;
@@ -637,7 +754,7 @@
             document.getElementById("sellerPhone").innerText = v.telefono;
             document.getElementById("sellerEmail").innerText = v.email;
 
-            // Regla Especial ERS CdU33: Validación de autoría
+            // Regla ERS CdU33 / CdU34: El botón de chat solo se habilita para no-autores
             if (p.es_autor) {
                 document.getElementById("btnNegotiate").style.display = "none";
                 document.getElementById("authorNotice").style.display = "block";
@@ -649,9 +766,71 @@
             document.getElementById("detailGrid").style.display = "grid";
         }
 
-        function iniciarNegociacionChat() {
-            // Punto de Extensión hacia CdU34 (Sprint 5)
-            alert(`Punto de extensión CdU34: Se inicializará la sala de chat privada con "${publicacionActual.vendedor.nombre_razon_social}" vinculada a la oferta "${publicacionActual.titulo}".`);
+        // ── MANEJO DEL MODAL DE NEGOCIACIÓN (CdU34) ──
+        function abrirModalIniciarNegociacion() {
+            if (!publicacionActual) return;
+            document.getElementById("modalChatAlert").style.display = "none";
+            document.getElementById("formIniciarChat").reset();
+
+            document.getElementById("modalPubTitulo").innerText = publicacionActual.titulo;
+            document.getElementById("modalPubVendedor").innerText = publicacionActual.vendedor.nombre_razon_social;
+            document.getElementById("modalPubPrecio").innerText = `$ ${Number(publicacionActual.precio).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
+
+            document.getElementById("modalIniciarChat").style.display = "flex";
+            document.getElementById("txtMensajeInicial").focus();
+        }
+
+        function cerrarModalIniciarNegociacion() {
+            document.getElementById("modalIniciarChat").style.display = "none";
+        }
+
+        async function ejecutarInicioChat(e) {
+            e.preventDefault();
+            const alertEl = document.getElementById("modalChatAlert");
+            const btn = document.getElementById("btnSubmitChat");
+            const texto = document.getElementById("txtMensajeInicial").value.trim();
+
+            alertEl.style.display = "none";
+
+            if (!texto) {
+                alertEl.innerText = "Debe redactar una propuesta o mensaje inicial para abrir la negociación.";
+                alertEl.style.display = "block";
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Abriendo negociación...";
+
+            try {
+                const res = await fetch(`${API_URL}/chat/iniciar`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        publicacion_id: publicacionActual.id,
+                        mensaje_inicial: texto
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    cerrarModalIniciarNegociacion();
+                    // Deep Linking hacia la sala de chat creada (CdU37 / CdU49)
+                    window.location.href = `chat.html?sala=${data.sala_id}`;
+                } else {
+                    alertEl.innerText = data.detail || "Error al iniciar el chat de negociación.";
+                    alertEl.style.display = "block";
+                }
+            } catch (err) {
+                alertEl.innerText = "No se pudo conectar con el servidor backend FastAPI.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Enviar Propuesta →";
+            }
         }
 
         function mostrarAlerta(msg) {

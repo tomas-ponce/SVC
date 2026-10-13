@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Centro de Notificaciones & Preferencias (CdU48 / CdU62)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-primary-hover: #004085;
+            --svc-bg-page: #f8f9fa;
+            --svc-bg-surface: #ffffff;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-danger: #dc3545;
+            --svc-warning: #ffc107;
+            --svc-success: #28a745;
+            --svc-border-radius: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── SIDEBAR DRAWER ── */
+        .sidebar-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1200;
+            transition: left 0.25s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-drawer.open { left: 0; }
+
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1100;
+            display: none;
+        }
+
+        .drawer-backdrop.open { display: block; }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-box {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--svc-text-muted);
+            padding: 4px 8px;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-left: 4px solid var(--svc-primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        /* ── MAIN WRAPPER ── */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 65px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-hamburger {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .btn-hamburger .bar {
+            width: 18px;
+            height: 2px;
+            background-color: #1e293b;
+        }
+
+        .topbar-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--svc-danger);
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-logout:hover {
+            background-color: #f8d7da;
+            border-color: var(--svc-danger);
+        }
+
+        .content-body {
+            padding: 30px 40px;
+            max-width: 1360px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .header-hero-row {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            padding: 24px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .hero-titles h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 4px 0;
+        }
+
+        .hero-titles p {
+            font-size: 13px;
+            color: var(--svc-text-muted);
+            margin: 0;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-svc-outline {
+            background-color: #ffffff;
+            border: 1px solid var(--svc-border);
+            color: #1e293b;
+            padding: 10px 18px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-svc-outline:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+            background-color: #f8fafc;
+        }
+
+        .btn-svc-primary {
+            background-color: var(--svc-primary);
+            color: #ffffff !important;
+            border: none;
+            padding: 10px 18px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-svc-primary:hover {
+            background-color: var(--svc-primary-hover);
+        }
+
+        .banner-muted-status {
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .notifications-grid-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .filter-sidebar-box {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+        }
+
+        .kpi-summary-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .kpi-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .kpi-num {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .kpi-lbl {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+        }
+
+        .category-filter-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .category-filter-item {
+            padding: 12px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            cursor: pointer;
+            border: 1px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.15s ease;
+        }
+
+        .category-filter-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .category-filter-item.active {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-color: #bfdbfe;
+            border-left: 4px solid var(--svc-primary);
+        }
+
+        .badge-kpi-pill {
+            background-color: #e2e8f0;
+            color: #334155;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 7px;
+        }
+
+        .badge-kpi-pill.has-pending {
+            background-color: var(--svc-danger);
+            color: #ffffff;
+        }
+
+        .alerts-feed-pane {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .alert-card-item {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #cbd5e1;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.15s ease;
+        }
+
+        .alert-card-item.unread {
+            background-color: #ffffff;
+            border-left-width: 5px;
+        }
+
+        .alert-card-item.tipo-stock { border-left-color: var(--svc-warning); }
+        .alert-card-item.tipo-mensaje { border-left-color: var(--svc-primary); }
+        .alert-card-item.tipo-comunidad { border-left-color: var(--svc-success); }
+        .alert-card-item.tipo-sancion { border-left-color: var(--svc-danger); }
+
+        .alert-content-col {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .alert-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2px;
+        }
+
+        .badge-tipo-tag {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-tag-stock { background-color: #fffbeb; color: #b45309; }
+        .badge-tag-mensaje { background-color: #e7f0fb; color: var(--svc-primary); }
+        .badge-tag-comunidad { background-color: #f0fdf4; color: #166534; }
+        .badge-tag-sancion { background-color: #fff5f5; color: var(--svc-danger); }
+
+        .alert-time-txt {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        .alert-title-txt {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .alert-desc-txt {
+            font-size: 13px;
+            color: #475569;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .alert-actions-col {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn-deep-link {
+            background-color: var(--svc-primary);
+            color: #ffffff !important;
+            border: none;
+            padding: 8px 16px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-deep-link:hover {
+            background-color: var(--svc-primary-hover);
+        }
+
+        .btn-discard-single {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            color: #64748b;
+            padding: 7px 12px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-discard-single:hover {
+            border-color: #0f172a;
+            color: #0f172a;
+            background-color: #f8fafc;
+        }
+
+        .empty-notifications-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 50px 30px;
+            text-align: center;
+            color: var(--svc-text-muted);
+            font-size: 13px;
+        }
+
+        /* ── MODAL DE PREFERENCIAS (CdU48) ── */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2500;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            width: 100%;
+            max-width: 540px;
+            padding: 28px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 6px 0;
+        }
+
+        .modal-subtitle {
+            font-size: 12.5px;
+            color: var(--svc-text-muted);
+            margin: 0 0 20px 0;
+            line-height: 1.4;
+        }
+
+        .pref-group-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .pref-box-title {
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #334155;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .pref-row-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .pref-row-item:last-child { border-bottom: none; }
+
+        .pref-lbl {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .pref-desc {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        .pref-select {
+            width: 100%;
+            height: 38px;
+            padding: 0 10px;
+            border: 1px solid var(--svc-border);
+            font-size: 13px;
+            background-color: #ffffff;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 12px 20px;
+            font-size: 12.5px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 2000;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
+
+    <div id="sidebarDrawer" class="sidebar-drawer">
+        <div>
+            <div class="sidebar-brand">
+                <div class="brand-info">
+                    <div class="brand-box">SVC</div>
+                    <div class="brand-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+                </div>
+                <button class="btn-close-drawer" onclick="toggleDrawer()">&times;</button>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
+                <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
+                <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
+                <li class="nav-item"><a href="comunidades.html">Comunidades B2B</a></li>
+                <li class="nav-item"><a href="chat.html">Chats</a></li>
+                <li class="nav-item active"><a href="notificaciones.html">Notificaciones</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            &copy; 2026 SVC — v0.5.0
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="btn-hamburger" onclick="toggleDrawer()">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </button>
+                <div class="topbar-title">Centro de Notificaciones & Preferencias (CdU48 / CdU62)</div>
+            </div>
+            <div class="user-badge">
+                <span id="userNameTop">Comercio Conectado</span>
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="content-body">
+            
+            <div id="bannerMuted" class="banner-muted-status">
+                <span>🔕 Las notificaciones se encuentran temporalmente <strong>silenciadas</strong> hasta: <strong id="lblMutedUntil">—</strong></span>
+                <button type="button" class="btn-svc-outline" style="padding: 4px 10px; font-size: 11px;" onclick="quitarSilencioInmediato()">Reactivar Ahora</button>
+            </div>
+
+            <div class="header-hero-row">
+                <div class="hero-titles">
+                    <h1>Centro de Notificaciones</h1>
+                    <p>Historial centralizado de avisos de stock, mensajes de negociación, comunidades y sanciones.</p>
+                </div>
+                <div class="hero-actions">
+                    <button type="button" class="btn-svc-outline" onclick="abrirModalPreferencias()">
+                        ⚙ Configurar Preferencias (CdU48)
+                    </button>
+                    <button type="button" class="btn-svc-primary" onclick="marcarTodasLeidas()">
+                        ✓ Marcar todas como leídas (CdU51)
+                    </button>
+                </div>
+            </div>
+
+            <div class="notifications-grid-layout">
+                
+                <div class="filter-sidebar-box">
+                    <div class="kpi-summary-box">
+                        <div class="kpi-card">
+                            <div class="kpi-num" id="kpiTotal">0</div>
+                            <div class="kpi-lbl">Total</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-num" id="kpiPendientes" style="color: var(--svc-danger);">0</div>
+                            <div class="kpi-lbl">Pendientes</div>
+                        </div>
+                    </div>
+
+                    <ul class="category-filter-list">
+                        <li class="category-filter-item active" id="filter-todas" onclick="cambiarFiltro('todas')">
+                            <span>Todas las alertas</span>
+                            <span class="badge-kpi-pill" id="badgeFiltroTodas">0</span>
+                        </li>
+                        <li class="category-filter-item" id="filter-stock" onclick="cambiarFiltro('stock')">
+                            <span>Alertas de Stock</span>
+                            <span class="badge-kpi-pill" id="badgeFiltroStock">0</span>
+                        </li>
+                        <li class="category-filter-item" id="filter-mensajes" onclick="cambiarFiltro('mensajes')">
+                            <span>Mensajes y Chat</span>
+                            <span class="badge-kpi-pill" id="badgeFiltroMensajes">0</span>
+                        </li>
+                        <li class="category-filter-item" id="filter-comunidades" onclick="cambiarFiltro('comunidades')">
+                            <span>Comunidades</span>
+                            <span class="badge-kpi-pill" id="badgeFiltroComunidades">0</span>
+                        </li>
+                        <li class="category-filter-item" id="filter-sanciones" onclick="cambiarFiltro('sanciones')">
+                            <span>Sanciones y Moderación</span>
+                            <span class="badge-kpi-pill" id="badgeFiltroSanciones">0</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="alerts-feed-pane" id="alertsFeedContainer">
+                    <div class="empty-notifications-card">
+                        Consultando notificaciones registradas...
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL: CONFIGURAR PREFERENCIAS DE NOTIFICACIONES (CdU48) -->
+    <div id="modalPreferencias" class="modal-overlay">
+        <div class="modal-card">
+            <h2 class="modal-title">Preferencias de Notificaciones</h2>
+            <p class="modal-subtitle">Personalice qué eventos desea recibir, active o desactive los correos SMTP y configure el tiempo de silencio (CdU48).</p>
+
+            <form id="formPreferencias" onsubmit="guardarPreferencias(event)">
+                
+                <!-- Canales y Silencio -->
+                <div class="pref-group-box">
+                    <div class="pref-box-title">Canal y Silenciamiento Temporal</div>
+                    <div class="pref-row-item">
+                        <div>
+                            <div class="pref-lbl">Notificaciones por Correo (SMTP)</div>
+                            <div class="pref-desc">Recibir copia al correo electrónico registrado.</div>
+                        </div>
+                        <input type="checkbox" id="chkEmailActivo" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--svc-primary);">
+                    </div>
+                    <div style="margin-top: 12px;">
+                        <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #475569; margin-bottom: 5px;">
+                            Silenciar Notificaciones (Modo No Molestar)
+                        </label>
+                        <select id="selectHorasSilencio" class="pref-select">
+                            <option value="0">Desactivado (Recibir todas en tiempo real)</option>
+                            <option value="1">Silenciar por 1 hora</option>
+                            <option value="8">Silenciar por 8 horas</option>
+                            <option value="24">Silenciar por 24 horas</option>
+                            <option value="720">Silenciar indefinidamente (30 días)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Categorías de Eventos -->
+                <div class="pref-group-box">
+                    <div class="pref-box-title">Tipos de Eventos a Notificar</div>
+                    <div class="pref-row-item">
+                        <div>
+                            <div class="pref-lbl">Mensajes de Negociación y Chat</div>
+                            <div class="pref-desc">Avisos de nuevas propuestas comerciales.</div>
+                        </div>
+                        <input type="checkbox" id="chkNotifMensajes" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--svc-primary);">
+                    </div>
+                    <div class="pref-row-item">
+                        <div>
+                            <div class="pref-lbl">Alertas de Bajo Stock</div>
+                            <div class="pref-desc">Avisos automáticos al cruzar el umbral mínimo.</div>
+                        </div>
+                        <input type="checkbox" id="chkNotifStock" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--svc-primary);">
+                    </div>
+                    <div class="pref-row-item">
+                        <div>
+                            <div class="pref-lbl">Novedades en Comunidades</div>
+                            <div class="pref-desc">Nuevas publicaciones y solicitudes de ingreso.</div>
+                        </div>
+                        <input type="checkbox" id="chkNotifComunidades" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--svc-primary);">
+                    </div>
+                    <div class="pref-row-item">
+                        <div>
+                            <div class="pref-lbl">Sanciones y Moderación</div>
+                            <div class="pref-desc">Avisos sobre expulsiones y bajas de publicaciones.</div>
+                        </div>
+                        <input type="checkbox" id="chkNotifSanciones" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--svc-primary);">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-svc-outline" onclick="cerrarModalPreferencias()">Cancelar</button>
+                    <button type="submit" id="btnGuardarPref" class="btn-svc-primary">Guardar Cambios &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toastMessage" class="toast-notification"></div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8080";
+        const token = localStorage.getItem("svc_token");
+        const usuarioSesion = JSON.parse(localStorage.getItem("svc_usuario") || "{}");
+        let filtroActual = "todas";
+
+        if (!token) window.location.href = "login.html";
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (usuarioSesion.nombre_razon_social) {
+                document.getElementById("userNameTop").innerText = usuarioSesion.nombre_razon_social;
+            }
+            cargarNotificaciones();
+            cargarEstadoSilenciamiento();
+            setInterval(cargarNotificacionesSilencioso, 5000);
+        });
+
+        function toggleDrawer() {
+            document.getElementById("sidebarDrawer").classList.toggle("open");
+            document.getElementById("drawerBackdrop").classList.toggle("open");
+        }
+
+        function mostrarToast(msg) {
+            const toast = document.getElementById("toastMessage");
+            toast.innerText = msg;
+            toast.style.display = "block";
+            setTimeout(() => { toast.style.display = "none"; }, 3500);
+        }
+
+        function cambiarFiltro(cat) {
+            filtroActual = cat;
+            document.querySelectorAll(".category-filter-item").forEach(el => el.classList.remove("active"));
+            const target = document.getElementById(`filter-${cat}`);
+            if (target) target.classList.add("active");
+            cargarNotificaciones();
+        }
+
+        async function cargarEstadoSilenciamiento() {
+            try {
+                const res = await fetch(`${API_URL}/chat/notificaciones/preferencias`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const banner = document.getElementById("bannerMuted");
+                    if (data.esta_silenciado && data.silenciado_hasta) {
+                        const fechaStr = new Date(data.silenciado_hasta).toLocaleTimeString('es-AR', {
+                            day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+                        });
+                        document.getElementById("lblMutedUntil").innerText = `${fechaStr} hs`;
+                        banner.style.display = "flex";
+                    } else {
+                        banner.style.display = "none";
+                    }
+                }
+            } catch (e) {}
+        }
+
+        async function quitarSilencioInmediato() {
+            try {
+                const res = await fetch(`${API_URL}/chat/notificaciones/preferencias`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ horas_silencio: 0 })
+                });
+                if (res.ok) {
+                    mostrarToast("Silenciamiento desactivado.");
+                    document.getElementById("bannerMuted").style.display = "none";
+                }
+            } catch (e) {}
+        }
+
+        async function cargarNotificaciones() {
+            const feed = document.getElementById("alertsFeedContainer");
+            try {
+                const res = await fetch(`${API_URL}/chat/notificaciones?filtro=${filtroActual}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    actualizarMetricas(data);
+                    renderizarFeed(data.notificaciones || []);
+                } else {
+                    feed.innerHTML = `<div class="empty-notifications-card" style="color: var(--svc-danger);">Error al cargar notificaciones.</div>`;
+                }
+            } catch (e) {
+                feed.innerHTML = `<div class="empty-notifications-card" style="color: var(--svc-danger);">Fallo de comunicación con el backend.</div>`;
+            }
+        }
+
+        async function cargarNotificacionesSilencioso() {
+            try {
+                const res = await fetch(`${API_URL}/chat/notificaciones?filtro=${filtroActual}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    actualizarMetricas(data);
+                    renderizarFeed(data.notificaciones || []);
+                }
+            } catch (e) {}
+        }
+
+        function actualizarMetricas(data) {
+            document.getElementById("kpiTotal").innerText = data.total_notificaciones || 0;
+            document.getElementById("kpiPendientes").innerText = data.total_no_leidas || 0;
+
+            const bTodas = document.getElementById("badgeFiltroTodas");
+            bTodas.innerText = data.total_no_leidas || 0;
+            bTodas.classList.toggle("has-pending", data.total_no_leidas > 0);
+
+            const bStock = document.getElementById("badgeFiltroStock");
+            bStock.innerText = data.metricas.stock || 0;
+            bStock.classList.toggle("has-pending", data.metricas.stock > 0);
+
+            const bMsg = document.getElementById("badgeFiltroMensajes");
+            bMsg.innerText = data.metricas.mensajes || 0;
+            bMsg.classList.toggle("has-pending", data.metricas.mensajes > 0);
+
+            const bCom = document.getElementById("badgeFiltroComunidades");
+            bCom.innerText = data.metricas.comunidades || 0;
+            bCom.classList.toggle("has-pending", data.metricas.comunidades > 0);
+
+            const bSan = document.getElementById("badgeFiltroSanciones");
+            bSan.innerText = data.metricas.sanciones || 0;
+            bSan.classList.toggle("has-pending", data.metricas.sanciones > 0);
+        }
+
+        function renderizarFeed(lista) {
+            const feed = document.getElementById("alertsFeedContainer");
+
+            if (!lista || lista.length === 0) {
+                feed.innerHTML = `
+                    <div class="empty-notifications-card">
+                        <strong>No tienes notificaciones en esta categoría.</strong><br>
+                        Las alertas de stock bajo, mensajes y sanciones aparecerán aquí automáticamente.
+                    </div>
+                `;
+                return;
+            }
+
+            feed.innerHTML = "";
+            lista.forEach(n => {
+                const card = document.createElement("div");
+                
+                let tipoClass = "tipo-mensaje";
+                let tagClass = "badge-tag-mensaje";
+                let tagLabel = "Mensaje B2B";
+                let btnLabel = "Ir al Chat &rarr;";
+
+                if (n.tipo === "alerta_stock") {
+                    tipoClass = "tipo-stock";
+                    tagClass = "badge-tag-stock";
+                    tagLabel = "Alerta de Stock";
+                    btnLabel = "Ver Inventario &rarr;";
+                } else if (n.tipo === "comunidad_publicacion") {
+                    tipoClass = "tipo-comunidad";
+                    tagClass = "badge-tag-comunidad";
+                    tagLabel = "Comunidad";
+                    btnLabel = "Ver Publicación &rarr;";
+                } else if (n.tipo === "sancion_moderacion") {
+                    tipoClass = "tipo-sancion";
+                    tagClass = "badge-tag-sancion";
+                    tagLabel = "Sanción / Moderación";
+                    btnLabel = "Ver Detalle &rarr;";
+                }
+
+                card.className = `alert-card-item ${tipoClass} ${n.leida ? '' : 'unread'}`;
+
+                const fechaFmt = new Date(n.creado_el).toLocaleDateString('es-AR', {
+                    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+                });
+
+                card.innerHTML = `
+                    <div class="alert-content-col">
+                        <div class="alert-badge-row">
+                            <span class="badge-tipo-tag ${tagClass}">${tagLabel}</span>
+                            <span class="alert-time-txt">${fechaFmt} hs</span>
+                            ${!n.leida ? '<span style="color: var(--svc-danger); font-size: 10px; font-weight: 700;">● NUEVA</span>' : ''}
+                        </div>
+                        <h3 class="alert-title-txt">${escapeHTML(n.titulo)}</h3>
+                        <p class="alert-desc-txt">${escapeHTML(n.mensaje)}</p>
+                    </div>
+                    <div class="alert-actions-col">
+                        ${!n.leida ? `<button type="button" class="btn-discard-single" onclick="descartarIndividual('${n.id}')">✓ Leída</button>` : ''}
+                        <button type="button" class="btn-deep-link" onclick="accederOrigenEvento('${n.id}', '${n.uri_destino}')">${btnLabel}</button>
+                    </div>
+                `;
+                feed.appendChild(card);
+            });
+        }
+
+        async function accederOrigenEvento(id, uri) {
+            try {
+                await fetch(`${API_URL}/chat/notificaciones/${id}/leer`, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+            } catch (e) {}
+            window.location.href = uri;
+        }
+
+        async function descartarIndividual(id) {
+            try {
+                const res = await fetch(`${API_URL}/chat/notificaciones/${id}/leer`, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    mostrarToast("Notificación marcada como leída.");
+                    cargarNotificaciones();
+                }
+            } catch (e) {
+                alert("Error al actualizar la notificación.");
+            }
+        }
+
+        async function marcarTodasLeidas() {
+            try {
+                const res = await fetch(`${API_URL}/chat/notificaciones/marcar-todas-leidas`, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    mostrarToast("Todas las alertas marcadas como leídas.");
+                    cargarNotificaciones();
+                }
+            } catch (e) {
+                alert("Error al actualizar notificaciones.");
+            }
+        }
+
+        // ── MODAL PREFERENCIAS (CdU48) ──
+        async function abrirModalPreferencias() {
+            try {
+                const res = await fetch(`${API_URL}/chat/notificaciones/preferencias`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById("chkEmailActivo").checked = data.email_notificaciones_activas;
+                    document.getElementById("chkNotifMensajes").checked = data.notificar_mensajes_chat;
+                    document.getElementById("chkNotifStock").checked = data.notificar_alertas_stock;
+                    document.getElementById("chkNotifComunidades").checked = data.notificar_comunidades;
+                    document.getElementById("chkNotifSanciones").checked = data.notificar_sanciones;
+                    document.getElementById("selectHorasSilencio").value = "0";
+
+                    document.getElementById("modalPreferencias").style.display = "flex";
+                }
+            } catch (e) {
+                alert("Error al recuperar las preferencias.");
+            }
+        }
+
+        function cerrarModalPreferencias() {
+            document.getElementById("modalPreferencias").style.display = "none";
+        }
+
+        async function guardarPreferencias(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnGuardarPref");
+            btn.disabled = true;
+            btn.innerText = "Guardando...";
+
+            const payload = {
+                email_notificaciones_activas: document.getElementById("chkEmailActivo").checked,
+                horas_silencio: parseInt(document.getElementById("selectHorasSilencio").value) || 0,
+                notificar_mensajes_chat: document.getElementById("chkNotifMensajes").checked,
+                notificar_alertas_stock: document.getElementById("chkNotifStock").checked,
+                notificar_comunidades: document.getElementById("chkNotifComunidades").checked,
+                notificar_sanciones: document.getElementById("chkNotifSanciones").checked
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/chat/notificaciones/preferencias`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    cerrarModalPreferencias();
+                    mostrarToast("Preferencias de notificaciones guardadas exitosamente.");
+                    cargarEstadoSilenciamiento();
+                } else {
+                    alert("Error al guardar preferencias.");
+                }
+            } catch (err) {
+                alert("Fallo de comunicación con el backend.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Guardar Cambios →";
+            }
+        }
+
+        function escapeHTML(str) {
+            return String(str || '').replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("svc_token");
+            localStorage.removeItem("svc_usuario");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

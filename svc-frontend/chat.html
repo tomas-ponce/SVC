@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Central de Negociaciones & Chats</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-primary-hover: #004085;
+            --svc-bg-page: #f8f9fa;
+            --svc-bg-surface: #ffffff;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-danger: #dc3545;
+            --svc-danger-hover: #bd2130;
+            --svc-warning: #ffc107;
+            --svc-success: #28a745;
+            --svc-border-radius: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sidebar-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1200;
+            transition: left 0.25s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-drawer.open { left: 0; }
+
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1100;
+            display: none;
+        }
+
+        .drawer-backdrop.open { display: block; }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-box {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--svc-text-muted);
+            padding: 4px 8px;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-left: 4px solid var(--svc-primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .topbar {
+            height: 65px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            flex-shrink: 0;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-hamburger {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .btn-hamburger .bar {
+            width: 18px;
+            height: 2px;
+            background-color: #1e293b;
+        }
+
+        .topbar-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--svc-danger);
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .master-chat-layout {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 410px 1fr;
+            max-width: 1440px;
+            width: 100%;
+            margin: 15px auto;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow: hidden;
+            height: calc(100vh - 95px);
+        }
+
+        .inbox-sidebar-pane {
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            overflow: hidden;
+        }
+
+        .inbox-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+        }
+
+        .inbox-header h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .inbox-tabs-row {
+            display: flex;
+            gap: 4px;
+        }
+
+        .inbox-tab-btn {
+            flex: 1;
+            padding: 6px;
+            font-size: 10.5px;
+            font-weight: 700;
+            border: 1px solid var(--svc-border);
+            background-color: #ffffff;
+            color: var(--svc-text-muted);
+            cursor: pointer;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .inbox-tab-btn.active {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border-color: var(--svc-primary);
+        }
+
+        .inbox-chats-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Acordeón de Comerciante */
+        .merchant-group-accordion {
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .merchant-accordion-header {
+            padding: 12px 14px;
+            background-color: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            user-select: none;
+            transition: all 0.15s ease;
+        }
+
+        .merchant-accordion-header:hover {
+            background-color: #f1f5f9;
+        }
+
+        .merchant-accordion-header.open {
+            border-left-color: var(--svc-primary);
+            background-color: #e7f0fb;
+        }
+
+        .merchant-title-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+            overflow: hidden;
+            padding-right: 6px;
+        }
+
+        .merchant-name-txt {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .merchant-rubro-txt {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        .merchant-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .btn-header-action-small {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            color: #334155;
+            font-size: 9.5px;
+            font-weight: 700;
+            padding: 3px 5px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-header-action-small:hover {
+            background-color: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .btn-merchant-block {
+            border-color: #fecaca;
+            color: var(--svc-danger);
+        }
+
+        .btn-merchant-block:hover {
+            background-color: var(--svc-danger);
+            color: #ffffff;
+            border-color: var(--svc-danger);
+        }
+
+        .btn-merchant-unblock {
+            border-color: #bbf7d0;
+            color: var(--svc-success);
+        }
+
+        .btn-merchant-unblock:hover {
+            background-color: var(--svc-success);
+            color: #ffffff;
+            border-color: var(--svc-success);
+        }
+
+        .caret-indicator {
+            font-size: 9px;
+            color: var(--svc-text-muted);
+            margin-left: 2px;
+            padding: 0 4px;
+        }
+
+        .merchant-chats-sublist {
+            display: none;
+            background-color: #ffffff;
+        }
+
+        .merchant-chats-sublist.open {
+            display: block;
+        }
+
+        .chat-subitem {
+            padding: 10px 14px 10px 22px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            text-decoration: none;
+            color: inherit;
+            border-left: 3px solid transparent;
+        }
+
+        .chat-subitem:hover {
+            background-color: #f8fafc;
+        }
+
+        .chat-subitem.active {
+            background-color: #f1f5f9;
+            border-left-color: var(--svc-primary);
+        }
+
+        .subitem-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .subitem-product {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--svc-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .subitem-snippet {
+            font-size: 11.5px;
+            color: var(--svc-text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .badge-count {
+            background-color: var(--svc-danger);
+            color: #ffffff;
+            font-size: 9.5px;
+            font-weight: 700;
+            padding: 1px 5px;
+            display: inline-block;
+        }
+
+        .btn-action-micro {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            color: #475569;
+            padding: 2px 4px;
+            font-size: 9px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-action-micro:hover {
+            background-color: #e7f0fb;
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+        }
+
+        /* Sala Activa */
+        .active-room-pane {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+
+        .chat-header-context {
+            padding: 16px 24px;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header-context-left h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 4px 0;
+        }
+
+        .header-context-left p {
+            font-size: 12px;
+            color: var(--svc-text-muted);
+            margin: 0;
+        }
+
+        .header-context-right {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .context-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--svc-primary);
+        }
+
+        .btn-context-link {
+            font-size: 11px;
+            color: var(--svc-primary);
+            text-decoration: none;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .btn-context-link:hover { text-decoration: underline; }
+
+        .chat-messages-area {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background-color: #ffffff;
+        }
+
+        .empty-chat-notice {
+            margin: auto;
+            text-align: center;
+            color: var(--svc-text-muted);
+            font-size: 13px;
+            line-height: 1.5;
+            max-width: 500px;
+        }
+
+        .message-bubble-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-width: 68%;
+        }
+
+        .message-bubble-wrapper.own {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .message-bubble-wrapper.other {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .message-sender-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .message-bubble {
+            padding: 12px 16px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .message-bubble.own {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border: 1px solid var(--svc-primary);
+        }
+
+        .message-bubble.other {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+        }
+
+        .message-timestamp {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .chat-input-bar {
+            padding: 16px 24px;
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+
+        .chat-textarea {
+            flex: 1;
+            height: 48px;
+            min-height: 48px;
+            max-height: 120px;
+            padding: 12px 14px;
+            border: 1px solid var(--svc-border);
+            font-family: inherit;
+            font-size: 13px;
+            color: var(--svc-text);
+            outline: none;
+            resize: none;
+            background-color: #ffffff;
+        }
+
+        .chat-textarea:focus { border-color: var(--svc-primary); }
+
+        .btn-send-message {
+            height: 48px;
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border: none;
+            padding: 0 24px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-send-message:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
+        .alert-blocked-banner {
+            background-color: #fff5f5;
+            color: #991b1b;
+            border-bottom: 1px solid #fecaca;
+            padding: 12px 24px;
+            font-size: 12.5px;
+            display: none;
+            font-weight: 600;
+        }
+
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 12px 20px;
+            font-size: 12.5px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 2000;
+        }
+
+        /* ── MODAL INSTITUCIONAL DE CONFIRMACIÓN (SVC DESIGN SYSTEM) ── */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2500;
+            padding: 20px;
+        }
+
+        .modal-card-custom {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            width: 100%;
+            max-width: 480px;
+            padding: 28px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .modal-card-custom.modal-danger {
+            border-top-color: var(--svc-danger);
+        }
+
+        .modal-title-custom {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 8px 0;
+        }
+
+        .modal-title-custom.text-danger {
+            color: var(--svc-danger);
+        }
+
+        .modal-desc-custom {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.5;
+            margin: 0 0 24px 0;
+        }
+
+        .modal-actions-custom {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-modal-cancel {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            color: #1e293b;
+            padding: 9px 18px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-modal-cancel:hover {
+            background-color: #f8fafc;
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+        }
+
+        .btn-modal-confirm {
+            background: var(--svc-primary);
+            color: #ffffff;
+            border: none;
+            padding: 9px 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-modal-confirm:hover {
+            background-color: var(--svc-primary-hover);
+        }
+
+        .btn-modal-confirm.btn-danger {
+            background-color: var(--svc-danger);
+        }
+
+        .btn-modal-confirm.btn-danger:hover {
+            background-color: var(--svc-danger-hover);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
+
+    <div id="sidebarDrawer" class="sidebar-drawer">
+        <div>
+            <div class="sidebar-brand">
+                <div class="brand-info">
+                    <div class="brand-box">SVC</div>
+                    <div class="brand-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+                </div>
+                <button class="btn-close-drawer" onclick="toggleDrawer()">&times;</button>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
+                <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
+                <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
+                <li class="nav-item"><a href="comunidades.html">Comunidades B2B</a></li>
+                <li class="nav-item active"><a href="chat.html">Chats</a></li>
+                <li class="nav-item"><a href="notificaciones.html">Notificaciones</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            &copy; 2026 SVC — v0.5.0
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="btn-hamburger" onclick="toggleDrawer()">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </button>
+                <div class="topbar-title">Central de Negociaciones B2B</div>
+            </div>
+            <div class="user-badge">
+                <span id="userNameTop">Comercio Conectado</span>
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="master-chat-layout">
+            
+            <!-- Bandeja Lateral Agrupada -->
+            <div class="inbox-sidebar-pane">
+                <div class="inbox-header">
+                    <h2>Negociaciones</h2>
+                    <div class="inbox-tabs-row">
+                        <button class="inbox-tab-btn active" id="tabActivos" onclick="cambiarFiltroBandeja('activos')">Activos</button>
+                        <button class="inbox-tab-btn" id="tabArchivados" onclick="cambiarFiltroBandeja('archivados')">Archivados</button>
+                        <button class="inbox-tab-btn" id="tabBloqueados" onclick="cambiarFiltroBandeja('bloqueados')">Bloqueados</button>
+                    </div>
+                </div>
+
+                <div class="inbox-chats-list" id="inboxListContainer">
+                    <div style="padding: 24px; text-align: center; color: var(--svc-text-muted); font-size: 12px;">
+                        Cargando conversaciones...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sala Activa -->
+            <div class="active-room-pane">
+                <div id="bannerBloqueado" class="alert-blocked-banner">
+                    ⛔ Ha bloqueado a este comerciante. Todos sus canales de comunicación se encuentran restringidos.
+                </div>
+
+                <div class="chat-header-context">
+                    <div class="header-context-left">
+                        <h2 id="headerContraparte">Seleccione una negociación</h2>
+                        <p id="headerPublicacion">Elija un chat del desplegable lateral o inicie uno desde una oferta</p>
+                    </div>
+                    <div class="header-context-right">
+                        <span class="context-price" id="headerPrecio">—</span>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button type="button" class="btn-header-action-small" id="btnAccionArchivoHeader" style="display: none;" onclick="conmutarArchivoSalaActiva()">
+                                📦 Archivar Chat
+                            </button>
+                            <a href="#" class="btn-context-link" id="linkVerPublicacion" style="display: none;" target="_blank">Ver Oferta &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-messages-area" id="messagesArea">
+                    <div class="empty-chat-notice" id="emptyNotice">
+                        Seleccione una negociación del listado lateral para ver los mensajes.
+                    </div>
+                </div>
+
+                <form class="chat-input-bar" id="chatForm" onsubmit="enviarMensaje(event)">
+                    <textarea 
+                        id="txtInputMensaje" 
+                        class="chat-textarea" 
+                        placeholder="Escriba su propuesta comercial..." 
+                        required 
+                        disabled
+                        onkeydown="manejarTecla(event)"></textarea>
+                    <button type="submit" id="btnEnviar" class="btn-send-message" disabled>
+                        <span>Enviar</span>
+                        <span>&rarr;</span>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL INSTITUCIONAL UNIVERSAL DE CONFIRMACIÓN -->
+    <div id="modalConfirmacionAccion" class="modal-overlay">
+        <div class="modal-card-custom" id="modalConfirmCard">
+            <h3 class="modal-title-custom" id="modalConfirmTitle">Confirmar Acción</h3>
+            <p class="modal-desc-custom" id="modalConfirmDesc">¿Está seguro de que desea continuar?</p>
+            <div class="modal-actions-custom">
+                <button type="button" class="btn-modal-cancel" onclick="cerrarModalConfirmacion()">Cancelar</button>
+                <button type="button" class="btn-modal-confirm" id="btnModalAceptar" onclick="ejecutarAccionConfirmada()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastMessage" class="toast-notification"></div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8080";
+        const token = localStorage.getItem("svc_token");
+        const usuarioSesion = JSON.parse(localStorage.getItem("svc_usuario") || "{}");
+        const urlParams = new URLSearchParams(window.location.search);
+        let salaId = urlParams.get("sala");
+        let salaDataCache = null;
+        let filtroBandejaActual = "activos";
+
+        // Registro de comerciantes con acordeón desplegado
+        let comerciantesAbiertos = new Set();
+        let haInicializadoApertura = false;
+
+        // Callback de ejecución para el modal de confirmación
+        let callbackAccionConfirmada = null;
+
+        if (!token) window.location.href = "login.html";
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (usuarioSesion.nombre_razon_social) {
+                document.getElementById("userNameTop").innerText = usuarioSesion.nombre_razon_social;
+            }
+            cargarBandeja();
+            if (salaId) cargarDetalleSala();
+
+            setInterval(() => {
+                cargarBandejaSilencioso();
+                if (salaId) cargarDetalleSalaSilencioso();
+            }, 4000);
+        });
+
+        function toggleDrawer() {
+            document.getElementById("sidebarDrawer").classList.toggle("open");
+            document.getElementById("drawerBackdrop").classList.toggle("open");
+        }
+
+        function mostrarToast(msg) {
+            const toast = document.getElementById("toastMessage");
+            toast.innerText = msg;
+            toast.style.display = "block";
+            setTimeout(() => { toast.style.display = "none"; }, 3500);
+        }
+
+        // ── MANEJO DEL MODAL DE CONFIRMACIÓN INSTITUCIONAL ──
+        function abrirModalConfirmacion({ titulo, mensaje, textoBoton, esPeligroso, onConfirmar }) {
+            document.getElementById("modalConfirmTitle").innerText = titulo;
+            document.getElementById("modalConfirmDesc").innerHTML = mensaje;
+            
+            const card = document.getElementById("modalConfirmCard");
+            const btn = document.getElementById("btnModalAceptar");
+            const title = document.getElementById("modalConfirmTitle");
+
+            if (esPeligroso) {
+                card.classList.add("modal-danger");
+                title.classList.add("text-danger");
+                btn.className = "btn-modal-confirm btn-danger";
+            } else {
+                card.classList.remove("modal-danger");
+                title.classList.remove("text-danger");
+                btn.className = "btn-modal-confirm";
+            }
+
+            btn.innerText = textoBoton || "Aceptar";
+            callbackAccionConfirmada = onConfirmar;
+
+            document.getElementById("modalConfirmacionAccion").style.display = "flex";
+        }
+
+        function cerrarModalConfirmacion() {
+            document.getElementById("modalConfirmacionAccion").style.display = "none";
+            callbackAccionConfirmada = null;
+        }
+
+        function ejecutarAccionConfirmada() {
+            if (typeof callbackAccionConfirmada === "function") {
+                const fn = callbackAccionConfirmada;
+                cerrarModalConfirmacion();
+                fn();
+            }
+        }
+
+        // ── BANDEJA LATERAL ──
+        function cambiarFiltroBandeja(filtro) {
+            filtroBandejaActual = filtro;
+            document.getElementById("tabActivos").classList.toggle("active", filtro === "activos");
+            document.getElementById("tabArchivados").classList.toggle("active", filtro === "archivados");
+            document.getElementById("tabBloqueados").classList.toggle("active", filtro === "bloqueados");
+            cargarBandeja();
+        }
+
+        async function cargarBandeja() {
+            const container = document.getElementById("inboxListContainer");
+            try {
+                const res = await fetch(`${API_URL}/chat/bandeja-agrupada?filtro=${filtroBandejaActual}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    renderizarBandejaAgrupada(data);
+                }
+            } catch (e) {
+                container.innerHTML = `<div style="padding: 20px; color: var(--svc-danger); text-align: center;">Fallo de conexión.</div>`;
+            }
+        }
+
+        async function cargarBandejaSilencioso() {
+            try {
+                const res = await fetch(`${API_URL}/chat/bandeja-agrupada?filtro=${filtroBandejaActual}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    renderizarBandejaAgrupada(data);
+                }
+            } catch (e) {}
+        }
+
+        function renderizarBandejaAgrupada(grupos) {
+            const container = document.getElementById("inboxListContainer");
+            if (!grupos || grupos.length === 0) {
+                container.innerHTML = `<div style="padding: 30px 20px; text-align: center; color: var(--svc-text-muted); font-size: 12px;">No hay negociaciones en ${filtroBandejaActual}.</div>`;
+                return;
+            }
+
+            // Abre el grupo de la sala activa exclusivamente en la carga inicial
+            if (!haInicializadoApertura && salaId) {
+                grupos.forEach(g => {
+                    if (g.chats && g.chats.some(c => c.sala_id === salaId)) {
+                        comerciantesAbiertos.add(g.comerciante_id);
+                    }
+                });
+                haInicializadoApertura = true;
+            }
+
+            container.innerHTML = "";
+            grupos.forEach(g => {
+                const grpDiv = document.createElement("div");
+                grpDiv.className = "merchant-group-accordion";
+                grpDiv.id = `grp-${g.comerciante_id}`;
+
+                const tieneChats = g.chats && g.chats.length > 0;
+                const estaAbierto = comerciantesAbiertos.has(g.comerciante_id);
+
+                // Botón Bloquear / Desbloquear (CdU41 / CdU42)
+                let btnBloqueoHtml = "";
+                if (g.bloqueado_por_mi) {
+                    btnBloqueoHtml = `<button type="button" class="btn-header-action-small btn-merchant-unblock" onclick="solicitarDesbloqueoComerciante(event, '${g.comerciante_id}', '${escapeHTML(g.comerciante_nombre)}')">Desbloquear</button>`;
+                } else {
+                    btnBloqueoHtml = `<button type="button" class="btn-header-action-small btn-merchant-block" onclick="solicitarBloqueoComerciante(event, '${g.comerciante_id}', '${escapeHTML(g.comerciante_nombre)}')">Bloquear</button>`;
+                }
+
+                // Botón Archivar Todos (CdU39) / Desarchivar Todos (CdU40)
+                let btnLoteArchivoHtml = "";
+                if (tieneChats) {
+                    if (filtroBandejaActual === "activos") {
+                        btnLoteArchivoHtml = `<button type="button" class="btn-header-action-small" title="Archivar todos los chats con este comerciante" onclick="solicitarArchivadoLote(event, '${g.comerciante_id}', '${escapeHTML(g.comerciante_nombre)}')">📦 Archivar Todos</button>`;
+                    } else if (filtroBandejaActual === "archivados") {
+                        btnLoteArchivoHtml = `<button type="button" class="btn-header-action-small" title="Desarchivar todos los chats con este comerciante" onclick="solicitarDesarchivadoLote(event, '${g.comerciante_id}', '${escapeHTML(g.comerciante_nombre)}')">📂 Desarchivar Todos</button>`;
+                    }
+                }
+
+                const badgeTotal = g.total_no_leidos_comerciante > 0 
+                    ? `<span class="badge-count">${g.total_no_leidos_comerciante}</span>` 
+                    : "";
+
+                grpDiv.innerHTML = `
+                    <div class="merchant-accordion-header ${estaAbierto ? 'open' : ''}" onclick="toggleAcordeonComerciante('${g.comerciante_id}')">
+                        <div class="merchant-title-col">
+                            <span class="merchant-name-txt">${escapeHTML(g.comerciante_nombre)}</span>
+                            <span class="merchant-rubro-txt">${escapeHTML(g.comerciante_rubro || 'General')} &bull; ${tieneChats ? g.chats.length : 0} chat(s)</span>
+                        </div>
+                        <div class="merchant-header-actions" onclick="event.stopPropagation()">
+                            ${badgeTotal}
+                            ${btnLoteArchivoHtml}
+                            ${btnBloqueoHtml}
+                            <span class="caret-indicator" onclick="event.stopPropagation(); toggleAcordeonComerciante('${g.comerciante_id}')">${estaAbierto ? '▲' : '▼'}</span>
+                        </div>
+                    </div>
+                    <div class="merchant-chats-sublist ${estaAbierto ? 'open' : ''}" id="sublist-${g.comerciante_id}">
+                        ${renderizarSubchats(g.chats, g.comerciante_id)}
+                    </div>
+                `;
+                container.appendChild(grpDiv);
+            });
+        }
+
+        function renderizarSubchats(chats, comercianteId) {
+            if (!chats || chats.length === 0) {
+                return `<div style="padding: 10px 16px; font-size: 11px; color: var(--svc-text-muted);">Sin chats registrados.</div>`;
+            }
+
+            return chats.map(c => {
+                const activo = (c.sala_id === salaId) ? 'active' : '';
+                const unreadBadge = c.mensajes_no_leidos > 0 ? `<span class="badge-count">${c.mensajes_no_leidos}</span>` : '';
+                
+                const btnRead = c.mensajes_no_leidos > 0 && filtroBandejaActual === 'activos'
+                    ? `<button type="button" class="btn-action-micro" title="Marcar como leído" onclick="marcarLeidoRapido(event, '${c.sala_id}')">✓</button>` 
+                    : '';
+
+                const btnArch = filtroBandejaActual === 'activos'
+                    ? `<button type="button" class="btn-action-micro" title="Archivar chat" onclick="archivarRapido(event, '${c.sala_id}')">📦</button>`
+                    : `<button type="button" class="btn-action-micro" title="Desarchivar chat" onclick="desarchivarRapido(event, '${c.sala_id}')">📂</button>`;
+
+                return `
+                    <div class="chat-subitem ${activo}" onclick="seleccionarSala('${c.sala_id}', '${comercianteId}')">
+                        <div class="subitem-title-row">
+                            <span class="subitem-product">📦 ${escapeHTML(c.publicacion_titulo)}</span>
+                            <div style="display: flex; gap: 4px; align-items: center;" onclick="event.stopPropagation()">
+                                ${unreadBadge}
+                                ${btnRead}
+                                ${btnArch}
+                            </div>
+                        </div>
+                        <span class="subitem-snippet">${escapeHTML(c.ultimo_mensaje_contenido || 'Sin mensajes aún')}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Toggle del acordeón persistiendo en memoria el estado
+        function toggleAcordeonComerciante(cid) {
+            if (comerciantesAbiertos.has(cid)) {
+                comerciantesAbiertos.delete(cid);
+            } else {
+                comerciantesAbiertos.add(cid);
+            }
+            cargarBandeja();
+        }
+
+        function seleccionarSala(id, cid) {
+            salaId = id;
+            if (cid) comerciantesAbiertos.add(cid);
+            history.pushState(null, "", `chat.html?sala=${id}`);
+            
+            document.querySelectorAll(".chat-subitem").forEach(el => el.classList.remove("active"));
+            cargarDetalleSala();
+            cargarBandejaSilencioso();
+        }
+
+        // ── DIÁLOGOS DE CONFIRMACIÓN CON MODAL INSTITUCIONAL ──
+        function solicitarArchivadoLote(e, cid, nombre) {
+            e.stopPropagation();
+            abrirModalConfirmacion({
+                titulo: "Archivar Negociaciones",
+                mensaje: `¿Desea archivar todas las conversaciones con <strong>${nombre}</strong>? Pasarán a la pestaña "Archivados" de forma organizada.`,
+                textoBoton: "Archivar Todos",
+                esPeligroso: false,
+                onConfirmar: async () => {
+                    try {
+                        const res = await fetch(`${API_URL}/chat/comerciantes/${cid}/archivar-todos`, {
+                            method: "PUT",
+                            headers: { "Authorization": `Bearer ${token}` }
+                        });
+                        if (res.ok) {
+                            mostrarToast("Conversaciones archivadas correctamente.");
+                            if (salaDataCache && salaDataCache.contraparte_id === cid && filtroBandejaActual === "activos") {
+                                limpiarVistaSalaActiva("Las conversaciones con este comerciante fueron archivadas.");
+                            }
+                            cargarBandeja();
+                        }
+                    } catch (err) {
+                        alert("Error al archivar conversaciones.");
+                    }
+                }
+            });
+        }
+
+        function solicitarDesarchivadoLote(e, cid, nombre) {
+            e.stopPropagation();
+            abrirModalConfirmacion({
+                titulo: "Desarchivar Negociaciones",
+                mensaje: `¿Desea restaurar todas las conversaciones con <strong>${nombre}</strong> a la bandeja de chats activos?`,
+                textoBoton: "Desarchivar Todos",
+                esPeligroso: false,
+                onConfirmar: async () => {
+                    try {
+                        const res = await fetch(`${API_URL}/chat/comerciantes/${cid}/desarchivar-todos`, {
+                            method: "PUT",
+                            headers: { "Authorization": `Bearer ${token}` }
+                        });
+                        if (res.ok) {
+                            mostrarToast("Conversaciones restauradas a la bandeja activa.");
+                            if (salaDataCache && salaDataCache.contraparte_id === cid && filtroBandejaActual === "archivados") {
+                                limpiarVistaSalaActiva("Las conversaciones fueron restauradas.");
+                            }
+                            cargarBandeja();
+                        }
+                    } catch (err) {
+                        alert("Error al desarchivar conversaciones.");
+                    }
+                }
+            });
+        }
+
+        function solicitarBloqueoComerciante(e, cid, nombre) {
+            e.stopPropagation();
+            abrirModalConfirmacion({
+                titulo: "Bloquear Comerciante",
+                mensaje: `¿Está seguro de que desea bloquear a <strong>${nombre}</strong>?<br><br>Se restringirán de inmediato todos los canales de mensajería y ofertas con esta empresa. La conversación se trasladará a la pestaña "Bloqueados".`,
+                textoBoton: "Confirmar Bloqueo",
+                esPeligroso: true,
+                onConfirmar: async () => {
+                    try {
+                        const res = await fetch(`${API_URL}/chat/comerciantes/${cid}/bloquear`, {
+                            method: "PUT",
+                            headers: { "Authorization": `Bearer ${token}` }
+                        });
+                        if (res.ok) {
+                            mostrarToast("Comerciante bloqueado en todos los canales.");
+                            cargarBandeja();
+                            if (salaDataCache && salaDataCache.contraparte_id === cid) {
+                                cargarDetalleSala();
+                            }
+                        }
+                    } catch (err) {
+                        alert("Fallo de comunicación con el servidor.");
+                    }
+                }
+            });
+        }
+
+        function solicitarDesbloqueoComerciante(e, cid, nombre) {
+            e.stopPropagation();
+            abrirModalConfirmacion({
+                titulo: "Desbloquear Comerciante",
+                mensaje: `¿Desea restaurar la comunicación con <strong>${nombre}</strong>? Podrán volver a intercambiar mensajes comerciales en sus negociaciones.`,
+                textoBoton: "Confirmar Desbloqueo",
+                esPeligroso: false,
+                onConfirmar: async () => {
+                    try {
+                        const res = await fetch(`${API_URL}/chat/comerciantes/${cid}/desbloquear`, {
+                            method: "PUT",
+                            headers: { "Authorization": `Bearer ${token}` }
+                        });
+                        if (res.ok) {
+                            mostrarToast("Comerciante desbloqueado.");
+                            cargarBandeja();
+                            if (salaDataCache && salaDataCache.contraparte_id === cid) {
+                                cargarDetalleSala();
+                            }
+                        }
+                    } catch (err) {
+                        alert("Fallo de comunicación con el servidor.");
+                    }
+                }
+            });
+        }
+
+        // Acciones Individuales de Sala (CdU38, CdU39, CdU40)
+        async function marcarLeidoRapido(e, id) {
+            e.stopPropagation();
+            try {
+                await fetch(`${API_URL}/chat/${id}/marcar-leido`, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                cargarBandejaSilencioso();
+            } catch (e) {}
+        }
+
+        async function archivarRapido(e, id) {
+            e.stopPropagation();
+            try {
+                await fetch(`${API_URL}/chat/${id}/archivar`, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                mostrarToast("Chat archivado.");
+                cargarBandeja();
+                if (salaId === id && filtroBandejaActual === "activos") {
+                    limpiarVistaSalaActiva("La conversación fue archivada.");
+                }
+            } catch (e) {}
+        }
+
+        async function desarchivarRapido(e, id) {
+            e.stopPropagation();
+            try {
+                await fetch(`${API_URL}/chat/${id}/desarchivar`, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                mostrarToast("Chat restaurado.");
+                cargarBandeja();
+                if (salaId === id && filtroBandejaActual === "archivados") {
+                    limpiarVistaSalaActiva("La conversación fue restaurada.");
+                }
+            } catch (e) {}
+        }
+
+        async function conmutarArchivoSalaActiva() {
+            if (!salaId || !salaDataCache) return;
+            if (salaDataCache.archivado_por_mi) {
+                await desarchivarRapido(new Event('click'), salaId);
+            } else {
+                await archivarRapido(new Event('click'), salaId);
+            }
+        }
+
+        function limpiarVistaSalaActiva(msg) {
+            salaId = null;
+            history.pushState(null, "", "chat.html");
+            document.getElementById("headerContraparte").innerText = "Seleccione una negociación";
+            document.getElementById("headerPublicacion").innerText = "Elija un chat del desplegable lateral o inicie uno desde una oferta";
+            document.getElementById("headerPrecio").innerText = "—";
+            document.getElementById("linkVerPublicacion").style.display = "none";
+            document.getElementById("btnAccionArchivoHeader").style.display = "none";
+            document.getElementById("bannerBloqueado").style.display = "none";
+            document.getElementById("txtInputMensaje").disabled = true;
+            document.getElementById("btnEnviar").disabled = true;
+            document.getElementById("messagesArea").innerHTML = `<div class="empty-chat-notice">${msg}</div>`;
+        }
+
+        // Carga y renderizado de la sala de chat activa
+        async function cargarDetalleSala() {
+            if (!salaId) return;
+            const area = document.getElementById("messagesArea");
+            try {
+                const res = await fetch(`${API_URL}/chat/${salaId}/detalle`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    salaDataCache = await res.json();
+                    renderizarCabecera(salaDataCache);
+                    renderizarMensajes(salaDataCache.mensajes || []);
+                    
+                    if (!salaDataCache.bloqueado_por_mi) {
+                        document.getElementById("txtInputMensaje").disabled = false;
+                        document.getElementById("btnEnviar").disabled = false;
+                        document.getElementById("txtInputMensaje").focus();
+                    }
+                } else if (res.status === 403) {
+                    area.innerHTML = `<div class="empty-chat-notice" style="color: var(--svc-danger);">Acceso restringido: No pertenece a esta sala de negociación comercial.</div>`;
+                    document.getElementById("txtInputMensaje").disabled = true;
+                    document.getElementById("btnEnviar").disabled = true;
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    area.innerHTML = `<div class="empty-chat-notice" style="color: var(--svc-danger);">${err.detail || 'Error al cargar sala.'}</div>`;
+                }
+            } catch (e) {
+                area.innerHTML = `<div class="empty-chat-notice" style="color: var(--svc-danger);">Fallo de comunicación con el backend.</div>`;
+            }
+        }
+
+        async function cargarDetalleSalaSilencioso() {
+            if (!salaId) return;
+            try {
+                const res = await fetch(`${API_URL}/chat/${salaId}/detalle`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (!salaDataCache || (data.mensajes && data.mensajes.length !== salaDataCache.mensajes.length)) {
+                        salaDataCache = data;
+                        renderizarMensajes(data.mensajes || []);
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function renderizarCabecera(sala) {
+            document.getElementById("headerContraparte").innerText = sala.contraparte_nombre || "Comerciante";
+            document.getElementById("headerPublicacion").innerText = `Oferta: "${sala.publicacion_titulo}" (${sala.contraparte_rubro || 'General'})`;
+            document.getElementById("headerPrecio").innerText = `$ ${Number(sala.publicacion_precio || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
+            
+            const linkPub = document.getElementById("linkVerPublicacion");
+            linkPub.href = `detalle-publicacion.html?id=${sala.publicacion_id}`;
+            linkPub.style.display = "inline";
+
+            const btnArch = document.getElementById("btnAccionArchivoHeader");
+            btnArch.style.display = "inline-block";
+            btnArch.innerText = sala.archivado_por_mi ? "📂 Desarchivar Chat" : "📦 Archivar Chat";
+
+            const bannerBloq = document.getElementById("bannerBloqueado");
+            if (sala.bloqueado_por_mi) {
+                bannerBloq.style.display = "block";
+                document.getElementById("txtInputMensaje").disabled = true;
+                document.getElementById("btnEnviar").disabled = true;
+            } else {
+                bannerBloq.style.display = "none";
+            }
+        }
+
+        function renderizarMensajes(mensajes) {
+            const area = document.getElementById("messagesArea");
+            area.innerHTML = "";
+
+            if (!mensajes || mensajes.length === 0) {
+                area.innerHTML = `<div class="empty-chat-notice">No hay mensajes previos en este canal.</div>`;
+                return;
+            }
+
+            mensajes.forEach(m => {
+                const wrapper = document.createElement("div");
+                wrapper.className = `message-bubble-wrapper ${m.es_propio ? 'own' : 'other'}`;
+
+                const fechaFmt = new Date(m.creado_el).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+                const remitente = m.es_propio ? "Tú" : (salaDataCache ? salaDataCache.contraparte_nombre : "Contraparte");
+
+                wrapper.innerHTML = `
+                    <span class="message-sender-name">${remitente}</span>
+                    <div class="message-bubble ${m.es_propio ? 'own' : 'other'}">${escapeHTML(m.contenido)}</div>
+                    <span class="message-timestamp">${fechaFmt}</span>
+                `;
+                area.appendChild(wrapper);
+            });
+
+            area.scrollTop = area.scrollHeight;
+        }
+
+        function manejarTecla(e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById("chatForm").requestSubmit();
+            }
+        }
+
+        async function enviarMensaje(e) {
+            e.preventDefault();
+            const txt = document.getElementById("txtInputMensaje");
+            const btn = document.getElementById("btnEnviar");
+            const contenido = txt.value.trim();
+
+            if (!contenido || !salaId) return;
+
+            txt.disabled = true;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/chat/${salaId}/mensajes`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ contenido: contenido })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    txt.value = "";
+                    txt.disabled = false;
+                    btn.disabled = false;
+                    txt.focus();
+                    await cargarDetalleSala();
+                    cargarBandejaSilencioso();
+                } else {
+                    alert(data.detail || "Error al enviar el mensaje.");
+                    txt.disabled = false;
+                    btn.disabled = false;
+                    txt.focus();
+                }
+            } catch (err) {
+                alert("Fallo de comunicación con el backend.");
+                txt.disabled = false;
+                btn.disabled = false;
+            }
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("svc_token");
+            localStorage.removeItem("svc_usuario");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

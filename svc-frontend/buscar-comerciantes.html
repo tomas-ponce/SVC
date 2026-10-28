@@ -689,6 +689,25 @@
             .filters-grid { grid-template-columns: 1fr; }
             .reach-grid-container { grid-template-columns: repeat(2, 1fr); }
         }
+    
+        .btn-toggle-menu {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--svc-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-toggle-menu:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+        }
+
     </style>
 </head>
 <body>
@@ -709,11 +728,12 @@
                 <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
                 <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
                 <li class="nav-item active"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item"><a href="muro-ventas.html">Muro de Ventas</a></li>
                 <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
-                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 3 (WPT-03)'); return false;">Muro de Ventas</a></li>
                 <li class="nav-item"><a href="comunidades.html">Comunidades B2B</a></li>
                 <li class="nav-item"><a href="chat.html">Chats</a></li>
                 <li class="nav-item"><a href="notificaciones.html">Notificaciones</a></li>
+                <li class="nav-item"><a href="historial-transacciones.html">Historial de Transacciones</a></li>
             </ul>
         </div>
         <div class="sidebar-footer">
@@ -724,10 +744,8 @@
     <div class="main-wrapper">
         <div class="topbar">
             <div class="topbar-left">
-                <button class="btn-hamburger" onclick="toggleDrawer()">
-                    <div class="bar"></div>
-                    <div class="bar"></div>
-                    <div class="bar"></div>
+                <button class="btn-toggle-menu" onclick="toggleDrawer()">
+                    <span>&equiv;</span> <span>Módulos SVC</span>
                 </button>
                 <div class="topbar-title">Motor de Búsqueda y Filtrado Comercial (CdU10 / CdU11 / CdU12)</div>
             </div>
@@ -1195,7 +1213,7 @@
                         </div>
                     </div>
                     <div class="merchant-actions">
-                        <button class="btn-card-action" onclick="alert('Ver perfil comercial de ${c.nombre_razon_social} (CdU33/CdU60)');">Ver Perfil</button>
+                        <button class="btn-card-action" onclick="irAlPerfil('${c.id}')">Ver Perfil &rarr;</button>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -1222,6 +1240,11 @@
             el.innerText = msg;
             el.style.display = "block";
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        
+        function irAlPerfil(id) {
+            window.location.href = "ver-perfil.html?id=" + encodeURIComponent(id);
         }
 
         function cerrarSesion() {

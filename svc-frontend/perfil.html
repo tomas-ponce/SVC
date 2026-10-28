@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVC - Mi Perfil Comercial (CdU04 / CdU09)</title>
+    <title>SVC - Mi Perfil Comercial (CdU04 / CdU09 / CdU52 / CdU56)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -23,7 +23,7 @@
 
         * {
             box-sizing: border-box;
-            border-radius: 0px !important; /* REGLA INNEGOCIABLE SVC: Esquinas a 90° */
+            border-radius: 0px !important;
         }
 
         body {
@@ -234,7 +234,7 @@
             border-top: 4px solid var(--svc-primary);
             padding: 35px 40px;
             width: 100%;
-            max-width: 760px;
+            max-width: 860px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
@@ -377,9 +377,7 @@
             transition: all 0.15s ease;
         }
 
-        .btn-danger-outline:hover {
-            background-color: #f8d7da;
-        }
+        .btn-danger-outline:hover { background-color: #f8d7da; }
 
         .alert-box {
             padding: 12px 14px;
@@ -463,13 +461,31 @@
 
         .btn-modal-danger:hover { background-color: var(--svc-danger-hover); }
         .btn-modal-danger:disabled { background-color: #94a3b8; cursor: not-allowed; }
+    
+        .btn-toggle-menu {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--svc-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-toggle-menu:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+        }
+
     </style>
 </head>
 <body>
 
     <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
 
-    <!-- Sidebar Drawer (Sin enlace redundante) -->
     <div id="sidebarDrawer" class="sidebar-drawer">
         <div>
             <div class="sidebar-brand">
@@ -483,27 +499,26 @@
                 <li class="nav-item active"><a href="perfil.html">Mi Perfil Comercial</a></li>
                 <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
                 <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item"><a href="muro-ventas.html">Muro de Ventas</a></li>
                 <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
-                <li class="nav-item"><a href="#" onclick="alert('Módulo disponible en Sprint 3 (WPT-03)'); return false;">Muro de Ventas</a></li>
                 <li class="nav-item"><a href="comunidades.html">Comunidades B2B</a></li>
                 <li class="nav-item"><a href="chat.html">Chats</a></li>
                 <li class="nav-item"><a href="notificaciones.html">Notificaciones</a></li>
+                <li class="nav-item"><a href="historial-transacciones.html">Historial de Transacciones</a></li>
             </ul>
         </div>
         <div class="sidebar-footer">
-            &copy; 2026 SVC — v0.3.0 (Sprint 3)
+            &copy; 2026 SVC — v0.6.0 (Sprint 6)
         </div>
     </div>
 
     <div class="main-wrapper">
         <div class="topbar">
             <div class="topbar-left">
-                <button class="btn-hamburger" onclick="toggleDrawer()">
-                    <div class="bar"></div>
-                    <div class="bar"></div>
-                    <div class="bar"></div>
+                <button class="btn-toggle-menu" onclick="toggleDrawer()">
+                    <span>&equiv;</span> <span>Módulos SVC</span>
                 </button>
-                <div class="topbar-title">Configuración de Perfil Comercial (CdU04)</div>
+                <div class="topbar-title">Configuración de Perfil Comercial (CdU04 / CdU52 / CdU56)</div>
             </div>
             <div class="user-badge">
                 <span id="userNameTop">Cargando comercio...</span>
@@ -513,16 +528,20 @@
 
         <div class="content-body">
             <div class="profile-card">
-                <div class="profile-title-wrap">
-                    <h1>Perfil Comercial de la Empresa</h1>
-                    <p>Mantenga actualizada la información visible para otros comerciantes y proveedores de la red B2B.</p>
+                <div class="profile-title-wrap" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <h1>Perfil Comercial de la Empresa</h1>
+                        <p>Mantenga actualizada la información visible, configure sus integraciones y gestione la privacidad de su cuenta.</p>
+                    </div>
+                    <a id="btnVerPerfilPublico" href="ver-perfil.html" style="background-color: #ffffff; border: 1px solid var(--svc-primary); color: var(--svc-primary); padding: 8px 16px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <span>👁 Ver Mi Perfil Público & Reputación &rarr;</span>
+                    </a>
                 </div>
 
                 <div id="msgBox" class="alert-box"></div>
 
                 <form id="perfilForm">
                     <div class="section-header">Identificación Fiscal y Registro</div>
-
                     <div class="form-row">
                         <div class="form-group">
                             <label>Nombre o Razón Social *</label>
@@ -536,7 +555,6 @@
                     </div>
 
                     <div class="section-header">Actividad y Taxonomía Comercial</div>
-
                     <div class="form-row">
                         <div class="form-group">
                             <label>Rubro Comercial *</label>
@@ -549,12 +567,10 @@
                     </div>
 
                     <div class="section-header">Ubicación y Alcance Logístico</div>
-
                     <div class="form-group">
                         <label>Dirección Fiscal o Depósito *</label>
                         <input type="text" id="direccion" class="input-svc" required>
                     </div>
-
                     <div class="form-row">
                         <div class="form-group">
                             <label>Provincia *</label>
@@ -565,7 +581,6 @@
                             <input type="text" id="ciudad_localidad" class="input-svc" required>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label>Zona de Alcance Logístico Declarada *</label>
                         <div class="reach-grid">
@@ -577,7 +592,6 @@
                     </div>
 
                     <div class="section-header">Contacto Comercial Oficial</div>
-
                     <div class="form-row">
                         <div class="form-group">
                             <label>Teléfono Comercial *</label>
@@ -590,10 +604,66 @@
                         </div>
                     </div>
 
-                    <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
+                    <div style="display: flex; justify-content: flex-end; margin-top: 30px; margin-bottom: 40px;">
                         <button type="submit" id="btnGuardar" class="btn-svc-primary">Guardar Cambios &rarr;</button>
                     </div>
                 </form>
+
+                <!-- ============================================================== -->
+                <!-- INTEGRACIONES DE PLATAFORMA (Sprint 6 - CdU52 y CdU56)         -->
+                <!-- ============================================================== -->
+                <div class="section-header">Integraciones con Proveedores (Sprint 6)</div>
+                <div class="form-row" style="margin-bottom: 25px;">
+                    
+                    <!-- Panel Pasarela de Pago (MercadoPago) -->
+                    <div style="flex: 1; border: 1px solid var(--svc-border); border-top: 4px solid var(--svc-primary); padding: 25px; background: #ffffff;">
+                        <h3 style="font-size: 14px; font-weight: 700; color: #0f172a; margin: 0 0 5px 0;">Pasarela de Pago (MercadoPago)</h3>
+                        <p style="font-size: 11.5px; color: var(--svc-text-muted); margin: 0 0 15px 0;">
+                            Genere enlaces de cobro automáticos (CdU52). Sus credenciales se guardarán mediante cifrado asimétrico robusto.
+                        </p>
+                        <div id="mpStatusBadge" style="margin-bottom: 12px; font-size: 12px; font-weight: 600; padding: 6px 10px; display: none;"></div>
+                        <div id="alertIntegracionMP" class="alert-box"></div>
+                        <form id="formMercadoPago" onsubmit="vincularMercadoPago(event)">
+                            <div class="form-group">
+                                <label>Public Key *</label>
+                                <input type="text" id="mpPublicKey" class="input-svc" placeholder="APP_USR-..." required minlength="10">
+                            </div>
+                            <div class="form-group">
+                                <label>Access Token (Privado) *</label>
+                                <input type="password" id="mpAccessToken" class="input-svc" placeholder="APP_USR-..." required minlength="10">
+                            </div>
+                            <button type="submit" id="btnSubmitMP" class="btn-svc-primary" style="width: 100%; display: flex; justify-content: center;">
+                                Validar y Vincular Pago &rarr;
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Panel Logística Externa -->
+                    <div style="flex: 1; border: 1px solid var(--svc-border); border-top: 4px solid var(--svc-primary); padding: 25px; background: #ffffff;">
+                        <h3 style="font-size: 14px; font-weight: 700; color: #0f172a; margin: 0 0 5px 0;">Trazabilidad Logística</h3>
+                        <p style="font-size: 11.5px; color: var(--svc-text-muted); margin: 0 0 15px 0;">
+                            Delegue el seguimiento de sus despachos con proveedores de transporte autorizados (CdU56).
+                        </p>
+                        <div id="logStatusBadge" style="margin-bottom: 12px; font-size: 12px; font-weight: 600; padding: 6px 10px; display: none;"></div>
+                        <div id="alertLogistica" class="alert-box"></div>
+                        <form id="formLogistica" onsubmit="vincularLogistica(event)">
+                            <div class="form-group">
+                                <label>Proveedor Logístico *</label>
+                                <select id="logProveedor" class="input-svc" required style="cursor: pointer;">
+                                    <option value="Correo Argentino">Correo Argentino</option>
+                                    <option value="Andreani">Andreani</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>API Key / Token *</label>
+                                <input type="password" id="logApiKey" class="input-svc" placeholder="Ingrese su credencial..." required minlength="5">
+                            </div>
+                            <button type="submit" id="btnSubmitLog" class="btn-svc-primary" style="width: 100%; display: flex; justify-content: center;">
+                                Vincular Logística &rarr;
+                            </button>
+                        </form>
+                    </div>
+                </div>
 
                 <div class="danger-zone">
                     <div>
@@ -651,6 +721,7 @@
 
     <script>
         const API_URL = "http://127.0.0.1:8080/auth";
+        const API_INTEGRACIONES = "http://127.0.0.1:8080/integraciones";
         const token = localStorage.getItem("svc_token");
 
         if (!token) {
@@ -659,6 +730,7 @@
 
         window.addEventListener("DOMContentLoaded", () => {
             cargarPerfil();
+            cargarEstadoIntegraciones();
         });
 
         function toggleDrawer() {
@@ -683,6 +755,10 @@
                 if (res.ok) {
                     const u = await res.json();
                     document.getElementById("userNameTop").innerText = u.nombre_razon_social || u.email;
+                    const btnVer = document.getElementById("btnVerPerfilPublico");
+                    if (btnVer && u.id) {
+                        btnVer.href = `ver-perfil.html?id=${u.id}`;
+                    }
                     document.getElementById("nombre_razon_social").value = u.nombre_razon_social || "";
                     document.getElementById("cuit_cuil").value = u.cuit_cuil || "";
                     document.getElementById("rubro_comercial").value = u.rubro_comercial || "";
@@ -744,6 +820,149 @@
             }
         });
 
+        
+        async function cargarEstadoIntegraciones() {
+            try {
+                const res = await fetch(`${API_INTEGRACIONES}/estado`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const mpBadge = document.getElementById("mpStatusBadge");
+                    const logBadge = document.getElementById("logStatusBadge");
+                    
+                    if (data.mercadopago_vinculado) {
+                        mpBadge.style.display = "block";
+                        mpBadge.style.backgroundColor = "#e7f0fb";
+                        mpBadge.style.color = "#0056b3";
+                        mpBadge.style.border = "1px solid #b8daff";
+                        mpBadge.innerHTML = `&check; Pasarela Vinculada (Public Key: ${data.mp_public_key || 'Configurada'})`;
+                        document.getElementById("btnSubmitMP").innerText = "Actualizar Credenciales MP →";
+                    } else {
+                        mpBadge.style.display = "block";
+                        mpBadge.style.backgroundColor = "#fff3cd";
+                        mpBadge.style.color = "#856404";
+                        mpBadge.style.border = "1px solid #ffeeba";
+                        mpBadge.innerHTML = "&#9888; Sin vincular. Configure sus credenciales para habilitar cobros digitales.";
+                    }
+
+                    if (data.logistica_vinculada) {
+                        logBadge.style.display = "block";
+                        logBadge.style.backgroundColor = "#e7f0fb";
+                        logBadge.style.color = "#0056b3";
+                        logBadge.style.border = "1px solid #b8daff";
+                        logBadge.innerHTML = `&check; Logística Vinculada con ${data.logistica_proveedor}`;
+                        if (data.logistica_proveedor) {
+                            document.getElementById("logProveedor").value = data.logistica_proveedor;
+                        }
+                        document.getElementById("btnSubmitLog").innerText = "Actualizar Proveedor Logístico →";
+                    } else {
+                        logBadge.style.display = "block";
+                        logBadge.style.backgroundColor = "#fff3cd";
+                        logBadge.style.color = "#856404";
+                        logBadge.style.border = "1px solid #ffeeba";
+                        logBadge.innerHTML = "&#9888; Sin vincular. Configure su proveedor para delegar tracking.";
+                    }
+                }
+            } catch (err) {
+                console.error("Error al consultar integraciones:", err);
+            }
+        }
+
+        // ── FUNCIONES DE INTEGRACIÓN EXTERNA (Sprint 6: CdU52 y CdU56) ──
+        async function vincularMercadoPago(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnSubmitMP");
+            const alertEl = document.getElementById("alertIntegracionMP");
+            
+            btn.disabled = true;
+            btn.innerText = "Validando con proveedor...";
+            alertEl.style.display = "none";
+
+            const payload = {
+                public_key: document.getElementById("mpPublicKey").value.trim(),
+                access_token: document.getElementById("mpAccessToken").value.trim()
+            };
+
+            try {
+                const res = await fetch(`${API_INTEGRACIONES}/mercadopago`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alertEl.className = "alert-box alert-success";
+                    alertEl.innerText = data.mensaje;
+                    document.getElementById("formMercadoPago").reset();
+                    cargarEstadoIntegraciones();
+                } else {
+                    alertEl.className = "alert-box alert-danger";
+                    alertEl.innerText = data.detail || "Error en la validación externa.";
+                }
+                alertEl.style.display = "block";
+            } catch (err) {
+                alertEl.className = "alert-box alert-danger";
+                alertEl.innerText = "Fallo de comunicación con el backend FastAPI.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "Validar y Vincular Pago &rarr;";
+            }
+        }
+
+        async function vincularLogistica(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnSubmitLog");
+            const alertEl = document.getElementById("alertLogistica");
+            
+            btn.disabled = true;
+            btn.innerText = "Guardando credenciales...";
+            alertEl.style.display = "none";
+
+            const payload = {
+                proveedor: document.getElementById("logProveedor").value,
+                api_key: document.getElementById("logApiKey").value.trim()
+            };
+
+            try {
+                const res = await fetch(`${API_INTEGRACIONES}/logistica`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alertEl.className = "alert-box alert-success";
+                    alertEl.innerText = data.mensaje;
+                    document.getElementById("formLogistica").reset();
+                    cargarEstadoIntegraciones();
+                } else {
+                    alertEl.className = "alert-box alert-danger";
+                    alertEl.innerText = data.detail || "Error interno al vincular logística.";
+                }
+                alertEl.style.display = "block";
+            } catch (err) {
+                alertEl.className = "alert-box alert-danger";
+                alertEl.innerText = "Fallo de comunicación con el backend FastAPI.";
+                alertEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "Vincular Logística &rarr;";
+            }
+        }
+
+        // ── BAJA LÓGICA (CdU09) ──
         function abrirModalBajaPaso1() {
             document.getElementById("modalBajaAlert1").style.display = "none";
             document.getElementById("formBajaPaso1").reset();

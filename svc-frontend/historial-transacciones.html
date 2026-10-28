@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Historial de Transacciones (CdU53 / CdU54 / CdU55)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-primary-hover: #004085;
+            --svc-bg-page: #f8f9fa;
+            --svc-bg-surface: #ffffff;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-danger: #dc3545;
+            --svc-warning: #ffc107;
+            --svc-success: #28a745;
+            --svc-border-radius: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sidebar-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1200;
+            transition: left 0.25s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-drawer.open { left: 0; }
+
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1100;
+            display: none;
+        }
+
+        .drawer-backdrop.open { display: block; }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-box {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--svc-text-muted);
+            padding: 4px 8px;
+        }
+
+        .btn-close-drawer:hover { color: var(--svc-text); }
+
+        .nav-list {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-left: 4px solid var(--svc-primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background-color: var(--svc-bg-surface);
+            border-bottom: 1px solid #e9ecef;
+            padding: 14px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-toggle-menu {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--svc-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-toggle-menu:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+        }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 12.5px;
+        }
+
+        .content-area {
+            padding: 35px 40px;
+            max-width: 1280px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 6px 0;
+        }
+
+        .page-subtitle {
+            font-size: 13px;
+            color: var(--svc-text-muted);
+            margin: 0;
+        }
+
+        /* ── TABS DE ROL COMERCIAL (Mis Compras / Mis Ventas) ── */
+        .tabs-container {
+            display: flex;
+            gap: 2px;
+            background-color: #e2e8f0;
+            border-bottom: 2px solid var(--svc-primary);
+            margin-bottom: 25px;
+        }
+
+        .tab-btn {
+            background-color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748b;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.15s ease;
+        }
+
+        .tab-btn.active {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+        }
+
+        /* ── FILTROS Y BARRA DE HERRAMIENTAS ── */
+        .toolbar {
+            background-color: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 240px;
+        }
+
+        .input-svc {
+            padding: 8px 12px;
+            border: 1px solid var(--svc-border);
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+            background: #ffffff;
+            width: 100%;
+        }
+
+        .input-svc:focus { border-color: var(--svc-primary); }
+
+        .select-svc {
+            padding: 8px 12px;
+            border: 1px solid var(--svc-border);
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+            background: #ffffff;
+            cursor: pointer;
+            min-width: 180px;
+        }
+
+        /* ── TABLA ESTILO GLOBAL DESIGN SYSTEM (FIGMA PÁG. 13) ── */
+        .table-card {
+            background-color: #ffffff;
+            border: 1px solid var(--svc-border);
+            border-top: 4px solid var(--svc-primary);
+            overflow-x: auto;
+        }
+
+        .svc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .svc-table th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            padding: 14px 18px;
+            border-bottom: 2px solid var(--svc-border);
+        }
+
+        .svc-table td {
+            padding: 16px 18px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+
+        .svc-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* ── BADGES SEMÁNTICOS DE ESTADO ── */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .status-paid { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
+        .status-shipped { background-color: #cce5ff; color: var(--svc-primary); border: 1px solid #b8daff; }
+        .status-rejected { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+
+        /* ── BOTONES DE ACCIÓN ── */
+        .btn-action {
+            padding: 6px 12px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+
+        .btn-pay {
+            background-color: #009ee3; /* Azul MercadoPago */
+            color: #ffffff;
+        }
+        .btn-pay:hover { background-color: #0084c0; }
+
+        .btn-track {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+        }
+        .btn-track:hover { background-color: var(--svc-primary-hover); }
+
+        .btn-dispatch {
+            background-color: #334155;
+            color: #ffffff;
+        }
+        .btn-dispatch:hover { background-color: #1e293b; }
+
+        .btn-rate {
+            background-color: #f59e0b;
+            color: #ffffff;
+        }
+        .btn-rate:hover { background-color: #d97706; }
+        .btn-dispatch:hover { background-color: #1e293b; }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--svc-text-muted);
+        }
+
+        /* ── MODALES (PAGO Y TRACKING) ── */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            width: 100%;
+            max-width: 600px;
+            padding: 28px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 6px 0;
+        }
+
+        .modal-subtitle {
+            font-size: 12px;
+            color: var(--svc-text-muted);
+            margin: 0 0 20px 0;
+            line-height: 1.4;
+        }
+
+        .timeline {
+            border-left: 2px solid var(--svc-primary);
+            padding-left: 18px;
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 2px;
+            width: 10px;
+            height: 10px;
+            background-color: var(--svc-primary);
+        }
+
+        .timeline-date {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            font-weight: 600;
+        }
+
+        .timeline-status {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 2px 0;
+        }
+
+        .timeline-desc {
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .alert-box {
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+        .alert-success { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
+    </style>
+</head>
+<body>
+
+    <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
+
+    <div id="sidebarDrawer" class="sidebar-drawer">
+        <div>
+            <div class="sidebar-brand">
+                <div class="brand-info">
+                    <div class="brand-box">SVC</div>
+                    <div class="brand-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+                </div>
+                <button class="btn-close-drawer" onclick="toggleDrawer()">&times;</button>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
+                <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
+                <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item"><a href="muro-ventas.html">Muro de Ventas</a></li>
+                <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
+                <li class="nav-item"><a href="comunidades.html">Comunidades B2B</a></li>
+                <li class="nav-item"><a href="chat.html">Chats</a></li>
+                <li class="nav-item"><a href="notificaciones.html">Notificaciones</a></li>
+                <li class="nav-item active"><a href="historial-transacciones.html">Historial de Transacciones</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            SVC v0.6.1 &bull; Modelo ASP / B2B SaaS
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <header class="topbar">
+            <button class="btn-toggle-menu" onclick="toggleDrawer()">
+                <span>&equiv;</span> <span>Módulos SVC</span>
+            </button>
+            <div class="topbar-user">
+                <span id="userNameTop">Comerciante</span>
+                <button onclick="cerrarSesion()" style="background: none; border: 1px solid var(--svc-border); padding: 5px 10px; cursor: pointer; font-size: 11px; font-weight: 600;">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="page-header">
+                <h1 class="page-title">Historial de Transacciones y Órdenes Comerciales</h1>
+                <p class="page-subtitle">Auditoría financiera de compras, cobros digitales delegados (MercadoPago) y trazabilidad logística (CdU53 / CdU54 / CdU55).</p>
+            </div>
+
+            <div id="mainAlert" class="alert-box"></div>
+
+            <!-- TABS MIS COMPRAS / MIS VENTAS -->
+            <div class="tabs-container">
+                <button class="tab-btn active" id="tabCompras" onclick="cambiarTab('compras')">Mis Compras (Como Adquirente)</button>
+                <button class="tab-btn" id="tabVentas" onclick="cambiarTab('ventas')">Mis Ventas (Como Proveedor)</button>
+            </div>
+
+            <!-- TOOLBAR FILTROS -->
+            <div class="toolbar">
+                <div class="toolbar-group">
+                    <input type="text" id="filtroTexto" class="input-svc" placeholder="Buscar por contraparte u orden..." oninput="filtrarLocal()">
+                </div>
+                <div class="toolbar-group" style="justify-content: flex-end; flex: none;">
+                    <select id="filtroEstado" class="select-svc" onchange="cargarTransacciones()">
+                        <option value="">Todos los Estados</option>
+                        <option value="Pendiente de pago">Pendiente de pago</option>
+                        <option value="Abonada">Abonada</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- TABLA DE TRANSACCIONES -->
+            <div class="table-card">
+                <table class="svc-table" id="tablaTransacciones">
+                    <thead>
+                        <tr>
+                            <th>ID Transacción</th>
+                            <th>Fecha</th>
+                            <th>Contraparte Comercial</th>
+                            <th>Concepto / Publicación</th>
+                            <th>Cantidad</th>
+                            <th>Monto Total</th>
+                            <th>Estado Financiero</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyTransacciones">
+                        <!-- Renderizado dinámico -->
+                    </tbody>
+                </table>
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    No se registran transacciones comerciales bajo este criterio.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: DETALLE Y SEGUIMIENTO LOGÍSTICO (CdU55) -->
+    <div id="modalSeguimiento" class="modal-overlay">
+        <div class="modal-card">
+            <h2 class="modal-title">Trazabilidad Logística Delegada</h2>
+            <p class="modal-subtitle">Consulta de estado físico en tiempo real con servidores del transportista (RF09 / CdU55).</p>
+            
+            <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 14px; margin-bottom: 15px; font-size: 12.5px;">
+                <strong>Operador Logístico:</strong> <span id="trackCourier">—</span><br>
+                <strong>Tracking ID:</strong> <span id="trackCode" style="font-family: monospace; font-weight: 700; color: var(--svc-primary);">—</span><br>
+                <strong>Estado General:</strong> <span id="trackStatus">—</span>
+            </div>
+
+            <div class="timeline" id="trackTimeline">
+                <!-- Eventos generados dinámicamente -->
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                <button type="button" class="btn-action" style="background: #ffffff; border: 1px solid var(--svc-border); color: #334155;" onclick="cerrarModal('modalSeguimiento')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- MODAL: CALIFICAR OPERACIÓN COMERCIAL (CdU58 & CdU59) -->
+    <div id="modalCalificar" class="modal-overlay">
+        <div class="modal-card" style="max-width: 600px;">
+            <h2 class="modal-title">Calificar Operación Comercial</h2>
+            <p class="modal-subtitle">Certifique la calidad de los productos y la experiencia con su contraparte comercial (CdU58 / CdU59).</p>
+
+            <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px 16px; margin-bottom: 20px; font-size: 12.5px;">
+                <strong>Orden:</strong> <span id="califOrdenId" style="font-family: monospace; font-weight:700; color:var(--svc-primary);">#—</span> &bull; 
+                <strong>Contraparte:</strong> <span id="califContraparte">—</span><br>
+                <strong>Publicación / Ítem:</strong> <span id="califTitulo">—</span>
+            </div>
+
+            <form id="formCalificar" onsubmit="guardarCalificaciones(event)">
+                <input type="hidden" id="califTransaccionId">
+                <input type="hidden" id="califRol">
+
+                <!-- SECCIÓN 1: CALIFICAR PUBLICACIÓN (Solo para comprador, CdU58) -->
+                <div id="secCalifPublicacion" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 16px;">
+                    <div style="font-size: 12px; font-weight: 700; color: #0f172a; text-transform: uppercase; margin-bottom: 8px;">
+                        1. Calificación de la Publicación / Lote (CdU58)
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px; text-transform: uppercase;">Puntaje del Producto *</label>
+                        <select id="califPubPuntaje" class="select-svc" style="width: 100%;">
+                            <option value="5">★★★★★ — Excelente (5 estrellas)</option>
+                            <option value="4">★★★★☆ — Muy Bueno (4 estrellas)</option>
+                            <option value="3">★★★☆☆ — Aceptable (3 estrellas)</option>
+                            <option value="2">★★☆☆☆ — Regular (2 estrellas)</option>
+                            <option value="1">★☆☆☆☆ — Deficiente (1 estrella)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px; text-transform: uppercase;">Opinión sobre la mercadería</label>
+                        <textarea id="califPubComentario" class="input-svc" rows="2" placeholder="Describa el estado, embalaje y coincidencia técnica con la publicación..." style="resize: vertical;"></textarea>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: CALIFICAR CONTRAPARTE COMERCIAL (CdU59) -->
+                <div id="secCalifComerciante" style="margin-bottom: 20px;">
+                    <div style="font-size: 12px; font-weight: 700; color: #0f172a; text-transform: uppercase; margin-bottom: 8px;" id="lblCalifContraparte">
+                        2. Calificación de la Contraparte Comercial (CdU59)
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px; text-transform: uppercase;">Puntaje de Reputación Comercial *</label>
+                        <select id="califComPuntaje" class="select-svc" style="width: 100%;">
+                            <option value="5">★★★★★ — Excelente (5 estrellas)</option>
+                            <option value="4">★★★★☆ — Muy Bueno (4 estrellas)</option>
+                            <option value="3">★★★☆☆ — Aceptable (3 estrellas)</option>
+                            <option value="2">★★☆☆☆ — Regular (2 estrellas)</option>
+                            <option value="1">★☆☆☆☆ — Deficiente (1 estrella)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px; text-transform: uppercase;">Reseña de cumplimiento y comunicación</label>
+                        <textarea id="califComComentario" class="input-svc" rows="2" placeholder="Evalúe la velocidad de respuesta, puntualidad en pagos/despacho y solvencia..." style="resize: vertical;"></textarea>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" class="btn-action" style="background: #ffffff; border: 1px solid var(--svc-border); color: #334155;" onclick="cerrarModal('modalCalificar')">Cancelar</button>
+                    <button type="submit" id="btnGuardarCalif" class="btn-action btn-rate">Registrar Calificaciones &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: REGISTRAR DESPACHO (Vendedor) (CdU55) -->
+    <div id="modalDespacho" class="modal-overlay">
+        <div class="modal-card">
+            <h2 class="modal-title">Registrar Despacho de Mercadería</h2>
+            <p class="modal-subtitle">Ingrese el número de guía provisto por la empresa de correo para notificar al comprador (CdU55).</p>
+
+            <form id="formDespacho" onsubmit="confirmarDespacho(event)">
+                <input type="hidden" id="despachoTransaccionId">
+                <div style="margin-bottom: 14px;">
+                    <label style="display: block; font-size: 11px; font-weight: 700; margin-bottom: 6px; text-transform: uppercase;">Proveedor Logístico *</label>
+                    <select id="despachoProveedor" class="select-svc" style="width: 100%;" required>
+                        <option value="Correo Argentino">Correo Argentino</option>
+                        <option value="Andreani">Andreani</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 11px; font-weight: 700; margin-bottom: 6px; text-transform: uppercase;">Número de Seguimiento (Tracking ID) *</label>
+                    <input type="text" id="despachoTrackingId" class="input-svc" placeholder="Ej: AR-992384210" required minlength="4">
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" class="btn-action" style="background: #ffffff; border: 1px solid var(--svc-border); color: #334155;" onclick="cerrarModal('modalDespacho')">Cancelar</button>
+                    <button type="submit" class="btn-action btn-dispatch">Guardar y Notificar &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8080";
+        const token = localStorage.getItem("svc_token");
+        const usuarioSesion = JSON.parse(localStorage.getItem("svc_usuario") || "{}");
+        let rolActual = "compras";
+        let transaccionesCache = [];
+
+        if (!token) window.location.href = "login.html";
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (usuarioSesion.nombre_razon_social) {
+                document.getElementById("userNameTop").innerText = usuarioSesion.nombre_razon_social;
+            }
+            cargarTransacciones();
+        });
+
+        function toggleDrawer() {
+            document.getElementById("sidebarDrawer").classList.toggle("open");
+            document.getElementById("drawerBackdrop").classList.toggle("open");
+        }
+
+        function cambiarTab(nuevoRol) {
+            rolActual = nuevoRol;
+            document.getElementById("tabCompras").classList.toggle("active", nuevoRol === "compras");
+            document.getElementById("tabVentas").classList.toggle("active", nuevoRol === "ventas");
+            cargarTransacciones();
+        }
+
+        async function cargarTransacciones() {
+            const estado = document.getElementById("filtroEstado").value;
+            let url = `${API_URL}/transacciones/historial?tipo=${rolActual}`;
+            if (estado) url += `&estado=${encodeURIComponent(estado)}`;
+
+            try {
+                const res = await fetch(url, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    transaccionesCache = await res.json();
+                    renderizarTabla(transaccionesCache);
+                } else {
+                    mostrarAlerta("Error al recuperar el historial comercial.", "danger");
+                }
+            } catch (err) {
+                mostrarAlerta("Fallo de comunicación con el backend FastAPI.", "danger");
+            }
+        }
+
+        function renderizarTabla(lista) {
+            const tbody = document.getElementById("tbodyTransacciones");
+            const empty = document.getElementById("emptyState");
+            tbody.innerHTML = "";
+
+            if (!lista || lista.length === 0) {
+                empty.style.display = "block";
+                return;
+            }
+            empty.style.display = "none";
+
+            lista.forEach(t => {
+                const tr = document.createElement("tr");
+                const contraparte = t.contraparte ? t.contraparte.nombre_razon_social : "—";
+                const fecha = t.creado_el ? new Date(t.creado_el).toLocaleDateString("es-AR") : "—";
+                
+                let badgeClass = "status-pending";
+                if (t.estado === "Abonada") badgeClass = "status-paid";
+                if (t.estado === "Rechazada") badgeClass = "status-rejected";
+
+                let accionesHtml = "";
+                const contraparteId = (rolActual === "compras") ? t.vendedor_id : t.comprador_id;
+
+                if (rolActual === "compras") {
+                    if (t.estado === "Pendiente de pago") {
+                        accionesHtml += `
+                            <button class="btn-action btn-pay" onclick="iniciarPago('${t.id}')">Abonar (MP) &rarr;</button>
+                            <button class="btn-action" style="background:#e2e8f0; color:#1e293b; margin-left:4px;" onclick="confirmarPagoSimulado('${t.id}')" title="Simulación sandbox de pago">&check; Confirmar</button>
+                        `;
+                    } else if (t.estado === "Abonada") {
+                        accionesHtml += `
+                            <button class="btn-action btn-track" onclick="abrirSeguimiento('${t.id}')">Trazabilidad</button>
+                            <button class="btn-action btn-rate" style="margin-left:4px;" onclick="abrirModalCalificar('${t.id}', 'compras', '${escapeJS(t.titulo_congelado)}', '${escapeJS(contraparte)}')">★ Calificar</button>
+                        `;
+                    }
+                } else {
+                    // Rol ventas: solo despacho físico y seguimiento logístico (el vendedor no se califica a sí mismo)
+                    if (t.estado === "Abonada") {
+                        accionesHtml += `
+                            <button class="btn-action btn-dispatch" onclick="abrirModalDespacho('${t.id}')">Despachar</button>
+                            <button class="btn-action btn-track" style="margin-left:4px;" onclick="abrirSeguimiento('${t.id}')">Seguimiento</button>
+                        `;
+                    } else {
+                        accionesHtml += `<span style="font-size:11.5px; color:#64748b;">Esperando abono</span>`;
+                    }
+                }
+
+                tr.innerHTML = `
+                    <td style="font-family: monospace; font-weight: 700; color: #475569;">#${t.id.substring(0, 8)}</td>
+                    <td>${fecha}</td>
+                    <td><a href="ver-perfil.html?id=${contraparteId}" style="color:var(--svc-primary); text-decoration:none; font-weight:700;" title="Ver perfil comercial y reseñas">${escapeHTML(contraparte)}</a></td>
+                    <td><a href="detalle-publicacion.html?id=${t.publicacion_id}" style="color:#0f172a; text-decoration:none;" title="Ver detalles de la oferta">${escapeHTML(t.titulo_congelado)}</a></td>
+                    <td>${t.cantidad} u.</td>
+                    <td style="font-weight: 700; color: #0f172a;">$ ${Number(t.monto_total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</td>
+                    <td><span class="status-badge ${badgeClass}">${t.estado}</span></td>
+                    <td>${accionesHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filtrarLocal() {
+            const txt = document.getElementById("filtroTexto").value.toLowerCase();
+            const filtradas = transaccionesCache.filter(t => {
+                const nombre = t.contraparte && t.contraparte.nombre_razon_social ? t.contraparte.nombre_razon_social.toLowerCase() : "";
+                const tit = t.titulo_congelado.toLowerCase();
+                const id = t.id.toLowerCase();
+                return nombre.includes(txt) || tit.includes(txt) || id.includes(txt);
+            });
+            renderizarTabla(filtradas);
+        }
+
+        // ── PAGO DELEGADO MERCADOPAGO (CdU53) ──
+        async function iniciarPago(transaccionId) {
+            try {
+                const res = await fetch(`${API_URL}/transacciones/${transaccionId}/pagar`, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (res.ok && data.checkout_url) {
+                    // Redirección parametrizada oficial a MercadoPago (CdU53 - Paso 3)
+                    window.open(data.checkout_url, '_blank');
+                    mostrarAlerta("Se ha abierto la pasarela de MercadoPago en una nueva ventana para concretar el cobro digital.", "success");
+                } else {
+                    mostrarAlerta(data.detail || "Error al iniciar pasarela de pagos.", "danger");
+                }
+            } catch (err) {
+                mostrarAlerta("Error de conexión al procesar con MercadoPago.", "danger");
+            }
+        }
+
+        async function confirmarPagoSimulado(transaccionId) {
+            if (!confirm("¿Desea registrar y acreditar la confirmación de pago de esta orden (CdU53)?")) return;
+            try {
+                const res = await fetch(`${API_URL}/transacciones/${transaccionId}/confirmar-pago`, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    mostrarAlerta(data.mensaje, "success");
+                    cargarTransacciones();
+                } else {
+                    mostrarAlerta(data.detail || "Error al confirmar abono.", "danger");
+                }
+            } catch (err) {
+                mostrarAlerta("Fallo de comunicación con el backend.", "danger");
+            }
+        }
+
+        // ── SEGUIMIENTO LOGÍSTICO (CdU55) ──
+        async function abrirSeguimiento(transaccionId) {
+            try {
+                const res = await fetch(`${API_URL}/transacciones/${transaccionId}/seguimiento`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById("trackCourier").innerText = data.proveedor;
+                    document.getElementById("trackCode").innerText = data.tracking_id;
+                    document.getElementById("trackStatus").innerText = data.estado_general;
+
+                    const tl = document.getElementById("trackTimeline");
+                    tl.innerHTML = "";
+                    data.eventos.forEach(ev => {
+                        const div = document.createElement("div");
+                        div.className = "timeline-item";
+                        const f = new Date(ev.fecha).toLocaleString("es-AR");
+                        div.innerHTML = `
+                            <div class="timeline-date">${f} &bull; ${ev.ubicación}</div>
+                            <div class="timeline-status">${ev.estado}</div>
+                            <div class="timeline-desc">${ev.detalle}</div>
+                        `;
+                        tl.appendChild(div);
+                    });
+                    document.getElementById("modalSeguimiento").style.display = "flex";
+                } else {
+                    mostrarAlerta(data.detail || "Error al recuperar datos de envío.", "danger");
+                }
+            } catch (err) {
+                mostrarAlerta("Fallo al consultar API de logística.", "danger");
+            }
+        }
+
+        function abrirModalDespacho(transaccionId) {
+            document.getElementById("despachoTransaccionId").value = transaccionId;
+            document.getElementById("despachoTrackingId").value = "";
+            document.getElementById("modalDespacho").style.display = "flex";
+        }
+
+        async function confirmarDespacho(e) {
+            e.preventDefault();
+            const tid = document.getElementById("despachoTransaccionId").value;
+            const payload = {
+                tracking_id: document.getElementById("despachoTrackingId").value.trim(),
+                proveedor_logistico: document.getElementById("despachoProveedor").value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/transacciones/${tid}/despachar`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    cerrarModal("modalDespacho");
+                    mostrarAlerta(data.mensaje, "success");
+                    cargarTransacciones();
+                } else {
+                    alert(data.detail || "Error al registrar despacho.");
+                }
+            } catch (err) {
+                alert("Fallo de comunicación con el backend.");
+            }
+        }
+
+        function cerrarModal(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        function mostrarAlerta(msg, tipo) {
+            const el = document.getElementById("mainAlert");
+            el.className = `alert-box alert-${tipo}`;
+            el.innerText = msg;
+            el.style.display = "block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        
+                function escapeHTML(str) {
+            return String(str || '').replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        function escapeJS(str) {
+            return String(str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
+        async function abrirModalCalificar(transaccionId, rol, titulo, contraparte) {
+            document.getElementById("califTransaccionId").value = transaccionId;
+            document.getElementById("califRol").value = rol;
+            document.getElementById("califOrdenId").innerText = `#${transaccionId.substring(0, 8)}`;
+            document.getElementById("califContraparte").innerText = contraparte;
+            document.getElementById("califTitulo").innerText = titulo;
+
+            const secPub = document.getElementById("secCalifPublicacion");
+            const lblCom = document.getElementById("lblCalifContraparte");
+
+            if (rol === "ventas") {
+                secPub.style.display = "none";
+                lblCom.innerText = "Calificación del Comerciante Adquirente (CdU59)";
+            } else {
+                secPub.style.display = "block";
+                lblCom.innerText = "2. Calificación del Proveedor Comercial (CdU59)";
+            }
+
+            // Consultar estado previo para informar al usuario si ya calificó
+            try {
+                const res = await fetch(`${API_URL}/calificaciones/transaccion/${transaccionId}/estado`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const st = await res.json();
+                    if (st.califico_contraparte && (rol === "ventas" || st.califico_publicacion)) {
+                        mostrarAlerta("Ya has registrado todas las calificaciones posibles para esta transacción.", "success");
+                        return;
+                    }
+                    if (st.califico_publicacion) {
+                        secPub.style.display = "none";
+                    }
+                    if (st.califico_contraparte) {
+                        document.getElementById("secCalifComerciante").style.display = "none";
+                    }
+                }
+            } catch (err) {
+                console.warn("No se pudo verificar estado de calificación:", err);
+            }
+
+            document.getElementById("modalCalificar").style.display = "flex";
+        }
+
+        async function guardarCalificaciones(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnGuardarCalif");
+            btn.disabled = true;
+            btn.innerText = "Guardando...";
+
+            const transaccionId = document.getElementById("califTransaccionId").value;
+            const rol = document.getElementById("califRol").value;
+            const secPubVisible = document.getElementById("secCalifPublicacion").style.display !== "none";
+            const secComVisible = document.getElementById("secCalifComerciante").style.display !== "none";
+
+            try {
+                let errList = [];
+
+                // 1. Calificar Publicación (CdU58)
+                if (secPubVisible) {
+                    const pubPayload = {
+                        transaccion_id: transaccionId,
+                        puntaje: parseInt(document.getElementById("califPubPuntaje").value),
+                        comentario: document.getElementById("califPubComentario").value.trim()
+                    };
+                    const resPub = await fetch(`${API_URL}/calificaciones/publicacion`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify(pubPayload)
+                    });
+                    if (!resPub.ok) {
+                        const errPub = await resPub.json();
+                        errList.push(`Producto: ${errPub.detail || 'Error al calificar publicación'}`);
+                    }
+                }
+
+                // 2. Calificar Proveedor Comercial (CdU59)
+                if (secComVisible) {
+                    const comPayload = {
+                        transaccion_id: transaccionId,
+                        puntaje: parseInt(document.getElementById("califComPuntaje").value),
+                        comentario: document.getElementById("califComComentario").value.trim()
+                    };
+                    const resCom = await fetch(`${API_URL}/calificaciones/comerciante`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify(comPayload)
+                    });
+                    if (!resCom.ok) {
+                        const errCom = await resCom.json();
+                        errList.push(`Proveedor: ${errCom.detail || 'Error al calificar contraparte'}`);
+                    }
+                }
+
+                if (errList.length > 0) {
+                    mostrarAlerta(`Aviso: ${errList.join(" | ")}`, "danger");
+                } else {
+                    mostrarAlerta("Calificaciones comerciales registradas exitosamente. Se ha actualizado la reputación B2B.", "success");
+                    cerrarModal("modalCalificar");
+                    cargarTransacciones();
+                }
+            } catch (err) {
+                mostrarAlerta("Error de comunicación al enviar calificaciones.", "danger");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Registrar Calificaciones →";
+            }
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("svc_token");
+            localStorage.removeItem("svc_usuario");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

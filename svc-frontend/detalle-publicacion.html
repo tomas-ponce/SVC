@@ -530,6 +530,25 @@
         @media (max-width: 900px) {
             .detail-grid { grid-template-columns: 1fr; }
         }
+    
+        .btn-toggle-menu {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--svc-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-toggle-menu:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+        }
+
     </style>
 </head>
 <body>
@@ -549,10 +568,12 @@
                 <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
                 <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
                 <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item"><a href="muro-ventas.html">Muro de Ventas</a></li>
                 <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
                 <li class="nav-item"><a href="comunidades.html">Comunidades B2B</a></li>
                 <li class="nav-item"><a href="chat.html">Chats</a></li>
                 <li class="nav-item"><a href="notificaciones.html">Notificaciones</a></li>
+                <li class="nav-item"><a href="historial-transacciones.html">Historial de Transacciones</a></li>
             </ul>
         </div>
         <div class="sidebar-footer">
@@ -563,10 +584,8 @@
     <div class="main-wrapper">
         <div class="topbar">
             <div class="topbar-left">
-                <button class="btn-hamburger" onclick="toggleDrawer()">
-                    <div class="bar"></div>
-                    <div class="bar"></div>
-                    <div class="bar"></div>
+                <button class="btn-toggle-menu" onclick="toggleDrawer()">
+                    <span>&equiv;</span> <span>Módulos SVC</span>
                 </button>
                 <div class="topbar-title">Ficha Comercial de Publicación (CdU33 / CdU34)</div>
             </div>
@@ -621,6 +640,19 @@
                             <strong>Venta Mayorista / B2B</strong>
                         </div>
                     </div>
+
+                    <!-- SECCIÓN: REPUTACIÓN Y VALORACIONES DEL PRODUCTO (CdU61) -->
+                    <div class="specs-title" style="margin-top: 30px;">Valoraciones y Reseñas de Compradores (CdU61)</div>
+                    <div id="pubReviewsSummary" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <span style="font-size: 22px; font-weight: 700; color: #0f172a;" id="pubScoreNum">—</span>
+                            <span style="color: #f59e0b; font-size: 16px; margin-left: 6px;" id="pubScoreStars">☆☆☆☆☆</span>
+                        </div>
+                        <span style="font-size: 12px; color: var(--svc-text-muted); text-transform: uppercase;" id="pubScoreCount">Consultando...</span>
+                    </div>
+                    <div id="pubReviewsList">
+                        <!-- Opiniones renderizadas dinámicamente -->
+                    </div>
                 </div>
 
                 <!-- Panel Vendedor y Acción de Negociación -->
@@ -637,6 +669,9 @@
                     </ul>
 
                     <div id="actionContainer">
+                        <button type="button" class="btn-action-buy" id="btnBuy" onclick="irAGenerarOrden()" style="background-color: var(--svc-primary); color: #ffffff; width: 100%; padding: 14px; border: none; font-size: 13px; font-weight: 700; text-transform: uppercase; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span>Comprar / Generar Orden &rarr;</span>
+                        </button>
                         <button type="button" class="btn-action-negotiate" id="btnNegotiate" onclick="abrirModalIniciarNegociacion()">
                             <span>Iniciar Chat / Negociar &rarr;</span>
                         </button>
@@ -720,6 +755,7 @@
                 if (res.ok) {
                     publicacionActual = data;
                     renderizarFichaComercial(data);
+                    cargarValoracionesPublicacion(pubId);
                 } else {
                     mostrarAlerta(data.detail || "La publicación solicitada no se encuentra disponible.");
                 }
@@ -747,7 +783,7 @@
             document.getElementById("offerDate").innerText = fechaFmt;
 
             const v = p.vendedor;
-            document.getElementById("sellerName").innerText = v.nombre_razon_social;
+            document.getElementById("sellerName").innerHTML = `<a href="ver-perfil.html?id=${v.id || p.comerciante_id}" style="color:var(--svc-primary); text-decoration:none; font-weight:700;" title="Ver perfil comercial y reputación">${escapeHTML(v.nombre_razon_social)} &rarr;</a>`;
             document.getElementById("sellerCuit").innerText = `CUIT/CUIL: ${v.cuit_cuil}`;
             document.getElementById("sellerLocation").innerText = `${v.direccion}, ${v.ciudad_localidad} (${v.provincia})`;
             document.getElementById("sellerReach").innerText = v.zona_alcance_logistico;
@@ -756,14 +792,22 @@
 
             // Regla ERS CdU33 / CdU34: El botón de chat solo se habilita para no-autores
             if (p.es_autor) {
+                document.getElementById("btnBuy").style.display = "none";
                 document.getElementById("btnNegotiate").style.display = "none";
                 document.getElementById("authorNotice").style.display = "block";
             } else {
+                document.getElementById("btnBuy").style.display = "flex";
                 document.getElementById("btnNegotiate").style.display = "flex";
                 document.getElementById("authorNotice").style.display = "none";
             }
 
             document.getElementById("detailGrid").style.display = "grid";
+        }
+
+        
+        function irAGenerarOrden() {
+            if (!publicacionActual) return;
+            window.location.href = `generar-orden.html?publicacion_id=${publicacionActual.id}`;
         }
 
         // ── MANEJO DEL MODAL DE NEGOCIACIÓN (CdU34) ──
@@ -837,6 +881,71 @@
             const el = document.getElementById("mainAlert");
             el.innerText = msg;
             el.style.display = "block";
+        }
+
+        
+                function escapeHTML(str) {
+            return String(str || '').replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        async function cargarValoracionesPublicacion(pubId) {
+            try {
+                const res = await fetch(`${API_URL}/calificaciones/publicacion/${pubId}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    renderizarValoraciones(data);
+                } else {
+                    renderizarValoraciones({ total_resenas: 0, promedio: 0.0, resenas: [] });
+                }
+            } catch (err) {
+                console.warn("No se pudieron cargar valoraciones:", err);
+                renderizarValoraciones({ total_resenas: 0, promedio: 0.0, resenas: [] });
+            }
+        }
+
+        function renderizarValoraciones(data) {
+            const tiene = data.total_resenas > 0;
+            const prom = tiene ? Number(data.promedio).toFixed(1) : "—";
+            const numStars = tiene ? Math.round(data.promedio) : 0;
+            const stars = tiene ? ("★".repeat(numStars) + "☆".repeat(5 - numStars)) : "☆☆☆☆☆";
+            const label = tiene ? (data.total_resenas === 1 ? "1 valoración de adquirente" : `${data.total_resenas} valoraciones de adquirentes`) : "Sin opiniones aún";
+
+            document.getElementById("pubScoreNum").innerText = prom;
+            document.getElementById("pubScoreStars").innerText = stars;
+            document.getElementById("pubScoreCount").innerText = label;
+
+            const list = document.getElementById("pubReviewsList");
+            list.innerHTML = "";
+
+            if (!data.resenas || data.resenas.length === 0) {
+                list.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: var(--svc-text-muted); background: #ffffff; border: 1px dashed var(--svc-border); font-size: 12.5px;">
+                        Esta publicación aún no registra opiniones de compradores verificados (CdU61).
+                    </div>
+                `;
+                return;
+            }
+
+            data.resenas.forEach(r => {
+                const item = document.createElement("div");
+                item.style.cssText = "background: #ffffff; border: 1px solid #e2e8f0; padding: 14px 16px; margin-bottom: 10px;";
+                const comprador = r.comprador ? r.comprador.nombre_razon_social : "Comprador Verificado";
+                const fecha = r.creado_el ? new Date(r.creado_el).toLocaleDateString("es-AR") : "";
+                const rStars = "★".repeat(r.puntaje) + "☆".repeat(5 - r.puntaje);
+                
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 12px; font-weight: 700; color: #0f172a;">${escapeHTML(comprador)}</span>
+                        <span style="font-size: 11px; color: var(--svc-text-muted);">${fecha} &bull; <span style="color:#f59e0b;">${rStars}</span></span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #334155;">${escapeHTML(r.comentario || 'Sin comentario.')}</div>
+                `;
+                list.appendChild(item);
+            });
         }
 
         function cerrarSesion() {

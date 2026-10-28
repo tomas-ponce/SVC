@@ -4,11 +4,15 @@ from datetime import datetime
 from typing import List
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import Response
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.pdfgen import canvas
+try:
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib import colors
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.pdfgen import canvas
+    REPORTLAB_AVAILABLE = True
+except ImportError:
+    REPORTLAB_AVAILABLE = False
 from app.schemas.inventario_schema import (
     InventarioItemCreate,
     InventarioItemUpdate,
@@ -36,37 +40,39 @@ def sanitizar_nombre_archivo(texto: str) -> str:
     limpio = re.sub(r'[^\w\-_\.]', '_', texto.strip())
     return re.sub(r'_+', '_', limpio)
 
-class NumberedCanvas(canvas.Canvas):
-    """Canvas de dos pasos para numerar dinámicamente 'Página X de Y' y agregar pie institucional."""
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._saved_page_states = []
+if REPORTLAB_AVAILABLE:
+    class NumberedCanvas(canvas.Canvas):
+        """Canvas de dos pasos para numerar dinámicamente 'Página X de Y' y agregar pie institucional."""
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self._saved_page_states = []
 
-    def showPage(self):
-        self._saved_page_states.append(dict(self.__dict__))
-        self._startPage()
+        def showPage(self):
+            self._saved_page_states.append(dict(self.__dict__))
+            self._startPage()
 
-    def save(self):
-        num_pages = len(self._saved_page_states)
-        for state in self._saved_page_states:
-            self.__dict__.update(state)
-            self.draw_page_footer(num_pages)
-            super().showPage()
-        super().save()
+        def save(self):
+            num_pages = len(self._saved_page_states)
+            for state in self._saved_page_states:
+                self.__dict__.update(state)
+                self.draw_page_footer(num_pages)
+                super().showPage()
+            super().save()
 
-    def draw_page_footer(self, page_count: int):
-        self.saveState()
-        self.setStrokeColor(colors.HexColor('#e2e8f0'))
-        self.setLineWidth(0.75)
-        self.line(36, 40, 576, 40)
-        
-        self.setFont("Helvetica", 7.5)
-        self.setFillColor(colors.HexColor('#64748b'))
-        self.drawString(36, 28, "SVC — Sistema de Vinculación para el Comercio | Documento Oficial de Auditoría")
-        
-        page_str = f"Página {self._pageNumber} de {page_count}"
-        self.drawRightString(576, 28, page_str)
-        self.restoreState()
+        def draw_page_footer(self, page_count: int):
+            self.saveState()
+            self.setStrokeColor(colors.HexColor('#e2e8f0'))
+            self.setLineWidth(0.75)
+            self.line(36, 40, 576, 40)
+            self.setFont("Helvetica", 7.5)
+            self.setFillColor(colors.HexColor('#64748b'))
+            self.drawString(36, 28, "SVC — Sistema de Vinculación para el Comercio | Documento Oficial de Auditoría")
+            page_str = f"Página {self._pageNumber} de {page_count}"
+            self.drawRightString(576, 28, page_str)
+            self.restoreState()
+else:
+    class NumberedCanvas:
+        pass
 
 # ==============================================================================
 # 1. CdU43 - REGISTRAR NUEVO ÍTEM EN INVENTARIO
@@ -399,6 +405,11 @@ def exportar_reporte_pdf(user_id: str = Depends(get_current_user_id)):
     valor_total = sum(float(it.get("precio_unitario", 0.0)) * int(it.get("stock_actual", 0)) for it in items)
     valor_total_fmt = f"${valor_total:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
+    if not REPORTLAB_AVAILABLE:
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="El módulo 'reportlab' no está instalado en el entorno. Instálelo con: pip install reportlab"
+        )
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,

@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Query
 from typing import List, Optional
+from pydantic import BaseModel, Field
 from app.schemas.publicacion_schema import (
     PublicacionVentaCreate, 
     PublicacionVentaUpdate, 
@@ -15,6 +16,9 @@ from app.core.email_service import (
 from app.db.supabase_client import supabase
 
 router = APIRouter(prefix="/publicaciones", tags=["Gestión de Publicaciones de Venta (Sprint 3 y 4)"])
+
+class ReactivarPublicacionInput(BaseModel):
+    unidades: Optional[int] = Field(None, gt=0)
 
 # ==============================================================================
 # 0. RECUPERAR COMUNIDADES DONDE EL USUARIO ES MIEMBRO (CdU25 / CdU27)
@@ -222,6 +226,61 @@ def crear_publicacion_venta(
                 print(f"[SMTP WARN] No se pudo despachar el correo de alerta: {mail_err}")
 
     return publicacion_creada
+
+
+# ==============================================================================
+# 1.1 CdU33 / RF04 - MURO DE VENTAS COMERCIAL CON BÚSQUEDA Y FILTRADO
+# ==============================================================================
+@router.get(
+    "/muro",
+    status_code=status.HTTP_200_OK,
+    summary="Listar publicaciones activas en el Muro de Ventas con filtros (RF02 / RF04 / CdU33)"
+)
+def listar_publicaciones_muro(
+    q: Optional[str] = None,
+    rubro: Optional[str] = None,
+    subrubro: Optional[str] = None,
+    provincia: Optional[str] = None,
+    alcance: Optional[str] = None,
+    pagina: int = Query(1, ge=1),
+    limite: int = Query(12, ge=1, le=50),
+    user_id: str = Depends(get_current_user_id)
+):
+    try:
+        query = (
+            supabase.table("publicaciones_venta")
+            .select("*, comerciantes(id, nombre_razon_social, cuit_cuil, direccion, ciudad_localidad, provincia, zona_alcance_logistico, telefono, email)", count="exact")
+            .eq("estado", "Activa")
+            .gt("unidades_ofertadas", 0)
+        )
+
+        if rubro and rubro != "todos":
+            query = query.eq("rubro", rubro.strip())
+        if subrubro and subrubro != "todos":
+            query = query.eq("subrubro", subrubro.strip())
+        if q and len(q.strip()) >= 3:
+            query = query.ilike("titulo", f"%{q.strip()}%")
+
+        offset = (pagina - 1) * limite
+        query = query.order("creado_el", desc=True).range(offset, offset + limite - 1)
+        res = query.execute()
+
+        publicaciones = res.data or []
+        total = res.count if res.count is not None else len(publicaciones)
+
+        if provincia and provincia != "todos":
+            publicaciones = [p for p in publicaciones if p.get("comerciantes") and provincia.lower() in (p["comerciantes"].get("provincia") or "").lower()]
+        if alcance and alcance != "todos":
+            publicaciones = [p for p in publicaciones if p.get("comerciantes") and alcance.lower() in (p["comerciantes"].get("zona_alcance_logistico") or "").lower()]
+
+        return {
+            "total": total,
+            "pagina": pagina,
+            "limite": limite,
+            "publicaciones": publicaciones
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al recuperar el muro de ventas: {str(e)}")
 
 # ==============================================================================
 # 2. LISTAR PUBLICACIONES DEL COMERCIANTE AUTENTICADO
@@ -471,9 +530,62 @@ def pausar_publicacion_venta(
 )
 def reactivar_publicacion_venta(
     publicacion_id: str,
+    datos: Optional[ReactivarPublicacionInput] = None,
     user_id: str = Depends(get_current_user_id)
 ):
     try:
+        # 1. Recuperar publicación para auditar unidades y stock físico disponible
+        pub_res = (
+            supabase.table("publicaciones_venta")
+            .select("*")
+            .eq("id", publicacion_id)
+            .eq("comerciante_id", user_id)
+            .execute()
+        )
+        if not pub_res.data:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Publicación no encontrada o no posee permisos para modificarla.")
+        
+        pub = pub_res.data[0]
+        if pub["estado"] == "Activa":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La publicación ya se encuentra activa.")
+
+        # 2. Si tiene inventario físico vinculado, validar existencias en almacén (CdU26)
+        if pub.get("inventario_item_id"):
+            inv_res = (
+                supabase.table("inventario_items")
+                .select("stock_actual, nombre")
+                .eq("id", pub["inventario_item_id"])
+                .eq("comerciante_id", user_id)
+                .execute()
+            )
+            if not inv_res.data:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El ítem de inventario vinculado fue eliminado previamente.")
+            
+            stock_disp = inv_res.data[0]["stock_actual"]
+            if stock_disp <= 0:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Stock insuficiente en inventario para reactivar. Disponible: 0 unidades en '{inv_res.data[0]['nombre']}'."
+                )
+            
+            # Si se enviaron unidades deseadas, validar contra stock real disponible
+            if datos and datos.unidades and datos.unidades > 0:
+                if datos.unidades > stock_disp:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Stock insuficiente en inventario para reactivar. Disponible: {stock_disp} unidades, Requeridas: {datos.unidades} unidades."
+                    )
+                unidades_a_reservar = datos.unidades
+            else:
+                # Si no se envió cantidad pero el stock disponible es menor a lo originalmente ofertado, ajustar automáticamente
+                unidades_a_reservar = min(pub["unidades_ofertadas"], stock_disp)
+
+            if pub["unidades_ofertadas"] != unidades_a_reservar:
+                supabase.table("publicaciones_venta").update({
+                    "unidades_ofertadas": unidades_a_reservar
+                }).eq("id", publicacion_id).execute()
+
+        # 3. Invocar RPC para deducción atómica de existencias y activación
         rpc_res = supabase.rpc(
             "fn_reactivar_publicacion_con_stock",
             {
@@ -489,6 +601,8 @@ def reactivar_publicacion_venta(
             "unidades_reservadas": resultado.get("unidades_reservadas", 0),
             "publicacion_id": publicacion_id
         }
+    except HTTPException:
+        raise
     except Exception as e:
         err_msg = str(e)
         if "Stock insuficiente en inventario para reactivar" in err_msg:
@@ -499,8 +613,7 @@ def reactivar_publicacion_venta(
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El ítem de inventario vinculado a esta oferta fue eliminado previamente.")
         if "no existe o no pertenece" in err_msg:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Publicación no encontrada o no posee permisos para modificarla.")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al reactivar la publicación: {err_msg}"
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al reactivar la publicación: {err_msg}")
 
 # ==============================================================================
 # 8. CdU31 / CdU30 - ELIMINAR PUBLICACIÓN DE VENTA POR AUTOR

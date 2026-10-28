@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Perfil Comercial del Proveedor (CdU04 / CdU33 / CdU60)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-primary-hover: #004085;
+            --svc-bg-page: #f8f9fa;
+            --svc-bg-surface: #ffffff;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-danger: #dc3545;
+            --svc-warning: #ffc107;
+            --svc-success: #28a745;
+            --svc-border-radius: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sidebar-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1200;
+            transition: left 0.25s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-drawer.open { left: 0; }
+
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1100;
+            display: none;
+        }
+
+        .drawer-backdrop.open { display: block; }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-box {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--svc-text-muted);
+            padding: 4px 8px;
+        }
+
+        .btn-close-drawer:hover { color: var(--svc-text); }
+
+        .nav-list {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-left: 4px solid var(--svc-primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background-color: var(--svc-bg-surface);
+            border-bottom: 1px solid #e9ecef;
+            padding: 14px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-toggle-menu {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--svc-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-toggle-menu:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+        }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 12.5px;
+        }
+
+        .content-area {
+            padding: 30px 40px;
+            max-width: 1280px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ── HEADER DEL PERFIL COMERCIAL (FIGMA PÁG. 4) ── */
+        .profile-header-card {
+            background-color: #ffffff;
+            border: 1px solid var(--svc-border);
+            border-top: 4px solid var(--svc-primary);
+            padding: 30px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .profile-brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-avatar-box {
+            width: 64px;
+            height: 64px;
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+        }
+
+        .profile-title-block h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 4px 0;
+        }
+
+        .profile-sub-info {
+            font-size: 13px;
+            color: var(--svc-text-muted);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-verified {
+            background-color: #d4edda;
+            color: var(--svc-success);
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .profile-score-box {
+            text-align: right;
+            border-left: 1px solid #e2e8f0;
+            padding-left: 20px;
+        }
+
+        .score-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1;
+        }
+
+        .score-stars {
+            color: #f59e0b;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .score-label {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+        }
+
+        /* ── TABS NAVEGACIÓN ── */
+        .tabs-container {
+            display: flex;
+            gap: 2px;
+            background-color: #e2e8f0;
+            border-bottom: 2px solid var(--svc-primary);
+            margin-bottom: 25px;
+        }
+
+        .tab-btn {
+            background-color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748b;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.15s ease;
+        }
+
+        .tab-btn.active {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+        }
+
+        /* ── TAB CONTENT ── */
+        .tab-panel {
+            display: none;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* ── GRILLA DE PUBLICACIONES DE ESTE COMERCIO ── */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            border-top: 3px solid var(--svc-primary);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 8px 0;
+        }
+
+        .product-price {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--svc-primary);
+            margin-bottom: 12px;
+        }
+
+        .btn-product-view {
+            background-color: #ffffff;
+            color: var(--svc-primary);
+            border: 1px solid var(--svc-primary);
+            padding: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+            text-decoration: none;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .btn-product-view:hover { background-color: #e7f0fb; }
+
+        /* ── INFORMACIÓN COMERCIAL TABLA ── */
+        .info-card {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 30px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .info-item span {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .info-item strong {
+            font-size: 13.5px;
+            color: #0f172a;
+        }
+
+        /* ── TAB RESEÑAS Y REPUTACIÓN (CdU60) ── */
+        .reviews-summary {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            border-top: 4px solid var(--svc-primary);
+            padding: 25px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .review-box {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .review-author {
+            font-weight: 700;
+            font-size: 13px;
+            color: #0f172a;
+        }
+
+        .review-date {
+            font-size: 11.5px;
+            color: var(--svc-text-muted);
+        }
+
+        .review-comment {
+            font-size: 13px;
+            color: #334155;
+            line-height: 1.4;
+        }
+
+        .btn-svc-primary {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-svc-primary:hover { background-color: var(--svc-primary-hover); }
+
+        .alert-box {
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+
+    <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
+
+    <div id="sidebarDrawer" class="sidebar-drawer">
+        <div>
+            <div class="sidebar-brand">
+                <div class="brand-info">
+                    <div class="brand-box">SVC</div>
+                    <div class="brand-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+                </div>
+                <button class="btn-close-drawer" onclick="toggleDrawer()">&times;</button>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
+                <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
+                <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item"><a href="muro-ventas.html">Muro de Ventas</a></li>
+                <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
+                <li class="nav-item"><a href="comunidades.html">Comunidades B2B</a></li>
+                <li class="nav-item"><a href="chat.html">Chats</a></li>
+                <li class="nav-item"><a href="notificaciones.html">Notificaciones</a></li>
+                <li class="nav-item"><a href="historial-transacciones.html">Historial de Transacciones</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            SVC v0.6.1 &bull; Modelo ASP / B2B SaaS
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <header class="topbar">
+            <button class="btn-toggle-menu" onclick="toggleDrawer()">
+                <span>&equiv;</span> <span>Módulos SVC</span>
+            </button>
+            <div class="topbar-user">
+                <span id="userNameTop">Comerciante</span>
+                <button onclick="cerrarSesion()" style="background: none; border: 1px solid var(--svc-border); padding: 5px 10px; cursor: pointer; font-size: 11px; font-weight: 600;">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div id="mainAlert" class="alert-box alert-danger"></div>
+
+            <!-- FICHA PRINCIPAL DEL COMERCIO -->
+            <div class="profile-header-card" id="profileHeader">
+                <div class="profile-brand-wrap">
+                    <div class="profile-avatar-box" id="avatarBox">--</div>
+                    <div class="profile-title-block">
+                        <h1 id="merchantName">Cargando perfil comercial...</h1>
+                        <div class="profile-sub-info">
+                            <span id="merchantRubro">—</span> &bull; 
+                            <span id="merchantLocation">—</span>
+                            <span class="badge-verified">&check; Verificado SVC</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-score-box">
+                    <div class="score-number" id="scoreValue">4.8</div>
+                    <div class="score-stars">★★★★★</div>
+                    <div class="score-label" id="scoreCount">12 reseñas comerciales</div>
+                </div>
+            </div>
+
+            <!-- TABS DE NAVEGACIÓN DEL PERFIL -->
+            <div class="tabs-container">
+                <button class="tab-btn active" id="tabBtnProductos" onclick="switchTab('productos')">Inventario Público</button>
+                <button class="tab-btn" id="tabBtnInfo" onclick="switchTab('info')">Información Comercial</button>
+                <button class="tab-btn" id="tabBtnResenas" onclick="switchTab('resenas')">Reseñas y Calificaciones</button>
+            </div>
+
+            <!-- TAB 1: PRODUCTOS / OFERTAS -->
+            <div id="tabProductos" class="tab-panel active">
+                <div class="products-grid" id="productsGrid">
+                    <!-- Productos dinámicos -->
+                </div>
+            </div>
+
+            <!-- TAB 2: INFORMACIÓN COMERCIAL -->
+            <div id="tabInfo" class="tab-panel">
+                <div class="info-card">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span>Razón Social</span>
+                            <strong id="infoRazon">—</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>CUIT / CUIL</span>
+                            <strong id="infoCuit">—</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Rubro Principal</span>
+                            <strong id="infoRubro">—</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Subrubro / Especialidad</span>
+                            <strong id="infoSubrubro">—</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Dirección Comercial</span>
+                            <strong id="infoDireccion">—</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Localidad y Provincia</span>
+                            <strong id="infoLocalidad">—</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Alcance Logístico Declarado</span>
+                            <strong id="infoAlcance">—</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Teléfono de Contacto</span>
+                            <strong id="infoTelefono">—</strong>
+                        </div>
+                        <div class="info-item">
+                            <span>Correo Electrónico</span>
+                            <strong id="infoEmail">—</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: RESEÑAS Y REPUTACIÓN (CdU60) -->
+            <div id="tabResenas" class="tab-panel">
+                <div class="reviews-summary">
+                    <div>
+                        <div style="font-size: 32px; font-weight: 700; color: #0f172a;"><span id="reviewsAverageBig">—</span> <span style="font-size: 18px; color: var(--svc-text-muted);">/ 5.0</span></div>
+                        <div class="score-stars" id="reviewsStarsBig">☆☆☆☆☆</div>
+                        <div style="font-size: 12px; color: var(--svc-text-muted); margin-top: 4px;" id="reviewsCountDetail">Consultando auditoría de transacciones...</div>
+                    </div>
+                    <div style="border-left: 1px solid #e2e8f0; padding-left: 30px; font-size: 13px; line-height: 1.6;">
+                        <div><strong>Garantía Transaccional:</strong> Operaciones formalizadas con estándar ACID.</div>
+                        <div><strong>Pagos Auditados:</strong> Trazabilidad delegada mediante pasarela MercadoPago.</div>
+                        <div><strong>Historial Comercial:</strong> Evaluaciones certificadas entre comercios verificados (CdU60).</div>
+                    </div>
+                </div>
+
+                <div id="reviewsList">
+                    <!-- Reseñas cargadas dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8080";
+        const token = localStorage.getItem("svc_token");
+        const usuarioSesion = JSON.parse(localStorage.getItem("svc_usuario") || "{}");
+        const urlParams = new URLSearchParams(window.location.search);
+        let comercianteId = urlParams.get('id');
+
+        if (!token) window.location.href = "login.html";
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (usuarioSesion.nombre_razon_social) {
+                document.getElementById("userNameTop").innerText = usuarioSesion.nombre_razon_social;
+            }
+            if (!comercianteId) {
+                if (usuarioSesion && usuarioSesion.id) {
+                    comercianteId = usuarioSesion.id;
+                } else {
+                    mostrarAlerta("No se especificó el comerciante a consultar.");
+                    return;
+                }
+            }
+            cargarPerfilComercial();
+            cargarReputacionComercial();
+        });
+
+        function toggleDrawer() {
+            document.getElementById("sidebarDrawer").classList.toggle("open");
+            document.getElementById("drawerBackdrop").classList.toggle("open");
+        }
+
+        function switchTab(tab) {
+            document.getElementById("tabBtnProductos").classList.toggle("active", tab === 'productos');
+            document.getElementById("tabBtnInfo").classList.toggle("active", tab === 'info');
+            document.getElementById("tabBtnResenas").classList.toggle("active", tab === 'resenas');
+
+            document.getElementById("tabProductos").classList.toggle("active", tab === 'productos');
+            document.getElementById("tabInfo").classList.toggle("active", tab === 'info');
+            document.getElementById("tabResenas").classList.toggle("active", tab === 'resenas');
+        }
+
+        async function cargarPerfilComercial() {
+            try {
+                const res = await fetch(`${API_URL}/busqueda/comerciantes/${comercianteId}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    renderizarPerfil(data.perfil, data.publicaciones);
+                } else {
+                    const err = await res.json();
+                    mostrarAlerta(err.detail || "Perfil no encontrado o inactivo.");
+                }
+            } catch (err) {
+                mostrarAlerta("Error de comunicación con el servidor backend FastAPI.");
+            }
+        }
+
+        function renderizarPerfil(c, pubs) {
+            const iniciales = (c.nombre_razon_social || "CO").substring(0, 2).toUpperCase();
+            document.getElementById("avatarBox").innerText = iniciales;
+            const esPropio = (usuarioSesion && usuarioSesion.id === c.id);
+            document.getElementById("merchantName").innerHTML = escapeHTML(c.nombre_razon_social) + (esPropio ? ' <span style="font-size:11px; font-weight:700; background:#0f172a; color:#ffffff; padding:3px 8px; vertical-align:middle; text-transform:uppercase; letter-spacing:0.5px;">Tu Perfil Público</span>' : '');
+            document.getElementById("merchantRubro").innerText = c.rubro_comercial || "Comercio General";
+            document.getElementById("merchantLocation").innerText = `${c.ciudad_localidad || ''}, ${c.provincia || ''} (${c.zona_alcance_logistico || 'Regional'})`;
+
+            // Tab Información
+            document.getElementById("infoRazon").innerText = c.nombre_razon_social;
+            document.getElementById("infoCuit").innerText = c.cuit_cuil || "—";
+            document.getElementById("infoRubro").innerText = c.rubro_comercial || "—";
+            document.getElementById("infoSubrubro").innerText = c.subrubro_comercial || "—";
+            document.getElementById("infoDireccion").innerText = c.direccion || "—";
+            document.getElementById("infoLocalidad").innerText = `${c.ciudad_localidad || ''}, ${c.provincia || ''}`;
+            document.getElementById("infoAlcance").innerText = c.zona_alcance_logistico || "Regional";
+            document.getElementById("infoTelefono").innerText = c.telefono || "—";
+            document.getElementById("infoEmail").innerText = c.email || "—";
+
+            // Tab Productos
+            const grid = document.getElementById("productsGrid");
+            grid.innerHTML = "";
+
+            if (!pubs || pubs.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--svc-text-muted); background:#ffffff; border:1px dashed var(--svc-border);">Este comerciante no posee ofertas de venta activas en este momento.</div>`;
+                return;
+            }
+
+            pubs.forEach(p => {
+                const card = document.createElement("div");
+                card.className = "product-card";
+                card.innerHTML = `
+                    <div>
+                        <div style="font-size:11px; font-weight:700; color:var(--svc-primary); text-transform:uppercase; margin-bottom:4px;">${p.rubro}</div>
+                        <h3 class="product-title">${escapeHTML(p.titulo)}</h3>
+                        <div class="product-price">$ ${Number(p.precio).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</div>
+                        <div style="font-size:11.5px; color:var(--svc-text-muted); margin-bottom:12px;">Stock: ${p.unidades_ofertadas} u. &bull; Origen: ${p.origen}</div>
+                    </div>
+                    <a href="detalle-publicacion.html?id=${p.id}" class="btn-product-view">Ver Oferta &rarr;</a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function escapeHTML(str) {
+            return String(str || '').replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        function mostrarAlerta(msg) {
+            const el = document.getElementById("mainAlert");
+            el.innerText = msg;
+            el.style.display = "block";
+        }
+
+        
+        async function cargarReputacionComercial() {
+            try {
+                const res = await fetch(`${API_URL}/calificaciones/comerciante/${comercianteId}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    renderizarReputacion(data);
+                } else {
+                    renderizarReputacion({ total_resenas: 0, promedio: 0.0, resenas: [] });
+                }
+            } catch (e) {
+                console.warn("No se pudo cargar reputación dinámica:", e);
+                renderizarReputacion({ total_resenas: 0, promedio: 0.0, resenas: [] });
+            }
+        }
+
+        function renderizarReputacion(data) {
+            const tiene = data.total_resenas > 0;
+            const prom = tiene ? Number(data.promedio).toFixed(1) : "—";
+            const numStars = tiene ? Math.round(data.promedio) : 0;
+            const stars = tiene ? ("★".repeat(numStars) + "☆".repeat(5 - numStars)) : "☆☆☆☆☆";
+            const label = tiene ? (data.total_resenas === 1 ? "1 reseña comercial" : `${data.total_resenas} reseñas comerciales`) : "Sin reseñas aún";
+
+            // Encabezado
+            document.getElementById("scoreValue").innerText = prom;
+            const headerStars = document.querySelector(".profile-score-box .score-stars");
+            if (headerStars) headerStars.innerText = stars;
+            document.getElementById("scoreCount").innerText = label;
+
+            // Tab reseñas
+            document.getElementById("reviewsAverageBig").innerText = prom;
+            document.getElementById("reviewsStarsBig").innerText = stars;
+            document.getElementById("reviewsCountDetail").innerText = tiene ? `Basado en ${data.total_resenas} transacciones evaluadas` : "Sin calificaciones registradas";
+
+            const list = document.getElementById("reviewsList");
+            list.innerHTML = "";
+
+            if (!data.resenas || data.resenas.length === 0) {
+                list.innerHTML = `
+                    <div style="padding: 35px; text-align: center; color: var(--svc-text-muted); background: #ffffff; border: 1px dashed var(--svc-border);">
+                        Este comerciante aún no registra opiniones o valoraciones de contrapartes en transacciones formalizadas (CdU60).
+                    </div>
+                `;
+                return;
+            }
+
+            data.resenas.forEach(r => {
+                const box = document.createElement("div");
+                box.className = "review-box";
+                const autor = r.emisor ? r.emisor.nombre_razon_social : "Comerciante Verificado";
+                const fecha = r.creado_el ? new Date(r.creado_el).toLocaleDateString("es-AR") : "";
+                const rStars = "★".repeat(r.puntaje) + "☆".repeat(5 - r.puntaje);
+                const rolBadge = r.rol_calificador === "comprador" ? "Adquirente" : "Proveedor";
+                
+                box.innerHTML = `
+                    <div class="review-header">
+                        <span class="review-author">${escapeHTML(autor)} <span style="font-size: 11px; font-weight: normal; color: var(--svc-text-muted); text-transform: uppercase;">[${rolBadge}]</span></span>
+                        <span class="review-date">${fecha} &bull; <span style="color:#f59e0b; font-size:13px;">${rStars}</span></span>
+                    </div>
+                    <div class="review-comment">${escapeHTML(r.comentario || 'Sin comentario adicional.')}</div>
+                `;
+                list.appendChild(box);
+            });
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("svc_token");
+            localStorage.removeItem("svc_usuario");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

@@ -606,6 +606,25 @@
             border-color: var(--svc-danger-hover) !important;
             color: #ffffff !important;
         }
+    
+        .btn-toggle-menu {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--svc-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-toggle-menu:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+        }
+
     </style>
 </head>
 <body>
@@ -626,10 +645,12 @@
                 <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
                 <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
                 <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item"><a href="muro-ventas.html">Muro de Ventas</a></li>
                 <li class="nav-item active"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
                 <li class="nav-item"><a href="comunidades.html">Comunidades B2B</a></li>
                 <li class="nav-item"><a href="chat.html">Chats</a></li>
                 <li class="nav-item"><a href="notificaciones.html">Notificaciones</a></li>
+                <li class="nav-item"><a href="historial-transacciones.html">Historial de Transacciones</a></li>
             </ul>
         </div>
         <div class="sidebar-footer">
@@ -641,10 +662,8 @@
     <div class="main-wrapper">
         <div class="topbar">
             <div class="topbar-left">
-                <button class="btn-hamburger" onclick="toggleDrawer()">
-                    <div class="bar"></div>
-                    <div class="bar"></div>
-                    <div class="bar"></div>
+                <button class="btn-toggle-menu" onclick="toggleDrawer()">
+                    <span>&equiv;</span> <span>Módulos SVC</span>
                 </button>
                 <div class="topbar-title">Gestión de Publicaciones Comerciales (CdU27 al CdU33)</div>
             </div>
@@ -795,6 +814,17 @@
             <div id="modalAlertReactivate" class="alert-box alert-danger"></div>
 
             <input type="hidden" id="reactivatePubId">
+            <input type="hidden" id="reactivateHasStock">
+
+            <div id="reactivateUnitsWrap" style="margin: 15px 0; text-align: left;">
+                <label style="display: block; font-size: 11px; font-weight: 700; color: #334155; text-transform: uppercase; margin-bottom: 6px;">
+                    Cantidad de Unidades a Ofertar (CdU26) *
+                </label>
+                <input type="number" id="reactivateUnitsInput" class="input-svc" min="1" required style="width: 100%;">
+                <div style="font-size: 11px; color: var(--svc-text-muted); margin-top: 4px;">
+                    Se reservará esta cantidad de su stock en inventario. Puede ajustarla según sus existencias disponibles.
+                </div>
+            </div>
 
             <div class="modal-actions">
                 <button type="button" class="btn-modal-cancel" onclick="cerrarModalReactivacion()">Cancelar</button>
@@ -1194,9 +1224,12 @@
         function abrirModalReactivacion(id, titulo, unidades, itemId) {
             document.getElementById("modalAlertReactivate").style.display = "none";
             document.getElementById("reactivatePubId").value = id;
+            document.getElementById("reactivateHasStock").value = itemId ? "true" : "false";
+            document.getElementById("reactivateUnitsInput").value = unidades || 1;
+            document.getElementById("reactivateUnitsWrap").style.display = itemId ? "block" : "none";
             
             let detalleStock = itemId 
-                ? `Al reactivar "${titulo}", se comprobará que disponga de <strong>${unidades} unidad(es)</strong> en su inventario y se volverán a descontar automáticamente (CdU26).`
+                ? `Al reactivar "${titulo}", se comprobará la disponibilidad en su inventario físico y se reservarán automáticamente las unidades indicadas (CdU26).`
                 : `Al reactivar "${titulo}", la oferta volverá a ser visible para todos los compradores de la red B2B.`;
 
             document.getElementById("reactivatePubSubtitle").innerHTML = detalleStock;
@@ -1217,9 +1250,17 @@
             btn.innerText = "Reactivando...";
 
             try {
+                const hasStock = document.getElementById("reactivateHasStock").value === "true";
+                const cant = parseInt(document.getElementById("reactivateUnitsInput").value);
+                const payload = (hasStock && cant > 0) ? { unidades: cant } : {};
+
                 const res = await fetch(`${API_URL}/publicaciones/${id}/reactivar`, {
                     method: "PUT",
-                    headers: { "Authorization": `Bearer ${token}` }
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    },
+                    body: JSON.stringify(payload)
                 });
 
                 const data = await res.json();

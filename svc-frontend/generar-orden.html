@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Generar Orden de Compra (CdU57)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-primary-hover: #004085;
+            --svc-bg-page: #f8f9fa;
+            --svc-bg-surface: #ffffff;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-danger: #dc3545;
+            --svc-success: #28a745;
+            --svc-border-radius: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sidebar-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1200;
+            transition: left 0.25s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-drawer.open { left: 0; }
+
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1100;
+            display: none;
+        }
+
+        .drawer-backdrop.open { display: block; }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-box {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--svc-text-muted);
+            padding: 4px 8px;
+        }
+
+        .btn-close-drawer:hover { color: var(--svc-text); }
+
+        .nav-list {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-left: 4px solid var(--svc-primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 65px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-hamburger {
+            background: #ffffff;
+            border: 1px solid var(--svc-border);
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .btn-hamburger .bar {
+            width: 18px;
+            height: 2px;
+            background-color: #1e293b;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--svc-danger);
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-logout:hover {
+            background-color: #f8d7da;
+            border-color: var(--svc-danger);
+        }
+
+        .content-body {
+            padding: 30px 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .order-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid var(--svc-primary);
+            padding: 35px 40px;
+            width: 100%;
+            max-width: 760px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .order-title-wrap {
+            margin-bottom: 25px;
+        }
+
+        .order-title-wrap h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 4px 0;
+        }
+
+        .order-title-wrap p {
+            font-size: 13px;
+            color: var(--svc-text-muted);
+            margin: 0;
+        }
+
+        .pub-summary-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .pub-summary-box h3 {
+            font-size: 16px;
+            margin: 0 0 10px 0;
+            color: #0f172a;
+        }
+
+        .pub-summary-detail {
+            font-size: 13px;
+            color: #475569;
+            margin-bottom: 5px;
+        }
+
+        .section-header {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 26px 0 14px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .form-group { margin-bottom: 16px; }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .form-row { display: flex; gap: 14px; }
+        .form-row .form-group { flex: 1; }
+
+        .input-svc {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--svc-border);
+            background-color: #ffffff;
+            font-size: 13px;
+            color: var(--svc-text);
+            outline: none;
+            font-family: inherit;
+        }
+
+        .input-svc:focus { border-color: var(--svc-primary); }
+
+        .total-box {
+            background-color: #e7f0fb;
+            border: 1px solid #bfdbfe;
+            padding: 20px;
+            text-align: right;
+            margin: 30px 0;
+        }
+
+        .total-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--svc-primary);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .total-amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .btn-svc-primary {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border: none;
+            padding: 14px 28px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.15s ease;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-svc-primary:hover { background-color: var(--svc-primary-hover); }
+        .btn-svc-primary:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
+        .btn-svc-outline {
+            background-color: #ffffff;
+            color: #1e293b;
+            border: 1px solid var(--svc-border);
+            padding: 14px 28px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            display: block;
+            text-decoration: none;
+            box-sizing: border-box;
+        }
+
+        .btn-svc-outline:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+        }
+
+        .alert-box {
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+        .alert-success { background-color: #d4edda; color: var(--svc-success); border: 1px solid #c3e6cb; }
+
+    
+        .btn-toggle-menu {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--svc-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-toggle-menu:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
+
+    <div id="sidebarDrawer" class="sidebar-drawer">
+        <div>
+            <div class="sidebar-brand">
+                <div class="brand-info">
+                    <div class="brand-box">SVC</div>
+                    <div class="brand-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+                </div>
+                <button class="btn-close-drawer" onclick="toggleDrawer()">&times;</button>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
+                <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
+                <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item"><a href="muro-ventas.html">Muro de Ventas</a></li>
+                <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
+                <li class="nav-item"><a href="comunidades.html">Comunidades B2B</a></li>
+                <li class="nav-item"><a href="chat.html">Chats</a></li>
+                <li class="nav-item"><a href="notificaciones.html">Notificaciones</a></li>
+                <li class="nav-item"><a href="historial-transacciones.html">Historial de Transacciones</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            &copy; 2026 SVC — v0.6.1 (Sprint 6)
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="btn-toggle-menu" onclick="toggleDrawer()">
+                    <span>&equiv;</span> <span>Módulos SVC</span>
+                </button>
+                <div class="topbar-title">Formalización de Orden Comercial (CdU57)</div>
+            </div>
+            <div class="user-badge">
+                <span id="userNameTop">Cargando comercio...</span>
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="content-body">
+            <div class="order-card">
+                <div class="order-title-wrap">
+                    <h1>Generar Orden de Transacción</h1>
+                    <p>Revise los parámetros de la publicación, seleccione cantidad y confirme sus preferencias operativas para generar el acuerdo de compra.</p>
+                </div>
+
+                <div id="msgBox" class="alert-box"></div>
+
+                <div class="pub-summary-box">
+                    <h3 id="pubTitulo">Cargando publicación...</h3>
+                    <div class="pub-summary-detail"><strong>Vendedor:</strong> <span id="pubVendedor">—</span></div>
+                    <div class="pub-summary-detail"><strong>Precio Unitario:</strong> <span id="pubPrecio" style="color: var(--svc-primary); font-weight: 700;">$ 0,00</span></div>
+                    <div class="pub-summary-detail"><strong>Unidades Disponibles:</strong> <span id="pubStock">0</span> unidades</div>
+                </div>
+
+                <form id="ordenForm" onsubmit="generarOrden(event)">
+                    
+                    <div class="section-header">Parámetros de la Compra</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Cantidad a adquirir *</label>
+                            <input type="number" id="cantidad" class="input-svc" min="1" value="1" required oninput="calcularTotal()">
+                        </div>
+                    </div>
+
+                    <div class="section-header">Preferencias Operativas</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Método de Pago Preferido *</label>
+                            <select id="metodoPago" class="input-svc" required>
+                                <option value="MercadoPago (Cobro Digital)">MercadoPago (Cobro Digital)</option>
+                                <option value="Transferencia Bancaria Directa">Transferencia Bancaria Directa</option>
+                                <option value="Acuerdo a Convenir">Acuerdo a Convenir</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Método de Envío Preferido *</label>
+                            <select id="metodoEnvio" class="input-svc" required>
+                                <option value="Correo Argentino">Despacho por Correo Argentino</option>
+                                <option value="Andreani">Despacho por Andreani</option>
+                                <option value="Retiro en Depósito">Retiro en Depósito del Vendedor</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="total-box">
+                        <div class="total-label">Monto Total a Abonar</div>
+                        <div class="total-amount" id="montoTotalDisplay">$ 0,00</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <a href="#" class="btn-svc-outline" onclick="window.history.back(); return false;">Cancelar</a>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" id="btnGuardar" class="btn-svc-primary">Generar Orden Comercial &rarr;</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8080";
+        const token = localStorage.getItem("svc_token");
+        const usuarioSesion = JSON.parse(localStorage.getItem("svc_usuario") || "{}");
+        const urlParams = new URLSearchParams(window.location.search);
+        const publicacionId = urlParams.get('publicacion_id');
+        let precioUnitario = 0;
+        let stockMaximo = 0;
+
+        if (!token) window.location.href = "login.html";
+        if (!publicacionId) {
+            alert("No se especificó la publicación de origen.");
+            window.history.back();
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (usuarioSesion.nombre_razon_social) {
+                document.getElementById("userNameTop").innerText = usuarioSesion.nombre_razon_social;
+            }
+            cargarDatosPublicacion();
+        });
+
+        function toggleDrawer() {
+            document.getElementById("sidebarDrawer").classList.toggle("open");
+            document.getElementById("drawerBackdrop").classList.toggle("open");
+        }
+
+        async function cargarDatosPublicacion() {
+            try {
+                const res = await fetch(`${API_URL}/publicaciones/${publicacionId}/detalle`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    if (data.es_autor) {
+                        mostrarAlerta("No puede generar una orden de compra sobre su propia publicación.", "danger");
+                        document.getElementById("btnGuardar").disabled = true;
+                        return;
+                    }
+
+                    document.getElementById("pubTitulo").innerText = data.titulo;
+                    document.getElementById("pubVendedor").innerText = data.vendedor.nombre_razon_social;
+                    
+                    precioUnitario = data.precio;
+                    stockMaximo = data.unidades_ofertadas;
+                    
+                    document.getElementById("pubPrecio").innerText = `$ ${Number(precioUnitario).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
+                    document.getElementById("pubStock").innerText = stockMaximo;
+                    
+                    const inputCantidad = document.getElementById("cantidad");
+                    inputCantidad.max = stockMaximo;
+                    
+                    calcularTotal();
+                } else {
+                    const error = await res.json();
+                    mostrarAlerta(error.detail || "La publicación ya no se encuentra disponible.", "danger");
+                    document.getElementById("btnGuardar").disabled = true;
+                }
+            } catch (err) {
+                mostrarAlerta("Error de conexión al recuperar los datos comerciales.", "danger");
+                document.getElementById("btnGuardar").disabled = true;
+            }
+        }
+
+        function calcularTotal() {
+            let cant = parseInt(document.getElementById("cantidad").value) || 0;
+            if (cant > stockMaximo) {
+                cant = stockMaximo;
+                document.getElementById("cantidad").value = cant;
+            }
+            const total = precioUnitario * cant;
+            document.getElementById("montoTotalDisplay").innerText = `$ ${Number(total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
+        }
+
+        async function generarOrden(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnGuardar");
+            btn.disabled = true;
+            btn.innerText = "Procesando Orden...";
+
+            const payload = {
+                publicacion_id: publicacionId,
+                cantidad: parseInt(document.getElementById("cantidad").value),
+                metodo_pago_preferido: document.getElementById("metodoPago").value,
+                metodo_envio_preferido: document.getElementById("metodoEnvio").value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/transacciones/orden`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    mostrarAlerta("Orden generada exitosamente. Redirigiendo a Historial de Transacciones para abonar...", "success");
+                    
+                    // Al generar la orden, el flujo real (CdU53) exige derivarlo al listado de transacciones
+                    setTimeout(() => {
+                        window.location.href = `historial-transacciones.html`;
+                    }, 1200);
+                } else {
+                    mostrarAlerta(data.detail || "Error al procesar la orden comercial.", "danger");
+                    btn.disabled = false;
+                    btn.innerHTML = "Generar Orden Comercial &rarr;";
+                }
+            } catch (err) {
+                mostrarAlerta("Fallo de comunicación con el backend FastAPI.", "danger");
+                btn.disabled = false;
+                btn.innerHTML = "Generar Orden Comercial &rarr;";
+            }
+        }
+
+        function mostrarAlerta(msg, tipo) {
+            const el = document.getElementById("msgBox");
+            el.className = `alert-box alert-${tipo}`;
+            el.innerText = msg;
+            el.style.display = "block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("svc_token");
+            localStorage.removeItem("svc_usuario");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

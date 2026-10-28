@@ -5,6 +5,7 @@ import bcrypt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from dotenv import load_dotenv
+from cryptography.fernet import Fernet
 
 load_dotenv()
 
@@ -69,3 +70,19 @@ def get_current_admin(token: str = Depends(oauth2_scheme)) -> dict:
         return {"id": user_id, "email": payload.get("email"), "rol": rol}
     except JWTError:
         raise credentials_exception
+
+# ==============================================================================
+# CIFRADO SIMÉTRICO PARA CREDENCIALES EXTERNAS (CdU52 / CdU56)
+# ==============================================================================
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", "uO_v0bZzQzY8w2a_H1O3J3_b_W_X5ZzQzY8w2a_H1O3=")
+fernet_cipher = Fernet(ENCRYPTION_KEY.encode())
+
+def cifrar_credencial(texto_plano: str) -> str:
+    """Aplica cifrado simétrico robusto para API Keys y Tokens (RF08 / RF09)."""
+    if not texto_plano: return None
+    return fernet_cipher.encrypt(texto_plano.encode('utf-8')).decode('utf-8')
+
+def descifrar_credencial(texto_cifrado: str) -> str:
+    """Descifra credenciales recuperadas de la base de datos."""
+    if not texto_cifrado: return None
+    return fernet_cipher.decrypt(texto_cifrado.encode('utf-8')).decode('utf-8')

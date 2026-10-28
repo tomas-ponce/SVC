@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVC - Muro de Ventas Comercial (RF04 / CdU33)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --svc-primary: #0056b3;
+            --svc-primary-hover: #004085;
+            --svc-bg-page: #f8f9fa;
+            --svc-bg-surface: #ffffff;
+            --svc-text: #212529;
+            --svc-text-muted: #6c757d;
+            --svc-border: #ced4da;
+            --svc-danger: #dc3545;
+            --svc-warning: #ffc107;
+            --svc-success: #28a745;
+            --svc-border-radius: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0px !important;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--svc-bg-page);
+            color: var(--svc-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sidebar-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1200;
+            transition: left 0.25s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-drawer.open { left: 0; }
+
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1100;
+            display: none;
+        }
+
+        .drawer-backdrop.open { display: block; }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-box {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--svc-text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--svc-text-muted);
+            padding: 4px 8px;
+        }
+
+        .btn-close-drawer:hover { color: var(--svc-text); }
+
+        .nav-list {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item.active a, .nav-item a:hover {
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            border-left: 4px solid var(--svc-primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+            font-size: 11px;
+            color: var(--svc-text-muted);
+        }
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background-color: var(--svc-bg-surface);
+            border-bottom: 1px solid #e9ecef;
+            padding: 14px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-toggle-menu {
+            background: transparent;
+            border: 1px solid var(--svc-border);
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--svc-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-toggle-menu:hover {
+            border-color: var(--svc-primary);
+            color: var(--svc-primary);
+        }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 12.5px;
+        }
+
+        .content-area {
+            padding: 30px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ── HERO BANNER FIGMA ── */
+        .hero-banner {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid var(--svc-primary);
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .hero-titles h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 5px 0;
+        }
+
+        .hero-titles p {
+            font-size: 13px;
+            color: var(--svc-text-muted);
+            margin: 0;
+        }
+
+        .btn-svc-primary {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-svc-primary:hover { background-color: var(--svc-primary-hover); }
+
+        /* ── LAYOUT PRINCIPAL CON SIDEBAR DE FILTROS ── */
+        .muro-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .muro-layout { grid-template-columns: 1fr; }
+        }
+
+        .filters-panel {
+            background-color: #ffffff;
+            border: 1px solid var(--svc-border);
+            border-top: 4px solid var(--svc-primary);
+            padding: 20px;
+        }
+
+        .filters-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .filter-group {
+            margin-bottom: 18px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .input-svc, .select-svc {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--svc-border);
+            font-size: 12.5px;
+            outline: none;
+            font-family: inherit;
+            background: #ffffff;
+        }
+
+        .input-svc:focus, .select-svc:focus {
+            border-color: var(--svc-primary);
+        }
+
+        .btn-filter-apply {
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            width: 100%;
+            padding: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .btn-filter-apply:hover { background-color: var(--svc-primary-hover); }
+
+        .btn-filter-clear {
+            background-color: #ffffff;
+            color: #475569;
+            border: 1px solid var(--svc-border);
+            width: 100%;
+            padding: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        /* ── FEED DE PUBLICACIONES ── */
+        .publications-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .pub-card {
+            background-color: #ffffff;
+            border: 1px solid var(--svc-border);
+            border-top: 3px solid var(--svc-primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: box-shadow 0.15s ease;
+        }
+
+        .pub-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .pub-image-placeholder {
+            height: 140px;
+            background-color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .pub-body {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pub-rubro-badge {
+            display: inline-block;
+            background-color: #e7f0fb;
+            color: var(--svc-primary);
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            margin-bottom: 8px;
+            align-self: flex-start;
+        }
+
+        .pub-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 8px 0;
+            line-height: 1.3;
+        }
+
+        .pub-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--svc-primary);
+            margin-bottom: 10px;
+        }
+
+        .pub-meta {
+            font-size: 11.5px;
+            color: var(--svc-text-muted);
+            margin-top: auto;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 10px;
+            line-height: 1.5;
+        }
+
+        .pub-meta strong { color: #334155; }
+
+        .pub-actions {
+            padding: 12px 16px;
+            background-color: #f8fafc;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-card-detail {
+            flex: 1;
+            background-color: #ffffff;
+            color: var(--svc-primary);
+            border: 1px solid var(--svc-primary);
+            padding: 8px 10px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-align: center;
+            text-decoration: none;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .btn-card-detail:hover { background-color: #e7f0fb; }
+
+        .btn-card-buy {
+            flex: 1;
+            background-color: var(--svc-primary);
+            color: #ffffff;
+            border: none;
+            padding: 8px 10px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-align: center;
+            text-decoration: none;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .btn-card-buy:hover { background-color: var(--svc-primary-hover); }
+
+        .empty-muro {
+            grid-column: 1 / -1;
+            padding: 60px 20px;
+            background: #ffffff;
+            border: 1px dashed var(--svc-border);
+            text-align: center;
+            color: var(--svc-text-muted);
+        }
+
+        .alert-box {
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+        }
+        .alert-danger { background-color: #f8d7da; color: var(--svc-danger); border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+
+    <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer()"></div>
+
+    <div id="sidebarDrawer" class="sidebar-drawer">
+        <div>
+            <div class="sidebar-brand">
+                <div class="brand-info">
+                    <div class="brand-box">SVC</div>
+                    <div class="brand-sub">Sistema de Vinculación<br><strong>PARA EL COMERCIO</strong></div>
+                </div>
+                <button class="btn-close-drawer" onclick="toggleDrawer()">&times;</button>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="perfil.html">Mi Perfil Comercial</a></li>
+                <li class="nav-item"><a href="inventario.html">Mi Inventario y Stock</a></li>
+                <li class="nav-item"><a href="buscar-comerciantes.html">Directorio de Comerciantes</a></li>
+                <li class="nav-item active"><a href="muro-ventas.html">Muro de Ventas</a></li>
+                <li class="nav-item"><a href="mis-publicaciones.html">Mis Publicaciones</a></li>
+                <li class="nav-item"><a href="comunidades.html">Comunidades B2B</a></li>
+                <li class="nav-item"><a href="chat.html">Chats</a></li>
+                <li class="nav-item"><a href="notificaciones.html">Notificaciones</a></li>
+                <li class="nav-item"><a href="historial-transacciones.html">Historial de Transacciones</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            SVC v0.6.1 &bull; Modelo ASP / B2B SaaS
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <header class="topbar">
+            <button class="btn-toggle-menu" onclick="toggleDrawer()">
+                <span>&equiv;</span> <span>Módulos SVC</span>
+            </button>
+            <div class="topbar-user">
+                <span id="userNameTop">Comerciante</span>
+                <button onclick="cerrarSesion()" style="background: none; border: 1px solid var(--svc-border); padding: 5px 10px; cursor: pointer; font-size: 11px; font-weight: 600;">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="hero-banner">
+                <div class="hero-titles">
+                    <h1>Muro de Ventas Comercial</h1>
+                    <p>Encuentre productos, verifique stock físico disponible y acuerde compras mayoristas directamente con proveedores.</p>
+                </div>
+                <div>
+                    <a href="crear-publicacion.html" class="btn-svc-primary">+ Publicar Oferta de Venta</a>
+                </div>
+            </div>
+
+            <div id="mainAlert" class="alert-box alert-danger"></div>
+
+            <div class="muro-layout">
+                <!-- SIDEBAR FILTROS -->
+                <aside class="filters-panel">
+                    <h3 class="filters-title">Filtros de Búsqueda</h3>
+                    
+                    <div class="filter-group">
+                        <label>Término o Palabra Clave</label>
+                        <input type="text" id="filtroTexto" class="input-svc" placeholder="Ej: Harina, Acero, Placa...">
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Rubro Comercial</label>
+                        <select id="filtroRubro" class="select-svc">
+                            <option value="todos">Todos los Rubros</option>
+                            <option value="Alimentos & Bebidas">Alimentos & Bebidas</option>
+                            <option value="Tecnología & Electrónica">Tecnología & Electrónica</option>
+                            <option value="Construcción & Materiales">Construcción & Materiales</option>
+                            <option value="Textil & Indumentaria">Textil & Indumentaria</option>
+                            <option value="Farmacéutica & Salud">Farmacéutica & Salud</option>
+                            <option value="Servicios Comerciales">Servicios Comerciales</option>
+                            <option value="Informática & Software">Informática & Software</option>
+                            <option value="Mayoristas">Mayoristas / Varios</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Provincia Geográfica</label>
+                        <select id="filtroProvincia" class="select-svc">
+                            <option value="todos">Todas las Provincias</option>
+                            <option value="CABA">CABA</option>
+                            <option value="Buenos Aires">Buenos Aires</option>
+                            <option value="Santa Fe">Santa Fe</option>
+                            <option value="Córdoba">Córdoba</option>
+                            <option value="Mendoza">Mendoza</option>
+                            <option value="Entre Ríos">Entre Ríos</option>
+                            <option value="Tucumán">Tucumán</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Zona de Alcance Logístico</label>
+                        <select id="filtroAlcance" class="select-svc">
+                            <option value="todos">Cualquier Alcance</option>
+                            <option value="Regional">Regional</option>
+                            <option value="Nacional">Nacional</option>
+                            <option value="Internacional">Internacional</option>
+                        </select>
+                    </div>
+
+                    <button type="button" class="btn-filter-apply" onclick="aplicarFiltros()">Aplicar Filtros &rarr;</button>
+                    <button type="button" class="btn-filter-clear" onclick="limpiarFiltros()">Limpiar Criterios</button>
+                </aside>
+
+                <!-- FEED DE OFERTAS ACTIVAS -->
+                <main>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span id="cantResultados" style="font-size: 13px; font-weight: 600; color: #475569;">Cargando ofertas comerciales...</span>
+                    </div>
+
+                    <div class="publications-grid" id="pubGrid">
+                        <!-- Renderizado dinámico -->
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8080";
+        const token = localStorage.getItem("svc_token");
+        const usuarioSesion = JSON.parse(localStorage.getItem("svc_usuario") || "{}");
+
+        if (!token) window.location.href = "login.html";
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (usuarioSesion.nombre_razon_social) {
+                document.getElementById("userNameTop").innerText = usuarioSesion.nombre_razon_social;
+            }
+            cargarMuro();
+        });
+
+        function toggleDrawer() {
+            document.getElementById("sidebarDrawer").classList.toggle("open");
+            document.getElementById("drawerBackdrop").classList.toggle("open");
+        }
+
+        async function cargarMuro() {
+            const q = document.getElementById("filtroTexto").value.trim();
+            const rubro = document.getElementById("filtroRubro").value;
+            const provincia = document.getElementById("filtroProvincia").value;
+            const alcance = document.getElementById("filtroAlcance").value;
+
+            let url = `${API_URL}/publicaciones/muro?`;
+            const params = [];
+            if (q) params.push(`q=${encodeURIComponent(q)}`);
+            if (rubro && rubro !== "todos") params.push(`rubro=${encodeURIComponent(rubro)}`);
+            if (provincia && provincia !== "todos") params.push(`provincia=${encodeURIComponent(provincia)}`);
+            if (alcance && alcance !== "todos") params.push(`alcance=${encodeURIComponent(alcance)}`);
+
+            url += params.join("&");
+
+            try {
+                const res = await fetch(url, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    renderizarPublicaciones(data.publicaciones || []);
+                    document.getElementById("cantResultados").innerText = `${data.total || 0} publicación(es) activa(s) encontrada(s)`;
+                } else {
+                    mostrarAlerta("Error al cargar las ofertas del muro.");
+                }
+            } catch (err) {
+                mostrarAlerta("Fallo de comunicación con el backend FastAPI.");
+            }
+        }
+
+        function renderizarPublicaciones(lista) {
+            const grid = document.getElementById("pubGrid");
+            grid.innerHTML = "";
+
+            if (!lista || lista.length === 0) {
+                grid.innerHTML = `<div class="empty-muro">No se encontraron publicaciones activas que coincidan con los filtros aplicados.</div>`;
+                return;
+            }
+
+            lista.forEach(p => {
+                const card = document.createElement("div");
+                card.className = "pub-card";
+
+                const v = p.comerciantes || {};
+                const vendedorNombre = v.nombre_razon_social || "Comercio Registrado";
+                const vendedorLoc = v.ciudad_localidad ? `${v.ciudad_localidad} (${v.provincia || ''})` : (v.provincia || "Argentina");
+                const esMio = (p.comerciante_id === usuarioSesion.id);
+
+                card.innerHTML = `
+                    <div class="pub-image-placeholder">
+                        <span>📦 ${p.rubro}</span>
+                    </div>
+                    <div class="pub-body">
+                        <span class="pub-rubro-badge">${p.rubro}</span>
+                        <h2 class="pub-title">${escapeHTML(p.titulo)}</h2>
+                        <div class="pub-price">$ ${Number(p.precio).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</div>
+                        
+                        <div class="pub-meta">
+                            <div><strong>Disponibles:</strong> ${p.unidades_ofertadas} u.</div>
+                            <div><strong>Vendedor:</strong> <a href="ver-perfil.html?id=${v.id || p.comerciante_id}" style="color:var(--svc-primary); text-decoration:none; font-weight:600;">${escapeHTML(vendedorNombre)}</a></div>
+                            <div><strong>Ubicación:</strong> ${escapeHTML(vendedorLoc)}</div>
+                            <div><strong>Alcance:</strong> ${v.zona_alcance_logistico || 'Regional'}</div>
+                        </div>
+                    </div>
+                    <div class="pub-actions">
+                        <a href="detalle-publicacion.html?id=${p.id}" class="btn-card-detail">Ver Oferta</a>
+                        ${!esMio ? `<a href="generar-orden.html?publicacion_id=${p.id}" class="btn-card-buy">Comprar &rarr;</a>` : ''}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function aplicarFiltros() {
+            cargarMuro();
+        }
+
+        function limpiarFiltros() {
+            document.getElementById("filtroTexto").value = "";
+            document.getElementById("filtroRubro").value = "todos";
+            document.getElementById("filtroProvincia").value = "todos";
+            document.getElementById("filtroAlcance").value = "todos";
+            cargarMuro();
+        }
+
+        function escapeHTML(str) {
+            return String(str || '').replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        function mostrarAlerta(msg) {
+            const el = document.getElementById("mainAlert");
+            el.innerText = msg;
+            el.style.display = "block";
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("svc_token");
+            localStorage.removeItem("svc_usuario");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query, status, Depends
 from typing import List, Optional
+from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel, Field
 from app.core.security import get_current_user_id
 from app.db.supabase_client import supabase
@@ -12,6 +13,14 @@ class IniciarChatInput(BaseModel):
 
 class EnviarMensajeInput(BaseModel):
     contenido: str = Field(..., min_length=1, max_length=3000)
+
+class PreferenciasNotificacionesInput(BaseModel):
+    email_notificaciones_activas: bool = True
+    horas_silencio: int = 0
+    notificar_mensajes_chat: bool = True
+    notificar_alertas_stock: bool = True
+    notificar_comunidades: bool = True
+    notificar_sanciones: bool = True
 
 # ==============================================================================
 # NOTIFICACIONES (RF07 / CdU62, CdU50, CdU51)
@@ -90,6 +99,57 @@ def marcar_todas_notificaciones_leidas(
         return {"mensaje": "Todas las notificaciones han sido marcadas como leídas."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/notificaciones/preferencias", status_code=status.HTTP_200_OK, summary="Obtener preferencias de notificaciones (CdU48)")
+def obtener_preferencias_notificaciones(user_id: str = Depends(get_current_user_id)):
+    """CdU48: Recupera la configuración actual de alertas y estado de silencio del usuario."""
+    try:
+        res = supabase.table("notificaciones_preferencias").select("*").eq("comerciante_id", user_id).execute()
+        if res.data:
+            return res.data[0]
+        # Valores por defecto de la plataforma
+        return {
+            "comerciante_id": user_id,
+            "email_notificaciones_activas": True,
+            "silenciado_hasta": None,
+            "notificar_mensajes_chat": True,
+            "notificar_alertas_stock": True,
+            "notificar_comunidades": True,
+            "notificar_sanciones": True
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al obtener preferencias: {str(e)}")
+
+@router.put("/notificaciones/preferencias", status_code=status.HTTP_200_OK, summary="Actualizar preferencias de notificaciones (CdU48)")
+def actualizar_preferencias_notificaciones(datos: PreferenciasNotificacionesInput, user_id: str = Depends(get_current_user_id)):
+    """CdU48: Actualiza canales habilitados y ventana temporal de silencio de alertas."""
+    try:
+        silenciado_hasta = None
+        if datos.horas_silencio > 0:
+            silenciado_hasta = (datetime.now(timezone.utc) + timedelta(hours=datos.horas_silencio)).isoformat()
+
+        payload = {
+            "comerciante_id": user_id,
+            "email_notificaciones_activas": datos.email_notificaciones_activas,
+            "silenciado_hasta": silenciado_hasta,
+            "notificar_mensajes_chat": datos.notificar_mensajes_chat,
+            "notificar_alertas_stock": datos.notificar_alertas_stock,
+            "notificar_comunidades": datos.notificar_comunidades,
+            "notificar_sanciones": datos.notificar_sanciones,
+            "actualizado_el": "now()"
+        }
+
+        # Comprobar si ya existe fila para update o insert
+        existente = supabase.table("notificaciones_preferencias").select("comerciante_id").eq("comerciante_id", user_id).execute()
+        if existente.data:
+            supabase.table("notificaciones_preferencias").update(payload).eq("comerciante_id", user_id).execute()
+        else:
+            supabase.table("notificaciones_preferencias").insert(payload).execute()
+
+        return {"mensaje": "Preferencias de notificaciones actualizadas correctamente."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al actualizar preferencias: {str(e)}")
 
 # ==============================================================================
 # NEGOCIACIONES & CHATS (CdU34 a CdU42)
